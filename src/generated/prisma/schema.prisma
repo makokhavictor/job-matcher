@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  type      String // "cv" or "jobDescription"
+  content   String   @db.Text
+  filename  String
+  fileType  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  cvAnalyses      AnalysisResult[] @relation("CVToAnalysis")
+  jobDescAnalyses AnalysisResult[] @relation("JobDescToAnalysis")
+}
+
+model AnalysisResult {
+  id              String   @id @default(cuid())
+  score           Int
+  matchedSkills   String[]
+  matchedKeywords String[]
+  missingSkills   String[]
+  suggestions     String[]
+  createdAt       DateTime @default(now())
+
+  // Relationships
+  cvId             String
+  jobDescriptionId String
+  cv               Document @relation("CVToAnalysis", fields: [cvId], references: [id])
+  jobDescription   Document @relation("JobDescToAnalysis", fields: [jobDescriptionId], references: [id])
+
+  @@index([cvId])
+  @@index([jobDescriptionId])
+}
