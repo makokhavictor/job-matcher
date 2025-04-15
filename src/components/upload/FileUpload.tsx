@@ -15,6 +15,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [pastedText, setPastedText] = useState(''); // New state for pasted text
+  const [uploaded, setUploaded] = useState<File | string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -76,6 +77,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
 
       // Call the completion handler
       await onUploadComplete(file);
+      setUploaded(file); // Track uploaded file
       
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -120,6 +122,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
     const text = e.clipboardData.getData('text');
     setPastedText(text);
     onUploadComplete(text); // Trigger upload complete with pasted text
+    setUploaded(text); // Track uploaded text
   }, [onUploadComplete]);
 
   const uploadAreaId = `${type}-upload-area`;
@@ -183,6 +186,27 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
             onChange={(e) => setPastedText(e.target.value)}
             rows={5}
           />
+        )}
+
+        {uploaded && (
+          <div className="mt-4 rounded bg-secondary-50 p-3 text-left text-sm text-secondary-700 border border-secondary-200">
+            {typeof uploaded === 'string' ? (
+              <>
+                <div className="font-semibold mb-1">Pasted Text:</div>
+                <div className="whitespace-pre-line break-words max-h-32 overflow-y-auto text-xs">
+                  {uploaded.length > 300 ? `${uploaded.slice(0, 300)}...` : uploaded}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="font-semibold mb-1">Uploaded File:</div>
+                <div className="flex items-center gap-2">
+                  <span className="truncate max-w-xs" title={uploaded.name}>{uploaded.name}</span>
+                  <span className="text-secondary-500 text-xs">({(uploaded.size / 1024).toFixed(1)} KB)</span>
+                </div>
+              </>
+            )}
+          </div>
         )}
       </div>
 

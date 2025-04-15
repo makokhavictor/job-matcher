@@ -265,10 +265,11 @@ export class DocumentAnalyzer {
         ).length / data.jobRequirements.length) * 100
       : 100;
 
-    return Math.round(
-      (skillsScore * weights.skills) +
-      (experienceScore * weights.experience)
-    );
+    // Cap each component and the final score at 100, and not below 0
+    const cappedSkillsScore = Math.min(Math.max(skillsScore, 0), 100);
+    const cappedExperienceScore = Math.min(Math.max(experienceScore, 0), 100);
+    const rawScore = (cappedSkillsScore * weights.skills) + (cappedExperienceScore * weights.experience);
+    return Math.round(Math.min(Math.max(rawScore, 0), 100));
   }
 
   private generateSuggestions({
