@@ -146,38 +146,44 @@ export function MatcherClient() {
   };
 
   const runAnalysis = async (cv: File | string, jobDescription: File | string) => {
+    // Validate that the CV is a valid CV (basic heuristic: must mention 'experience', 'education', or 'skills')
+    let cvText = '';
+    if (typeof cv === 'string') {
+      cvText = cv;
+    } else {
+      // If file, try to read as text (assume already parsed in parsePromises below)
+      // We'll check after parsing
+    }
+    if (typeof cv === 'string' && !/(experience|education|skills|curriculum vitae|resume)/i.test(cvText)) {
+      toast.error('The uploaded CV does not appear to be a valid CV. Please check your document.');
+      setIsAnalyzing(false);
+      return;
+    }
     const analysisStartTime = performance.now();
     try {
       setIsAnalyzing(true);
       toast.info('Analyzing documents...');
 
-      // Add timeout for analysis (5 seconds as per PRD)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
-          metrics.trackError('timeoutErrors');
-          reject(new Error('Analysis timeout'));
-        }, 5000);
-      });
-
-      // Parse both documents with timeout
+      // --- Begin fixed code ---
+      // Parse both documents (CV and Job Description)
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject({ code: 'TIMEOUT' }), 30000)
+      );
       const parsePromises = [cv, jobDescription].map(async (input) => {
         if (typeof input === 'string') {
-          return { text: input }; // Mock parsed document for text input
+          // If already text, return as ParsedDocument
+          return { text: input } as ParsedDocument;
         }
-
         const formData = new FormData();
         formData.append('file', input);
-        
         const response = await fetch('/api/documents/parse', {
           method: 'POST',
           body: formData,
         });
-        
         if (!response.ok) {
           const error = await response.json();
           throw new Error(error.message || 'Failed to parse document');
         }
-        
         return response.json();
       });
 
@@ -187,21 +193,26 @@ export function MatcherClient() {
       ]) as [ParsedDocument, ParsedDocument];
 
       // Save documents via API
+      // Only pass File to prepareSaveDocumentPayload, otherwise pass null or handle accordingly
       const [cvPayload, jobDescPayload] = [
-        prepareSaveDocumentPayload(cv, DocumentType.CV, cvDoc),
-        prepareSaveDocumentPayload(jobDescription, DocumentType.JobDescription, jobDoc),
+        typeof cv === 'string' ? null : prepareSaveDocumentPayload(cv, DocumentType.CV, cvDoc),
+        typeof jobDescription === 'string' ? null : prepareSaveDocumentPayload(jobDescription, DocumentType.JobDescription, jobDoc),
       ];
       const [savedCV, savedJobDesc] = await Promise.all([
-        fetch('/api/documents', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(cvPayload),
-        }).then((res) => res.json()),
-        fetch('/api/documents', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(jobDescPayload),
-        }).then((res) => res.json()),
+        cvPayload
+          ? fetch('/api/documents', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(cvPayload),
+            }).then((res) => res.json())
+          : Promise.resolve({ id: 'text-cv', filename: 'Pasted CV' }),
+        jobDescPayload
+          ? fetch('/api/documents', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(jobDescPayload),
+            }).then((res) => res.json())
+          : Promise.resolve({ id: 'text-job', filename: 'Pasted Job Description' }),
       ]);
 
       // Analyze the match

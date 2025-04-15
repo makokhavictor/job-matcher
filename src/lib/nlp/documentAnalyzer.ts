@@ -197,45 +197,36 @@ export class DocumentAnalyzer {
     // Normalize skill names first
     const normalized1 = normalizeSkillName(str1);
     const normalized2 = normalizeSkillName(str2);
-    
     if (normalized1 === normalized2) return true;
-
     const skill1 = findSkill(normalized1);
     const skill2 = findSkill(normalized2);
-    
-    // Check if one skill is related to the other
+    // Only match if exact or strong alias/synonym
     if (skill1 && skill2) {
-      const related1 = findRelatedSkills(skill1.name);
-      const related2 = findRelatedSkills(skill2.name);
-      
-      if (related1.some(s => s.name === skill2.name) || 
-          related2.some(s => s.name === skill1.name)) {
-        return true;
-      }
+      if (skill1.name === skill2.name) return true;
+      if (skill1.aliases.includes(normalized2) || skill2.aliases.includes(normalized1)) return true;
+      // Related skills are not considered a match for strictness
     }
-
-    // Fallback to basic text matching
-    const normalize = (s: string) => s.toLowerCase().trim();
-    return normalize(str1) === normalize(str2) ||
-           normalize(str1).includes(normalize(str2)) ||
-           normalize(str2).includes(normalize(str1));
+    // No substring fallback for strictness
+    return false;
   }
 
   private isExperienceMatch(experience: string, requirement: string): boolean {
     const normalizedExp = experience.toLowerCase();
     const normalizedReq = requirement.toLowerCase();
-    
     // Extract years from both strings
     const expYears = this.extractYears(normalizedExp);
     const reqYears = this.extractYears(normalizedReq);
-    
-    // If both have years, compare them
+    // Require both years and domain/role match
     if (expYears && reqYears) {
-      return expYears >= reqYears;
+      if (expYears < reqYears) return false;
+      // Check for domain/role overlap (must match a skill or keyword)
+      const expWords = normalizedExp.split(/\W+/);
+      const reqWords = normalizedReq.split(/\W+/);
+      const overlap = reqWords.some(word => word.length > 2 && expWords.includes(word));
+      return overlap;
     }
-    
-    // Otherwise, check for keyword matches
-    return this.isMatch(experience, requirement);
+    // Otherwise, do not match
+    return false;
   }
 
   private extractYears(text: string): number | null {
@@ -251,25 +242,26 @@ export class DocumentAnalyzer {
     jobRequirements: string[];
   }): number {
     const weights = {
-      skills: 0.6,
-      experience: 0.4,
+      skills: 0.5,
+      experience: 0.5,
     };
-
     const skillsScore = data.jobSkills.length > 0
       ? (data.matchedSkills.length / data.jobSkills.length) * 100
-      : 100;
-
+      : 0;
+    // Only count experience if both years and domain/role match
+    const matchedExperience = data.cvExperience.filter(exp =>
+      data.jobRequirements.some(req => this.isExperienceMatch(exp, req))
+    );
     const experienceScore = data.jobRequirements.length > 0
-      ? (data.cvExperience.filter(exp => 
-          data.jobRequirements.some(req => this.isExperienceMatch(exp, req))
-        ).length / data.jobRequirements.length) * 100
-      : 100;
-
-    // Cap each component and the final score at 100, and not below 0
-    const cappedSkillsScore = Math.min(Math.max(skillsScore, 0), 100);
-    const cappedExperienceScore = Math.min(Math.max(experienceScore, 0), 100);
-    const rawScore = (cappedSkillsScore * weights.skills) + (cappedExperienceScore * weights.experience);
-    return Math.round(Math.min(Math.max(rawScore, 0), 100));
+      ? (matchedExperience.length / data.jobRequirements.length) * 100
+      : 0;
+    // Penalize missing requirements more heavily
+    const penalty = data.missingSkills.length * 10 + (data.jobRequirements.length - matchedExperience.length) * 10;
+    const cappedSkillsScore = Math.max(Math.min(skillsScore, 100), 0);
+    const cappedExperienceScore = Math.max(Math.min(experienceScore, 100), 0);
+    let rawScore = cappedSkillsScore * weights.skills + cappedExperienceScore * weights.experience - penalty;
+    rawScore = Math.max(Math.min(rawScore, 100), 0);
+    return Math.round(rawScore);
   }
 
   private generateSuggestions({

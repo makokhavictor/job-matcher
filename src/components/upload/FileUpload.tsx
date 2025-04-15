@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import { UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface FileUploadProps {
   type: 'cv' | 'jobDescription';
@@ -17,6 +18,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
   const [pastedText, setPastedText] = useState(''); // New state for pasted text
   const [uploaded, setUploaded] = useState<File | string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState<'upload' | 'paste'>(type === 'jobDescription' ? 'paste' : 'upload');
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -155,40 +157,61 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
           className="mx-auto h-12 w-12 text-secondary-400" 
           aria-hidden="true"
         />
-        
-        <div className="mt-4">
-          <Button
-            onClick={handleButtonClick}
-            disabled={isUploading}
-            className="relative"
-            aria-describedby={`${type}-upload-hint`}
-          >
-            {isUploading ? 'Uploading...' : 'Select file'}
-          </Button>
-        </div>
-
-        <p 
-          className="mt-2 text-sm text-secondary-600"
-          id={`${type}-upload-hint`}
-        >
-          or drag and drop your {type === 'cv' ? 'CV' : 'job description'} here
-        </p>
-        
-        <p className="mt-1 text-xs text-secondary-500">
-          PDF, DOCX, or paste text below
-        </p>
-
-        {type === 'jobDescription' && (
-          <textarea
-            className="mt-4 w-full rounded-md border p-2 text-sm text-secondary-700"
-            placeholder="Paste job description here"
-            value={pastedText}
-            onPaste={handlePaste}
-            onChange={(e) => setPastedText(e.target.value)}
-            rows={5}
-          />
+        {type === 'jobDescription' ? (
+          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'upload' | 'paste')} className="mt-4">
+            <TabsList className="flex justify-center mb-4">
+              <TabsTrigger value="upload">Upload</TabsTrigger>
+              <TabsTrigger value="paste">Paste</TabsTrigger>
+            </TabsList>
+            <TabsContent value="upload">
+              <div className="mt-2">
+                <Button
+                  onClick={handleButtonClick}
+                  disabled={isUploading}
+                  className="relative"
+                  aria-describedby={`${type}-upload-hint`}
+                >
+                  {isUploading ? 'Uploading...' : 'Select file'}
+                </Button>
+              </div>
+              <p className="mt-2 text-sm text-secondary-600" id={`${type}-upload-hint`}>
+                or drag and drop your job description here
+              </p>
+              <p className="mt-1 text-xs text-secondary-500">
+                PDF, DOCX, or TXT
+              </p>
+            </TabsContent>
+            <TabsContent value="paste">
+              <textarea
+                className="mt-2 w-full rounded-md border p-2 text-sm text-secondary-700"
+                placeholder="Paste job description here"
+                value={pastedText}
+                onPaste={handlePaste}
+                onChange={(e) => setPastedText(e.target.value)}
+                rows={5}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <>
+            <div className="mt-4">
+              <Button
+                onClick={handleButtonClick}
+                disabled={isUploading}
+                className="relative"
+                aria-describedby={`${type}-upload-hint`}
+              >
+                {isUploading ? 'Uploading...' : 'Select file'}
+              </Button>
+            </div>
+            <p className="mt-2 text-sm text-secondary-600" id={`${type}-upload-hint`}>
+              or drag and drop your CV here
+            </p>
+            <p className="mt-1 text-xs text-secondary-500">
+              PDF, DOCX, or TXT
+            </p>
+          </>
         )}
-
         {uploaded && (
           <div className="mt-4 rounded bg-secondary-50 p-3 text-left text-sm text-secondary-700 border border-secondary-200">
             {typeof uploaded === 'string' ? (
@@ -210,7 +233,6 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
           </div>
         )}
       </div>
-
       {isUploading && (
         <div 
           className="mt-4 space-y-2"
