@@ -7,13 +7,14 @@ import { Progress } from '@/components/ui/progress';
 
 interface FileUploadProps {
   type: 'cv' | 'jobDescription';
-  onUploadComplete: (file: File) => void;
+  onUploadComplete: (file: File | string) => void; // Updated to accept string for pasted text
 }
 
 export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [pastedText, setPastedText] = useState(''); // New state for pasted text
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -115,6 +116,12 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
     fileInputRef.current?.click();
   }, []);
 
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const text = e.clipboardData.getData('text');
+    setPastedText(text);
+    onUploadComplete(text); // Trigger upload complete with pasted text
+  }, [onUploadComplete]);
+
   const uploadAreaId = `${type}-upload-area`;
   const fileInputId = `${type}-file-input`;
 
@@ -164,8 +171,19 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
         </p>
         
         <p className="mt-1 text-xs text-secondary-500">
-          PDF or DOCX up to 10MB
+          PDF, DOCX, or paste text below
         </p>
+
+        {type === 'jobDescription' && (
+          <textarea
+            className="mt-4 w-full rounded-md border p-2 text-sm text-secondary-700"
+            placeholder="Paste job description here"
+            value={pastedText}
+            onPaste={handlePaste}
+            onChange={(e) => setPastedText(e.target.value)}
+            rows={5}
+          />
+        )}
       </div>
 
       {isUploading && (

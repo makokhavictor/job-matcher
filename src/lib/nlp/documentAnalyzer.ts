@@ -11,6 +11,7 @@ export type AnalysisResult = {
   missing: {
     skills: string[];
     requirements: string[];
+    experience?: string[];
   };
   suggestions: string[];
 };

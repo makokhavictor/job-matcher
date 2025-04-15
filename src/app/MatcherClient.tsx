@@ -15,8 +15,8 @@ import { setupDOMPolyfills } from '@/lib/domPolyfills';
 setupDOMPolyfills();
 
 interface UploadState {
-  cv: File | null;
-  jobDescription: File | null;
+  cv: File | string | null;
+  jobDescription: File | string | null;
 }
 
 interface Analysis {
@@ -93,57 +93,59 @@ export function MatcherClient() {
     };
   }, [loadRecentAnalyses, metrics, sessionStartTime]);
 
-  const handleFileUpload = async (type: keyof UploadState, file: File) => {
+  const handleFileUpload = async (type: keyof UploadState, fileOrText: File | string) => {
     const uploadStartTime = performance.now();
     try {
-      // Track upload attempt
-      setUploadsThisSession(prev => prev + 1);
+      setUploadsThisSession((prev) => prev + 1);
       metrics.getUserEngagementMetrics().uploadsPerSession = uploadsThisSession + 1;
 
-      // Validate file size (10MB limit as per PRD)
-      if (file.size > 10 * 1024 * 1024) {
-        metrics.trackError('uploadErrors');
-        throw new Error('File size exceeds 10MB limit');
+      if (typeof fileOrText === 'string') {
+        // Handle pasted text
+        if (fileOrText.trim() === '') {
+          throw new Error('Pasted text is empty.');
+        }
+        setUploadState((prev) => ({ ...prev, [type]: fileOrText }));
+        console.log('Text uploaded:', type, fileOrText);
+      } else {
+        // Validate file size (10MB limit as per PRD)
+        if (fileOrText.size > 10 * 1024 * 1024) {
+          metrics.trackError('uploadErrors');
+          throw new Error('File size exceeds 10MB limit');
+        }
+
+        // Validate file type
+        const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!allowedTypes.includes(fileOrText.type)) {
+          metrics.trackError('uploadErrors');
+          throw new Error('Invalid file type. Please upload PDF or DOCX files only.');
+        }
+
+        setUploadState((prev) => ({ ...prev, [type]: fileOrText }));
+        metrics.trackUpload(type);
+        metrics.trackDocument(fileOrText.size, fileOrText.type, true);
+        metrics.trackApiResponse(performance.now() - uploadStartTime);
+        console.log('File uploaded:', type, uploadState);
       }
 
-
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        metrics.trackError('uploadErrors');
-        throw new Error('Invalid file type. Please upload PDF or DOCX files only.');
-      }
-
-
-      setUploadState(prev => ({ ...prev, [type]: file }));
-      
-      // Track upload success
-      metrics.trackUpload(type);
-      metrics.trackDocument(file.size, file.type, true);
-      metrics.trackApiResponse(performance.now() - uploadStartTime);
-
-      console.log('File uploaded:', type, uploadState);
-
-
-      // If both files are uploaded, trigger analysis
-      if (type === 'cv' && uploadState.jobDescription || 
-          type === 'jobDescription' && uploadState.cv) {
-
-
+      // If both inputs are provided, trigger analysis
+      if (
+        (type === 'cv' && uploadState.jobDescription) ||
+        (type === 'jobDescription' && uploadState.cv)
+      ) {
         await runAnalysis(
-          type === 'cv' ? file : uploadState.cv!,
-          type === 'jobDescription' ? file : uploadState.jobDescription!
+          type === 'cv' ? fileOrText : uploadState.cv!,
+          type === 'jobDescription' ? fileOrText : uploadState.jobDescription!
         );
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Error processing file';
+      const message = error instanceof Error ? error.message : 'Error processing input';
       console.error('Upload error:', error);
       metrics.trackError('uploadErrors');
       toast.error(message);
     }
   };
 
-  const runAnalysis = async (cv: File, jobDescription: File) => {
+  const runAnalysis = async (cv: File | string, jobDescription: File | string) => {
     const analysisStartTime = performance.now();
     try {
       setIsAnalyzing(true);
@@ -158,9 +160,13 @@ export function MatcherClient() {
       });
 
       // Parse both documents with timeout
-      const parsePromises = [cv, jobDescription].map(async (file) => {
+      const parsePromises = [cv, jobDescription].map(async (input) => {
+        if (typeof input === 'string') {
+          return { text: input }; // Mock parsed document for text input
+        }
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', input);
         
         const response = await fetch('/api/documents/parse', {
           method: 'POST',

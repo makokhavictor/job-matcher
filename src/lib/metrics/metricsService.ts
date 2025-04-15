@@ -1,4 +1,5 @@
 import { AnalysisResult } from '../nlp/documentAnalyzer';
+import { isServerSide, InMemoryStorage } from '../utils';
 
 // Metric types
 export type PerformanceMetrics = {
@@ -61,8 +62,10 @@ export class MetricsService {
   private readonly STORAGE_KEY = 'cv_matcher_metrics';
   private readonly METRICS_TTL = 90 * 24 * 60 * 60 * 1000; // 90 days in milliseconds
 
+  private storage: Storage | InMemoryStorage;
+
   private constructor() {
-    // Try to load existing metrics from localStorage
+    this.storage = isServerSide() ? new InMemoryStorage() : window.localStorage;
     this.loadMetrics();
   }
 
@@ -75,21 +78,21 @@ export class MetricsService {
 
   private isLocalStorageAvailable(): boolean {
     try {
-      return typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null;
+      return !isServerSide() && 'localStorage' in window && window.localStorage !== null;
     } catch {
       return false;
     }
   }
 
   private loadMetrics() {
-    if (!this.isLocalStorageAvailable()) {
+    if (!this.isLocalStorageAvailable() && isServerSide()) {
       console.warn('localStorage is not available. Metrics will not be persisted.');
       this.resetMetrics();
       return;
     }
 
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      const stored = this.storage.getItem(this.STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         const timestamp = parsed._timestamp;
@@ -143,7 +146,7 @@ export class MetricsService {
         },
       };
 
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(metricsData));
+      this.storage.setItem(this.STORAGE_KEY, JSON.stringify(metricsData));
     } catch (error) {
       console.error('Error saving metrics:', error);
     }

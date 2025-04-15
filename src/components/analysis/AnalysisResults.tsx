@@ -76,7 +76,7 @@ export function AnalysisResults({ result }: AnalysisResultsProps) {
           />
           <MatchSection
             title="Missing Experience"
-            items={result.missing.experience}
+            items={result.missing?.experience ?? []}
             icon={<XCircle className="w-5 h-5 text-destructive" aria-hidden="true" />}
           />
         </div>
@@ -110,7 +110,7 @@ type MatchSectionProps = {
 };
 
 function MatchSection({ title, items, icon }: MatchSectionProps) {
-  if (items.length === 0) return null;
+  if ((items ?? []).length === 0) return null;
 
   return (
     <div className="space-y-2">
