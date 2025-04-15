@@ -60,7 +60,8 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
       try {
         const testSlice = file.slice(0, 4);
         await testSlice.arrayBuffer();
-      } catch (e) {
+      } catch (error) {
+        console.log(error)
         throw new Error('File appears to be corrupted or unreadable.');
       }
 
