@@ -71,8 +71,30 @@ export async function saveAnalysisResult(
   const metrics = MetricsService.getInstance();
   const startTime = performance.now();
   try {
+    // First verify both documents exist
+    const [cv, jobDescription] = await Promise.all([
+      prisma.document.findUnique({ where: { id: cvId } }),
+      prisma.document.findUnique({ where: { id: jobDescriptionId } })
+    ]);
+
+    if (!cv || !jobDescription) {
+      throw new Error('CV or Job Description not found');
+    }
+
     const savedResult = await prisma.analysisResult.create({
-      data: prepareSaveAnalysisResultPayload(cvId, jobDescriptionId, result),
+      data: {
+        score: result.score,
+        matchedSkills: result.matches.skills,
+        matchedKeywords: result.matches.keywords || [],
+        missingSkills: result.missing.skills,
+        suggestions: result.suggestions,
+        cv: {
+          connect: { id: cvId }
+        },
+        jobDescription: {
+          connect: { id: jobDescriptionId }
+        }
+      }
     });
 
     metrics.trackApiResponse(performance.now() - startTime);
