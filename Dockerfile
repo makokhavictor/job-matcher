@@ -17,6 +17,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY test ./test
 ENV NEXT_TELEMETRY_DISABLED 1
+RUN npx prisma generate
 RUN npm run build
 
 # Production image, copy all the files and run next
@@ -26,18 +27,11 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copy necessary files for Prisma generation
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./package.json
-
-# Install only production dependencies
-RUN npm ci --only=production
-
-# Generate Prisma client for the current platform
-RUN npx prisma generate
-
+# Copy from builder stage where Prisma was generated
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package.json ./package.json
 
 EXPOSE 3000
 
