@@ -1,6 +1,5 @@
 export function setupDOMPolyfills() {
   if (typeof globalThis.DOMMatrix === 'undefined') {
-    // Basic DOMMatrix polyfill
     class DOMMatrix {
       a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
       constructor(init?: string | number[]) {
@@ -9,6 +8,12 @@ export function setupDOMPolyfills() {
         }
       }
     }
-    globalThis.DOMMatrix = DOMMatrix as any;
+    
+    type DOMMatrixConstructor = {
+      new(init?: string | number[]): DOMMatrix;
+      prototype: DOMMatrix;
+    };
+
+    (globalThis as unknown as { DOMMatrix: DOMMatrixConstructor }).DOMMatrix = DOMMatrix as unknown as DOMMatrixConstructor;
   }
 }

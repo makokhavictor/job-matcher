@@ -1,7 +1,6 @@
-import { NextRequest } from 'next/server';
 import { MetricsService } from '@/lib/metrics/metricsService';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const metrics = MetricsService.getInstance();
     const { alerts, status } = metrics.checkAlertConditions();

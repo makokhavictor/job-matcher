@@ -9,8 +9,16 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
+// Ignore generated files from linting
+const ignoredFiles = [
+  "src/generated/**",
+];
+
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    ignores: ignoredFiles,
+  },
 ];
 
 export default eslintConfig;
