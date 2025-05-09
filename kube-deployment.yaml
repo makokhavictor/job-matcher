@@ -27,7 +27,7 @@ spec:
         app: jobmatcher
     spec:
       imagePullSecrets:
-        - name: regcred
+        - name: tunafund-regcred
       containers:
         - name: jobmatcher
           image: ghcr.io/makokhavictor/jobmatcher/jobmatcher:latest
