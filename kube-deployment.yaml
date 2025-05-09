@@ -30,7 +30,7 @@ spec:
         - name: tunafund-regcred
       containers:
         - name: jobmatcher
-          image: ghcr.io/makokhavictor/jobmatcher/jobmatcher:latest
+          image: ghcr.io/makokhavictor/job-matcher:latest
           envFrom:
             - secretRef:
                 name: jobmatcher-secrets
