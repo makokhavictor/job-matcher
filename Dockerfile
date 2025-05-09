@@ -26,14 +26,18 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# If you use Prisma, uncomment the next two lines:
+# Copy necessary files for Prisma generation
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/package.json ./package.json
+
+# Install only production dependencies
+RUN npm ci --only=production
+
+# Generate Prisma client for the current platform
+RUN npx prisma generate
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
 
 EXPOSE 3000
 
