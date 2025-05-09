@@ -1,0 +1,38 @@
+# Kubernetes deployment for jobmatcher (Next.js app) with LoadBalancer IP for MetalLB
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobmatcher
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 32000 
+  selector:
+    app: jobmatcher
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobmatcher
+spec:
+  selector:
+    matchLabels:
+      app: jobmatcher
+  template:
+    metadata:
+      labels:
+        app: jobmatcher
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: jobmatcher
+          image: ghcr.io/makokhavictor/jobmatcher/jobmatcher:latest
+          envFrom:
+            - secretRef:
+                name: jobmatcher-secrets
+          ports:
+            - containerPort: 3000
