@@ -1,4 +1,4 @@
-name: Deploy Next.js App
+name: Deploy Job Matcher
 
 on:
   push:
@@ -64,5 +64,5 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ~/deploy
+            cd ~/jobmatcher-deployments
             kubectl apply -f kube-deployment.yaml
