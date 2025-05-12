@@ -17,21 +17,24 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY test ./test
 ENV NEXT_TELEMETRY_DISABLED 1
-RUN npx prisma generate
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Final production image
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copy from builder stage where Prisma was generated
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/public ./public
+# Copy only what's needed
 COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
+COPY --from=deps /app/node_modules ./node_modules
+
+# Generate Prisma client in production container to match Alpine environment
+RUN npx prisma generate
 
 EXPOSE 3000
 
