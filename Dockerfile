@@ -17,6 +17,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY test ./test
 ENV NEXT_TELEMETRY_DISABLED 1
+RUN npx prisma generate
 RUN npm run build
 
 # Final production image
@@ -32,9 +33,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 COPY --from=deps /app/node_modules ./node_modules
-
-# Generate Prisma client in production container to match Alpine environment
-RUN npx prisma generate
 
 EXPOSE 3000
 

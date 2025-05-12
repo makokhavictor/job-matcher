@@ -1,7 +1,7 @@
 import { type ParsedDocument } from '../parsers/documentParser';
 import { AnalysisResult } from '../nlp/documentAnalyzer';
 import { MetricsService } from '../metrics/metricsService';
-import { PrismaClient } from '@/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 
 // Reuse a single PrismaClient instance to avoid connection issues
