@@ -17,7 +17,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY test ./test
 ENV NEXT_TELEMETRY_DISABLED 1
-RUN npx prisma generate --target=linux-musl-openssl-3.0.x
+ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x
+RUN npx prisma generate
 RUN npm run build
 
 # Final production image
