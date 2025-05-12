@@ -34,6 +34,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 COPY --from=deps /app/node_modules ./node_modules
+ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x
+RUN npx prisma generate
 
 EXPOSE 3000
 
