@@ -48,7 +48,17 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
 
+      - name: Check deployment file changes
+        id: check-changes
+        run: |
+          if git diff --quiet HEAD^1 HEAD -- ${{ env.KUBE_DEPLOYMENT_FILE }}; then
+            echo "deployment_changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "deployment_changed=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Copy kube-deployment.yaml to server
+        if: steps.check-changes.outputs.deployment_changed == 'true'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -65,4 +75,10 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ~/jobmatcher-deployments
-            kubectl apply -f kube-deployment.yaml
+            if [ "${{ steps.check-changes.outputs.deployment_changed }}" = "true" ]; then
+              echo "Applying new deployment configuration..."
+              kubectl apply -f kube-deployment.yaml
+            else
+              echo "No deployment changes detected, performing rollout restart..."
+              kubectl rollout restart deployment/job-matcher-deployment
+            fi
