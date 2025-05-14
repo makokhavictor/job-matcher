@@ -1,6 +1,7 @@
 import mammoth from 'mammoth';
 import { MetricsService } from '../metrics/metricsService';
-import pdfParse from 'pdf-parse';
+import { PDFDocument } from 'pdf-lib';
+import pdfParse from 'pdf-parse'
 
 export interface ParsedDocument {
   text: string;
@@ -11,29 +12,48 @@ export interface ParsedDocument {
     creationDate?: Date;
     format?: string;
   };
-}
+} 
+
+const PDF_PARSE_TIMEOUT = 10000; // 10 seconds
+const MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB limit for PDFs
 
 async function parsePDF(buffer: ArrayBuffer): Promise<ParsedDocument> {
   try {
-    const typedArray = new Uint8Array(buffer);
-    if (typedArray.length < 4 ||
-        String.fromCharCode(typedArray[0], typedArray[1], typedArray[2], typedArray[3]) !== '%PDF') {
-      throw new Error('Invalid PDF format');
+    // Check PDF size
+    if (buffer.byteLength > MAX_PDF_SIZE) {
+      throw new Error('PDF file too large. Maximum size is 10MB.');
     }
 
-    // Convert ArrayBuffer to Buffer for pdf-parse
-    const data = await pdfParse(Buffer.from(typedArray));
-    
-    return {
-      text: data.text,
-      metadata: {
-        pageCount: data.numpages,
-        author: data.info?.Author,
-        title: data.info?.Title,
-        creationDate: data.info?.CreationDate ? new Date(data.info.CreationDate) : undefined,
-        format: 'application/pdf'
-      },
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error(`PDF parsing timed out after ${PDF_PARSE_TIMEOUT/1000} seconds`)), PDF_PARSE_TIMEOUT);
+    });
+
+    const parsePromise = async () => {
+      // Use pdf-lib for metadata extraction
+      const pdfDoc = await PDFDocument.load(buffer, {
+        updateMetadata: false,
+        ignoreEncryption: true,
+      });
+
+      // Use pdf-parse-fork for text extraction with optimized options
+      const data = await pdfParse(Buffer.from(buffer), {
+        max: 0, // Don't render images
+        version: 'v2.0.550',
+      });
+
+      return {
+        text: data.text,
+        metadata: {
+          pageCount: pdfDoc.getPageCount(),
+          title: pdfDoc.getTitle() || undefined,
+          author: pdfDoc.getAuthor() || undefined,
+          creationDate: pdfDoc.getCreationDate() || undefined,
+          format: 'application/pdf'
+        },
+      };
     };
+
+    return await Promise.race([parsePromise(), timeoutPromise]);
   } catch (error) {
     console.error('PDF parsing error:', error);
     throw new Error(
