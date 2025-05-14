@@ -257,11 +257,28 @@ export function MatcherClient() {
     }
   };
 
+  const handleReset = () => {
+    setUploadState({ cv: null, jobDescription: null });
+    setAnalysisResult(null);
+    setIsAnalyzing(false);
+    toast.info('All documents cleared');
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-secondary-800">Upload Documents</h2>
-        
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-semibold text-secondary-800">Upload Documents</h2>
+          {(uploadState.cv || uploadState.jobDescription) && (
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:outline-none focus:ring-2 focus:ring-secondary-400 focus:ring-offset-2"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+
         <Card className="p-6">
           <h3 className="text-lg font-medium text-secondary-800 mb-4">Your CV</h3>
           <FileUpload 

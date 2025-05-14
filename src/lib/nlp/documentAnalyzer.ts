@@ -1,10 +1,7 @@
 // DocumentAnalyzer.ts
+import * as tf from '@tensorflow/tfjs'; // Node-specific import
+import * as use from '@tensorflow-models/universal-sentence-encoder';
 import nlp from 'compromise';
-import {
-  findSkill,
-  findRelatedSkills,
-  skillsDatabase
-} from './skillsDatabase';
 
 type NlpDocument = ReturnType<typeof nlp>;
 
@@ -25,348 +22,288 @@ export type AnalysisResult = {
 };
 
 export class DocumentAnalyzer {
+  private model: any;
+  private similarityThreshold = 0.75;
+  private minKeywordScore = 0.65;
+  private isModelReady = false;
+
+  constructor() {
+    this.initializeModel().catch(console.error);
+  }
+
+  private async initializeModel() {
+    try {
+      // Load model with local cache configuration
+      this.model = await use.load();
+      
+      this.isModelReady = true;
+    } catch (error) {
+      console.error('Failed to initialize TensorFlow model:', error);
+      throw error;
+    }
+  }
+
   async analyze(cvText: string, jobText: string): Promise<AnalysisResult> {
-    const cvDoc = nlp(cvText);
-    const jobDoc = nlp(jobText);
+    if (!this.isModelReady) {
+      await this.initializeModel();
+    }
 
-    const cvSkills = await this.extractSkills(cvDoc);
-    const jobSkills = await this.extractSkills(jobDoc);
+    try {
+      const [cvDoc, jobDoc] = [nlp(cvText), nlp(jobText)];
+      
+      // Process documents in parallel
+      const [cvChunks, jobChunks] = await Promise.all([
+        this.processDocumentChunks(cvText),
+        this.processDocumentChunks(jobText)
+      ]);
 
-    const cvExperience = this.extractExperience(cvDoc);
-    const cvEducation = this.extractEducation(cvDoc);
-    const jobRequirements = this.extractRequirements(jobDoc);
+      // Extract embeddings in batches to avoid memory issues
+      const [skillMatches, experienceMatches] = await Promise.all([
+        this.matchSemanticEntities(cvChunks.skills, jobChunks.skills),
+        this.matchSemanticEntities(cvChunks.experience, jobChunks.requirements)
+      ]);
 
-    const extractedKeywords = this.extractKeywords(cvDoc, jobDoc);
+      // Calculate score and suggestions
+      const score = this.calculateDynamicScore(
+        skillMatches,
+        experienceMatches,
+        cvChunks,
+        jobChunks
+      );
 
-    const matchedSkills = cvSkills.filter(s =>
-      jobSkills.some(js => this.isMatch(s, js))
-    );
-    const missingSkills = jobSkills.filter(s =>
-      !cvSkills.some(cs => this.isMatch(cs, s))
-    );
+      const suggestions = this.generateSuggestions(
+        skillMatches.missing,
+        experienceMatches.missing,
+        cvChunks,
+        jobChunks
+      );
 
-    const score = this.calculateScore({
-      matchedSkills,
-      jobSkills,
-      cvExperience,
-      jobRequirements
-    });
+      // Explicit memory cleanup
+      tf.engine().startScope();
+      const cvEmbeddings = await this.getDocumentEmbeddings(cvText);
+      const jobEmbeddings = await this.getDocumentEmbeddings(jobText);
+      const keywords = await this.extractKeywordMatches(cvEmbeddings, jobEmbeddings);
+      tf.engine().endScope();
 
-    const suggestions = this.generateSuggestions({
-      missingSkills,
-      jobRequirements,
-      cvExperience,
-      cvEducation
-    });
+      return {
+        score,
+        matches: {
+          skills: skillMatches.matched,
+          experience: experienceMatches.matched,
+          education: cvChunks.education,
+          keywords
+        },
+        missing: {
+          skills: skillMatches.missing,
+          requirements: experienceMatches.missing
+        },
+        suggestions
+      };
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      throw error;
+    }
+  }
 
+  private async getDocumentEmbeddings(text: string): Promise<tf.Tensor> {
+    const sentences = text.split(/[.!?]/)
+      .filter(s => s.trim().length > 0)
+      .slice(0, 50); // Limit to 50 sentences for performance
+    
+    return this.model.embed(sentences);
+  }
+
+  private async processDocumentChunks(text: string) {
+    const doc = nlp(text);
     return {
-      score,
-      matches: {
-        skills: matchedSkills,
-        experience: cvExperience.filter(exp =>
-          jobRequirements.some(req => this.isExperienceMatch(exp, req))
-        ),
-        education: cvEducation,
-        keywords: extractedKeywords,
-      },
-      missing: {
-        skills: missingSkills,
-        requirements: jobRequirements.filter(req =>
-          !cvExperience.some(exp => this.isExperienceMatch(exp, req))
-        ),
-      },
-      suggestions,
+      skills: this.extractPotentialSkills(doc),
+      experience: this.extractExperiencePhrases(doc),
+      education: this.extractEducation(doc),
+      requirements: this.extractRequirementPhrases(doc)
     };
   }
 
-  private async extractSkills(doc: NlpDocument): Promise<string[]> {
-    const candidates = new Set<string>();
-
-    // 1) Multi‑word noun phrases: 1+ consecutive nouns
-    doc.match('#Noun+').out('array')
-      .forEach((p: string) => candidates.add(p.toLowerCase()));
-
-    // 2) Single nouns
-    doc.nouns().out('array')
-      .forEach((n: string) => candidates.add(n.toLowerCase()));
-
-    // 3) Fallback: look for any exact skill name or alias in text
-    const found = new Set<string>();
-    candidates.forEach(phrase => {
-      const skill = findSkill(phrase);
-      if (skill) {
-        found.add(skill.name);
-        // add related if mentioned
-        findRelatedSkills(skill.name)
-          .filter(r => doc.has(r.name))
-          .forEach(r => found.add(r.name));
-      }
-    });
-
-    // 4) If nothing found yet, scan full DB
-    if (found.size === 0) {
-      skillsDatabase.forEach(skill => {
-        if (doc.has(skill.name) ||
-            skill.aliases.some(a => doc.has(a))) {
-          found.add(skill.name);
-        }
-      });
-    }
-
-    return Array.from(found);
-  }
-
-  private extractExperience(doc: NlpDocument): string[] {
-    const exps = new Set<string>();
-    
-    // Filter out percentage patterns first
-    const percentageFiltered = doc.text().replace(/\d+(\.\d+)?%/g, '');
-    const cleanedDoc = nlp(percentageFiltered);
-
-    // Match more specific year patterns
-    const yearPatterns = [
-      // e.g. "3 years experience", "5+ years of experience"
-      '#Value+ years? (of )?(professional |work )?experience',
-      // e.g. "worked for 5 years"
-      '(worked|working) for #Value+ years?',
-      // e.g. "5 years as Senior Developer"
-      '#Value+ years? as? #Noun+',
+  private extractPotentialSkills(doc: NlpDocument): string[] {
+    const skillPhrases = [
+      ...doc.match('#Noun+').out('array'),
+      ...doc.nouns().out('array'),
+      ...doc.match('(experienced|proficient|skilled) in? #Noun+').out('array'),
+      ...doc.match('#Adjective #Noun').out('array') // Catch phrases like "machine learning"
     ];
 
-    yearPatterns.forEach(pattern => {
-      cleanedDoc.match(pattern).out('array')
-        .forEach((txt: string) => {
-          // Validate the year value is reasonable (1-20 years)
-          const years = this.extractYears(txt);
-          if (years !== null && years > 0 && years <= 20) {
-            exps.add(txt);
-          }
-        });
-    });
-
-    // e.g. "Senior Developer (2018-2022)", "2019 - Present"
-    const dateRanges = cleanedDoc.match('(#Year|present|current) ?(-|to|–) ?(#Year|present|current)')
-      .out('array')
-      .filter((txt: string) => {
-        const years = this.calculateYearsFromRange(txt);
-        return years !== null && years > 0 && years <= 20;
-      });
-    (dateRanges as string[]).forEach((range: string) => exps.add(range));
-
-    return Array.from(exps);
+    return [...new Set(skillPhrases)]
+      .map(s => s.toLowerCase())
+      .filter(s => s.length > 2); // Filter out very short phrases
   }
 
-  private calculateYearsFromRange(text: string): number | null {
-    const normalized = text.toLowerCase().replace(/–/g, '-');
-    const parts = normalized.split(/[-to]+/).map(p => p.trim());
+  private async matchSemanticEntities(
+    source: string[],
+    target: string[]
+  ): Promise<{ matched: string[]; missing: string[] }> {
+    if (target.length === 0) return { matched: [], missing: [] };
+    if (source.length === 0) return { matched: [], missing: target };
+
+    try {
+      tf.engine().startScope();
+      
+      const embeddings = await Promise.all([
+        this.model.embed(source.slice(0, 100)), // Limit to 100 items per batch
+        this.model.embed(target.slice(0, 100))
+      ]);
+
+      const similarityMatrix = tf.matMul(
+        embeddings[0],
+        embeddings[1],
+        false,
+        true
+      );
+
+      const similarities = similarityMatrix.arraySync() as number[][];
+      const matched = new Set<string>();
+      const missing = new Set(target);
+
+      similarities.forEach((row, i) => {
+        const maxScore = Math.max(...row);
+        if (maxScore >= this.similarityThreshold) {
+          const matchIndex = row.indexOf(maxScore);
+          matched.add(source[i]);
+          missing.delete(target[matchIndex]);
+        }
+      });
+
+      return {
+        matched: Array.from(matched),
+        missing: Array.from(missing)
+      };
+    } finally {
+      tf.engine().endScope();
+    }
+  }
+
+  // Enhanced scoring with normalization
+  private calculateDynamicScore(
+    skillMatches: { matched: string[]; missing: string[] },
+    experienceMatches: { matched: string[]; missing: string[] },
+    cvChunks: any,
+    jobChunks: any
+  ): number {
+    const totalSkills = skillMatches.matched.length + skillMatches.missing.length;
+    const skillScore = totalSkills > 0 
+      ? skillMatches.matched.length / totalSkills 
+      : 0;
+
+    const totalRequirements = experienceMatches.matched.length + experienceMatches.missing.length;
+    const expScore = totalRequirements > 0
+      ? experienceMatches.matched.length / totalRequirements
+      : 0;
+
+    const eduScore = cvChunks.education.length > 0 ? 1 : 0;
+
+    // Normalized weighted score
+    return Math.min(100, Math.round(
+      (skillScore * 0.6 + expScore * 0.3 + eduScore * 0.1) * 100
+    ));
+  }
+
+  private async extractKeywordMatches(
+    cvEmbeddings: tf.Tensor,
+    jobEmbeddings: tf.Tensor
+  ): Promise<string[]> {
+    try {
+      tf.engine().startScope();
+      
+      const similarityMatrix = tf.matMul(cvEmbeddings, jobEmbeddings, false, true);
+      const similarities = similarityMatrix.arraySync() as number[][];
+      
+      const keywordPairs = similarities
+        .flatMap((row, i) => 
+          row.map((score, j) => ({ score, term: i }))
+        )
+        .filter(item => item.score >= this.minKeywordScore)
+        .sort((a, b) => b.score - a.score);
+
+      return keywordPairs
+        .slice(0, 20)
+        .map(pair => pair.term.toString());
+    } finally {
+      tf.engine().endScope();
+    }
+  }
+
+  private extractExperiencePhrases(doc: NlpDocument): string[] {
+    const experiences = new Set<string>();
     
-    if (parts.length !== 2) return null;
+    // Extract duration phrases
+    const durationPatterns = [
+      '#Value+ years? (of )?(experience|development)',
+      'worked for #Value+ years?',
+      '#Value+ years? as? #Noun+'
+    ];
     
-    const endYear = parts[1] === 'present' || parts[1] === 'current' 
-      ? new Date().getFullYear()
-      : parseInt(parts[1], 10);
-    const startYear = parseInt(parts[0], 10);
-    
-    if (isNaN(startYear) || isNaN(endYear)) return null;
-    if (startYear < 1950 || startYear > endYear) return null;
-    
-    return endYear - startYear;
+    durationPatterns.forEach(pattern => {
+      doc.match(pattern).out('array')
+        .forEach((exp: string) => experiences.add(exp));
+    });
+
+    // Extract position phrases
+    doc.match('(#Noun|#Adjective)+ (developer|engineer|specialist)')
+      .out('array')
+      .forEach(exp => experiences.add(exp));
+
+    return Array.from(experiences);
   }
 
   private extractEducation(doc: NlpDocument): string[] {
-    const edus = new Set<string>();
-
-    // e.g. "Bachelor of Science", "PhD in Physics"
-    doc.match('(Bachelor|Master|PhD|Doctorate) of? in? #Noun+')
-      .out('array')
-      .forEach((txt: string) => edus.add(txt));
-
-    return Array.from(edus);
+    return doc.match('(Bachelor|Master|PhD|Doctorate) of? in? #Noun+')
+      .out('array');
   }
 
-  private extractRequirements(doc: NlpDocument): string[] {
-    const reqs = new Set<string>();
-
-    doc.sentences().out('array').forEach((sentText: string) => {
-      if (/requirement|must have|proficiency/i.test(sentText)) {
-        const sent = nlp(sentText);
-        sent.match('#Noun+').out('array')
-          .forEach((p: string) => reqs.add(p));
+  private extractRequirementPhrases(doc: NlpDocument): string[] {
+    const requirements = new Set<string>();
+    
+    // Extract from requirement sentences
+    doc.sentences().forEach(sentence => {
+      if (/(required|must have|should have)/i.test(sentence.text())) {
+        sentence.match('#Noun+').out('array')
+          .forEach(phrase => requirements.add(phrase));
       }
     });
 
-    return Array.from(reqs);
+    return Array.from(requirements);
   }
 
-  private extractKeywords(
-    cvDoc: NlpDocument,
-    jobDoc: NlpDocument
+  private generateSuggestions(
+    missingSkills: string[],
+    missingExperience: string[],
+    cvChunks: any,
+    jobChunks: any
   ): string[] {
-    const cvTerms = new Set<string>(cvDoc.match('#Noun|#Adjective').out('array') as string[]);
-    const jobTerms = new Set<string>(jobDoc.match('#Noun|#Adjective').out('array') as string[]);
-
-    return Array.from(cvTerms)
-      .filter((t: string) => jobTerms.has(t))
-      .slice(0, 20);
-  }
-
-  // --- Matching & scoring (unchanged) ---
-
-  private isMatch(str1: string, str2: string): boolean {
-    const n1 = normalizeSkillName(str1);
-    const n2 = normalizeSkillName(str2);
-    if (n1 === n2) return true;
-    const s1 = findSkill(n1), s2 = findSkill(n2);
-    if (s1 && s2) {
-      if (s1.name === s2.name) return true;
-      if (s1.aliases.includes(n2) || s2.aliases.includes(n1)) return true;
-    }
-    return false;
-  }
-
-  private isExperienceMatch(exp: string, req: string): boolean {
-    exp = exp.toLowerCase();
-    req = req.toLowerCase();
-    
-    const eY = this.extractYears(exp);
-    const rY = this.extractYears(req);
-    
-    // Stricter year matching - CV years should be at least 90% of required
-    if (eY && rY) {
-      if (eY < rY * 0.9) return false;
-    }
-    
-    // Split into words and remove common words
-    const commonWords = new Set(['and', 'or', 'the', 'in', 'with', 'years', 'year', 'of', 'experience', 
-      'for', 'as', 'to', 'present', 'current', '-', 'professional', 'work']);
-    const eW = exp.split(/\W+/).filter(w => !commonWords.has(w) && w.length > 2);
-    const rW = req.split(/\W+/).filter(w => !commonWords.has(w) && w.length > 2);
-    
-    // More strict word matching - require at least 50% of words to match
-    const minMatchCount = Math.max(1, Math.ceil(rW.length * 0.5));
-    const matchCount = rW.filter(rWord => 
-      eW.some(eWord => this.areWordsRelated(eWord, rWord))
-    ).length;
-    
-    return matchCount >= minMatchCount;
-  }
-
-  private areWordsRelated(word1: string, word2: string): boolean {
-    // Exact match
-    if (word1 === word2) return true;
-    
-    // One word contains the other
-    if (word1.includes(word2) || word2.includes(word1)) return true;
-    
-    // Levenshtein distance for similar words (handle typos)
-    if (word1.length > 3 && word2.length > 3) {
-      const maxDist = Math.floor(Math.min(word1.length, word2.length) * 0.3); // Allow 30% difference
-      if (this.levenshteinDistance(word1, word2) <= maxDist) return true;
-    }
-    
-    return false;
-  }
-
-  private levenshteinDistance(str1: string, str2: string): number {
-    const m = str1.length, n = str2.length;
-    const dp: number[][] = Array.from({length: m + 1}, () => Array(n + 1).fill(0));
-    
-    for (let i = 0; i <= m; i++) dp[i][0] = i;
-    for (let j = 0; j <= n; j++) dp[0][j] = j;
-    
-    for (let i = 1; i <= m; i++) {
-      for (let j = 1; j <= n; j++) {
-        dp[i][j] = str1[i-1] === str2[j-1] 
-          ? dp[i-1][j-1]
-          : Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]) + 1;
-      }
-    }
-    
-    return dp[m][n];
-  }
-
-  private extractYears(text: string): number | null {
-    // Ignore percentages
-    if (text.includes('%')) return null;
-    // Patterns for years of experience
-    const patterns = [
-      /(\d+)(?:\+)?\s*years?(?:\s+(?:of\s+)?(?:professional\s+|work\s+)?experience)?/i,
-      /(?:worked|working)\s+for\s+(\d+)(?:\+)?\s*years?/i,
-      /(\d+)(?:\+)?\s*yrs?/i,
-    ];
-    for (const pattern of patterns) {
-      const match = text.match(pattern);
-      if (match && match[1]) {
-        const years = parseInt(match[1], 10);
-        if (!isNaN(years)) return years;
-      }
-    }
-    // Try to extract from date ranges (e.g. 2018-2022)
-    const range = text.match(/(\d{4})\s*[-to–]+\s*(\d{4}|present|current)/i);
-    if (range) {
-      const start = parseInt(range[1], 10);
-      const end = (range[2] === 'present' || range[2] === 'current') ? new Date().getFullYear() : parseInt(range[2], 10);
-      if (!isNaN(start) && !isNaN(end) && start <= end) {
-        return end - start;
-      }
-    }
-    return null;
-  }
-
-  private calculateScore(args: {
-    matchedSkills: string[];
-    jobSkills: string[];
-    cvExperience: string[];
-    jobRequirements: string[];
-  }): number {
-    const { matchedSkills, jobSkills, cvExperience, jobRequirements } = args;
-    // Skill score: ratio of matched to required
-    const skillScore = jobSkills.length > 0 ? matchedSkills.length / jobSkills.length : 1;
-    // Experience score: ratio of matched experience requirements
-    let expMatches = 0;
-    for (const req of jobRequirements) {
-      if (cvExperience.some(exp => this.isExperienceMatch(exp, req))) expMatches++;
-    }
-    const expScore = jobRequirements.length > 0 ? expMatches / jobRequirements.length : 1;
-    // Final score: weighted sum (skills 60%, experience 40%)
-    const score = (skillScore * 0.6 + expScore * 0.4) * 100;
-    return Math.round(score);
-  }
-
-  private generateSuggestions(args: {
-    missingSkills: string[];
-    jobRequirements: string[];
-    cvExperience: string[];
-    cvEducation: string[];
-  }): string[] {
-    const { missingSkills, jobRequirements, cvExperience, cvEducation } = args;
     const suggestions: string[] = [];
+    
+    // Skill-related suggestions
+    if (missingSkills.length > 0) {
+      const topMissing = missingSkills.slice(0, 3);
+      suggestions.push(
+        `Highlight transferable skills related to: ${topMissing.join(', ')}. ` +
+        `Consider similar technologies you've worked with.`
+      );
+    }
 
-    if (missingSkills.length) {
-      suggestions.push(`Consider adding experience with: ${missingSkills.join(', ')}`);
+    // Experience-related suggestions
+    if (missingExperience.length > 0) {
+      suggestions.push(
+        `Reframe existing experience to better match: ` +
+        `${missingExperience.slice(0, 2).join(' and ')}`
+      );
     }
-    const missingReqs = jobRequirements.filter(r =>
-      !cvExperience.some(e => this.isExperienceMatch(e, r))
-    );
-    if (missingReqs.length) {
-      suggestions.push(`Highlight experience matching: ${missingReqs.join(', ')}`);
-    }
-    if (!cvEducation.length) {
-      suggestions.push('Add your educational background to strengthen your profile');
-    }
+
+    // General improvements
     suggestions.push(
-      'Quantify your achievements with metrics where possible',
-      'Use action verbs to describe your experience',
-      'Ensure your CV is tailored to the specific role'
+      'Use metrics to quantify achievements (e.g., "Improved performance by 30%")',
+      'Include specific technologies from the job description where applicable',
+      'Match the job description\'s terminology for key skills'
     );
+
     return suggestions;
   }
-}
-
-// Simple normalize
-function normalizeSkillName(s: string): string {
-  return s.toLowerCase()
-    .replace(/[^\w\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
