@@ -52,6 +52,7 @@ export class DocumentAnalyzer {
 
     try {
       const [cvDoc, jobDoc] = [nlp(cvText), nlp(jobText)];
+
       
       // Process documents in parallel
       const [cvChunks, jobChunks] = await Promise.all([
@@ -117,6 +118,8 @@ export class DocumentAnalyzer {
 
   private async processDocumentChunks(text: string) {
     const doc = nlp(text);
+    console.log(text)
+    console.log(this.extractPotentialSkills(doc));
     return {
       skills: this.extractPotentialSkills(doc),
       experience: this.extractExperiencePhrases(doc),
@@ -126,17 +129,69 @@ export class DocumentAnalyzer {
   }
 
   private extractPotentialSkills(doc: NlpDocument): string[] {
-    const skillPhrases = [
-      ...doc.match('#Noun+').out('array'),
-      ...doc.nouns().out('array'),
-      ...doc.match('(experienced|proficient|skilled) in? #Noun+').out('array'),
-      ...doc.match('#Adjective #Noun').out('array') // Catch phrases like "machine learning"
+    // 1. Define dynamic skill categories
+    const patternCategories = {
+      frontend: ['angular', 'react', 'vue', 'svelte', 'typescript', 'javascript', 'html', 'css', 'sass', 'less', 'webpack', 'vite', 'babel', 'next', 'nuxt'],
+      backend: ['node', 'python', 'java', 'spring', 'c#', 'go', 'ruby', 'php', 'laravel', 'symfony', 'express', 'nest', 'django', 'flask', 'asp'],
+      cloud: ['aws', 'azure', 'gcp', 'docker', 'kubernetes', 'terraform', 'ansible', 'cicd', 'serverless', 'jenkins', 'git', 'argo', 'helm', 'istio', 'nginx'],
+      data: ['sql', 'nosql', 'postgres', 'postgresql', 'mongo', 'mysql', 'mariadb', 'redis', 'elasticsearch', 'bigdata', 'spark', 'hadoop', 'snowflake', 'dynamodb', 'cassandra', 'neo4j', 'oracle'],
+      architecture: ['architect', 'ddd', 'eventdriven', 'soa', 'rest', 'graphql', 'grpc', 'microservice', 'microfrontend'],
+      testing: ['jest', 'mocha', 'jasmine', 'karma', 'cypress', 'selenium', 'playwright', 'testing', 'testcafe', 'junit', 'pytest', 'phpunit']
+    };
+  
+    // 2. Convert keywords to regex matchers
+    const dynamicPatterns = Object.values(patternCategories).flat().map(term =>
+      `[${term}] (#Number|#Noun)?`
+    );
+  
+    // 3. Extract matches from doc using all patterns
+    const regexMatches = dynamicPatterns.flatMap(pattern =>
+      doc.match(pattern).out('array')
+    );
+  
+    // 4. Extract contextual phrases
+    const contextualMatches = [
+      ...doc.match('(#Adjective+ #Noun+|#Noun+ #Noun+|#ProperNoun+ #Noun+)').out('array'),
+      ...doc.match('(experienced|skilled|proficient|expert|familiar|knowledgeable) in? [#Noun|#Adjective]+')
+        .out('array')
+        .map((s: string) => s.replace(/^(experienced|skilled|proficient|expert|familiar|knowledgeable) in?/i, '').trim()),
+      ...doc.match('(develop|build|design|implement|architect|optimize|deploy|integrate|configure|maintain|migrate|refactor|containerize) [#Noun|#Adjective]+')
+        .out('array'),
+      ...doc.match('(using|with|via|through) [#ProperNoun|#Noun]+')
+        .out('array')
+        .map((s: string) => s.replace(/^(using|with|via|through)/i, '').trim())
     ];
-
-    return [...new Set(skillPhrases)]
-      .map(s => s.toLowerCase())
-      .filter(s => s.length > 2); // Filter out very short phrases
+  
+    // 5. Combine and normalize results
+    const allPhrases = [...regexMatches, ...contextualMatches];
+  
+    const normalized = allPhrases
+      .map(skill => {
+        const singular = nlp(skill).nouns().toSingular().out('text') || skill;
+        return singular.toLowerCase()
+          .replace(/[^a-z0-9\s\-\+\.#\/]/g, '') // keep techy chars
+          .replace(/\s{2,}/g, ' ')
+          .replace(/[.,;:]$/, '') // remove trailing punctuation
+          .trim();
+      })
+      .filter((skill, _, arr) => {
+        // Filter rules
+        const isTechTerm =
+          /(\.js|\.ts|\.py|\.java|\.net|\.sh|\.yml|\.yaml|\.tf|\.go)/i.test(skill) ||
+          /(framework|library|language|tool|platform|api|service|engine|db|database|cloud|devops|container)/i.test(skill) ||
+          /(^react|^angular|^vue|^node|^docker|^sql|^nosql|^kubernetes|^aws|^gcp|^azure)/i.test(skill);
+  
+        return (
+          skill.length >= 3 &&
+          !/^(the|our|your|their|this|and|or|with|using|via|through|for|from|on|in|at)/.test(skill) &&
+          !/\b(team|client|project|business|requirement|product|company|organization)\b/.test(skill) &&
+          (isTechTerm || skill.split(/\s+/).length <= 3)
+        );
+      });
+  
+    return [...new Set(normalized)].sort();
   }
+  
 
   private async matchSemanticEntities(
     source: string[],

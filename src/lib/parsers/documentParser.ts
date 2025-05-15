@@ -41,6 +41,8 @@ async function parsePDF(buffer: ArrayBuffer): Promise<ParsedDocument> {
         version: 'v2.0.550',
       });
 
+      console.log('PDF parsing result:', data);
+
       return {
         text: data.text,
         metadata: {
