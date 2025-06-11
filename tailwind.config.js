@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+import typography from '@tailwindcss/typography'
+const config = {
   theme: {
     colors: {
       white: '#FFFFFF',
@@ -70,4 +71,6 @@ export default {
     './src/components/**/*.{js,ts,jsx,tsx}',
   ],
   darkMode: 'class',
+  plugins: [typography],
 }
+export default config
