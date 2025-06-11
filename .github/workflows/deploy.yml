@@ -15,6 +15,7 @@ jobs:
       IMAGE_NAME: ${{ github.repository }}
       REGISTRY: ghcr.io
       KUBE_DEPLOYMENT_FILE: kube-deployment.yaml
+      NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,6 +48,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+          build-args: |
+            NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
 
       - name: Check deployment file changes
         id: check-changes
