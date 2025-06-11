@@ -216,12 +216,12 @@ export function MatcherClient() {
       // metrics.trackAnalysisTime(performance.now() - analysisStartTime)
 
       toast.success('Analysis complete!')
-    } catch (error) {
+    } catch (error: unknown) {
       const analysisError = error as AnalysisError
       console.error('Analysis error:', analysisError)
 
       let errorMessage = 'Error analyzing documents'
-      if ((error as any)?.code === 'TIMEOUT') {
+      if (analysisError.code === 'TIMEOUT') {
         metrics.trackError('timeoutErrors')
         errorMessage = 'Analysis took too long. Please try again.'
       } else {
