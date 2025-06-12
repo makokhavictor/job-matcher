@@ -41,9 +41,7 @@ export function MatcherClient() {
     jobDescription: null,
   })
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState<null>(
-    null
-  )
+  const [analysisResult, setAnalysisResult] = useState<null>(null)
   const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([])
   const [sessionStartTime] = useState<number>(Date.now())
   const [uploadsThisSession, setUploadsThisSession] = useState<number>(0)
@@ -160,7 +158,8 @@ export function MatcherClient() {
     cv: File | string,
     jobDescription: File | string
   ) => {
-    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
+    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+    const serverAPIKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY as string;
 
     let cvText = ''
     if (typeof cv === 'string') {
@@ -197,6 +196,9 @@ export function MatcherClient() {
 
       const response = await fetch(`${backendApiUrl}/match`, {
         method: 'POST',
+        headers: {
+          'X-API-Key': serverAPIKey,
+        },
         body: formData,
       })
 

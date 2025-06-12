@@ -16,6 +16,7 @@ jobs:
       REGISTRY: ghcr.io
       KUBE_DEPLOYMENT_FILE: kube-deployment.yaml
       NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+      NEXT_PUBLIC_BACKEND_API_KEY: ${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,6 +51,7 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:latest
           build-args: |
             NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+            NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
 
       - name: Check deployment file changes
         id: check-changes
