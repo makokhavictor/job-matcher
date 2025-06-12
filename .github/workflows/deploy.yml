@@ -85,4 +85,4 @@ jobs:
               kubectl apply -f kube-deployment.yaml
             fi
             echo "Restarting deployment to pull latest image..."
-            kubectl rollout restart deployment/job-matcher
+            kubectl rollout restart deployment/jobmatcher
