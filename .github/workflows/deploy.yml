@@ -83,7 +83,6 @@ jobs:
             if [ "${{ steps.check-changes.outputs.deployment_changed }}" = "true" ]; then
               echo "Applying new deployment configuration..."
               kubectl apply -f kube-deployment.yaml
-            else
-              echo "No deployment changes detected, performing rollout restart..."
-              kubectl rollout restart deployment/job-matcher-deployment
             fi
+            echo "Restarting deployment to pull latest image..."
+            kubectl rollout restart deployment/job-matcher-deployment
