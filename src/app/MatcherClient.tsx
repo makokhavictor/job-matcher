@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, use } from 'react'
 import { FileUpload } from '@/components/upload/FileUpload'
 import { AnalysisResults } from '@/components/analysis/AnalysisResults'
 import { Card } from '@/components/ui/card'
 import { MetricsService } from '@/lib/metrics/metricsService'
 import { toast } from 'sonner'
 import { setupDOMPolyfills } from '@/lib/domPolyfills'
+import { defineStepper } from '@/components/ui/stepper'
+import { Button } from '@/components/ui/button'
 
 // Initialize polyfills
 setupDOMPolyfills()
@@ -16,24 +18,34 @@ interface UploadState {
   jobDescription: File | string | null
 }
 
-interface Analysis {
-  id: string
-  score: number
-  createdAt: Date
-  cv: {
-    id: string
-    filename: string
-  }
-  jobDescription: {
-    id: string
-    filename: string
-  }
-}
+// interface Analysis {
+//   id: string
+//   score: number
+//   createdAt: Date
+//   cv: {
+//     id: string
+//     filename: string
+//   }
+//   jobDescription: {
+//     id: string
+//     filename: string
+//   }
+// }
 
 interface AnalysisError extends Error {
   code?: string
   details?: string
 }
+
+const { Stepper } = defineStepper(
+  { id: 'cv', title: 'Resume/CV', description: 'Upload your resume/cv' },
+  {
+    id: 'jd',
+    title: 'Job Description',
+    description: 'Upload or paste the job description',
+  },
+  { id: 'results', title: 'Results', description: 'Analysis results' }
+)
 
 export function MatcherClient() {
   const [uploadState, setUploadState] = useState<UploadState>({
@@ -42,30 +54,30 @@ export function MatcherClient() {
   })
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<null>(null)
-  const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([])
+  // const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([])
   const [sessionStartTime] = useState<number>(Date.now())
   const [uploadsThisSession, setUploadsThisSession] = useState<number>(0)
 
   const metrics = MetricsService.getInstance()
 
-  const loadRecentAnalyses = useCallback(async () => {
-    try {
-      const response = await fetch('/api/analyses')
-      const analyses = await response.json()
-      setRecentAnalyses(analyses)
-      if (analyses.length > 0) {
-        metrics.getUserEngagementMetrics().recentAnalysesViewRate++
-      }
-    } catch (error) {
-      console.error('Error loading recent analyses:', error)
-      metrics.trackError('dbErrors')
-    }
-  }, [metrics])
+  // const loadRecentAnalyses = useCallback(async () => {
+  //   try {
+  //     const response = await fetch('/api/analyses')
+  //     const analyses = await response.json()
+  //     setRecentAnalyses(analyses)
+  //     if (analyses.length > 0) {
+  //       metrics.getUserEngagementMetrics().recentAnalysesViewRate++
+  //     }
+  //   } catch (error) {
+  //     console.error('Error loading recent analyses:', error)
+  //     metrics.trackError('dbErrors')
+  //   }
+  // }, [metrics])
 
   useEffect(() => {
     const initializeSession = () => {
       // Load recent analyses on component mount
-      loadRecentAnalyses()
+      // loadRecentAnalyses()
 
       // Track session start
       const lastSessionTime = localStorage.getItem('lastSessionTime')
@@ -90,7 +102,7 @@ export function MatcherClient() {
           sessionDuration) /
         2
     }
-  }, [loadRecentAnalyses, metrics, sessionStartTime])
+  }, [metrics, sessionStartTime])
 
   const handleFileUpload = async (
     type: keyof UploadState,
@@ -133,6 +145,7 @@ export function MatcherClient() {
         metrics.trackDocument(fileOrText.size, fileOrText.type, true)
         metrics.trackApiResponse(performance.now() - uploadStartTime)
         console.log('File uploaded:', type, uploadState)
+       
       }
 
       // If both inputs are provided, trigger analysis
@@ -144,7 +157,7 @@ export function MatcherClient() {
           type === 'cv' ? fileOrText : uploadState.cv!,
           type === 'jobDescription' ? fileOrText : uploadState.jobDescription!
         )
-      }
+      } 
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Error processing input'
@@ -158,8 +171,8 @@ export function MatcherClient() {
     cv: File | string,
     jobDescription: File | string
   ) => {
-    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-    const serverAPIKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY as string;
+    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
+    const serverAPIKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY as string
 
     let cvText = ''
     if (typeof cv === 'string') {
@@ -240,103 +253,87 @@ export function MatcherClient() {
     setUploadState({ cv: null, jobDescription: null })
     setAnalysisResult(null)
     setIsAnalyzing(false)
-    toast.info('All documents cleared')
+    toast('All documents cleared')
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <section className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold text-secondary-800">
-            Upload Documents
-          </h2>
-          {(uploadState.cv || uploadState.jobDescription) && (
-            <button
-              onClick={handleReset}
-              className="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:outline-none focus:ring-2 focus:ring-secondary-400 focus:ring-offset-2"
-            >
-              Reset
-            </button>
-          )}
-        </div>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-medium text-secondary-800 mb-4">
-            Your CV
-          </h3>
-          <FileUpload
-            type="cv"
-            onUploadComplete={(file) => handleFileUpload('cv', file)}
-          />
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-medium text-secondary-800 mb-4">
-            Job Description
-          </h3>
-          <FileUpload
-            type="jobDescription"
-            onUploadComplete={(file) =>
-              handleFileUpload('jobDescription', file)
-            }
-          />
-        </Card>
-
-        {recentAnalyses.length > 0 && (
-          <Card className="p-6">
-            <h3 className="text-lg font-medium text-secondary-800 mb-4">
-              Recent Analyses
-            </h3>
-            <div className="space-y-4">
-              {recentAnalyses.map((analysis) => (
-                <div
-                  key={analysis.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+    <>
+      <Stepper.Provider className="space-y-4" variant="horizontal">
+        {({ methods }) => (
+          <>
+            <Stepper.Navigation>
+              {methods.all.map((step) => (
+                <Stepper.Step
+                  key={step.id}
+                  of={step.id}
+                  onClick={() => methods.goTo(step.id)}
                 >
-                  <div>
-                    <p className="text-sm font-medium text-secondary-800">
-                      {analysis.cv.filename} ↔{' '}
-                      {analysis.jobDescription.filename}
-                    </p>
-                    <p className="text-xs text-secondary-500">
-                      {new Date(analysis.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span className="text-lg font-semibold text-primary">
-                    {analysis.score}%
-                  </span>
-                </div>
+                  <Stepper.Title>{step.title}</Stepper.Title>
+                  <Stepper.Description>{step.description}</Stepper.Description>
+                </Stepper.Step>
               ))}
-            </div>
-          </Card>
+            </Stepper.Navigation>
+            {methods.switch({
+              cv: () => (
+                <Card className="p-6">
+                  <FileUpload
+                    type="cv"
+                    onUploadComplete={(file) => handleFileUpload('cv', file)}
+                  />
+                </Card>
+              ),
+              jd: () => (
+                <Card className="p-6">
+                  <FileUpload
+                    type="jobDescription"
+                    onUploadComplete={(file) =>
+                      handleFileUpload('jobDescription', file)
+                    }
+                  />
+                </Card>
+              ),
+              results: () => (
+                <section className="space-y-6">
+                  <div className="h-[calc(100vh-16rem)] overflow-y-auto pr-4">
+                    {isAnalyzing ? (
+                      <Card className="p-6">
+                        <div className="text-center text-secondary-600">
+                          <p>Analyzing your documents...</p>
+                        </div>
+                      </Card>
+                    ) : analysisResult ? (
+                      <AnalysisResults result={analysisResult} />
+                    ) : (
+                      <Card className="p-6">
+                        <div className="text-center text-secondary-600">
+                          <p>
+                            Upload your CV and a job description to see the
+                            analysis results.
+                          </p>
+                        </div>
+                      </Card>
+                    )}
+                  </div>
+                </section>
+              ),
+            })}
+            <Stepper.Controls>
+              {!methods.isLast && (
+                <Button
+                  variant="secondary"
+                  onClick={methods.prev}
+                  disabled={methods.isFirst}
+                >
+                  Previous
+                </Button>
+              )}
+              <Button onClick={methods.isLast ? methods.reset : methods.next}>
+                {methods.isLast ? 'Reset' : 'Next'}
+              </Button>
+            </Stepper.Controls>
+          </>
         )}
-      </section>
-
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-secondary-800">
-          Analysis Results
-        </h2>
-        <div className="h-[calc(100vh-16rem)] overflow-y-auto pr-4">
-          {isAnalyzing ? (
-            <Card className="p-6">
-              <div className="text-center text-secondary-600">
-                <p>Analyzing your documents...</p>
-              </div>
-            </Card>
-          ) : analysisResult ? (
-            <AnalysisResults result={analysisResult} />
-          ) : (
-            <Card className="p-6">
-              <div className="text-center text-secondary-600">
-                <p>
-                  Upload your CV and a job description to see the analysis
-                  results.
-                </p>
-              </div>
-            </Card>
-          )}
-        </div>
-      </section>
-    </div>
+      </Stepper.Provider>
+    </>
   )
 }
