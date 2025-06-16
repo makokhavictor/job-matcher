@@ -44,35 +44,37 @@ const plans = [
 export function Pricing() {
   return (
     <section id="pricing" className="bg-gray-50">
-      <div className="container py-24">
-        <div className="mx-auto mb-16 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-          <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
+      <div className="container px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
+        <div className="mx-auto mb-12 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+          <h2 className="font-bold text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">
             Simple, transparent pricing
           </h2>
-          <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+          <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg">
             Choose the perfect plan for your job search needs
           </p>
         </div>
         <div className="mx-auto max-w-5xl">
-          <div className="grid gap-8 md:grid-cols-2 lg:gap-16">
+          <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
             {plans.map((plan) => (
               <Card key={plan.name} className="flex flex-col">
-                <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="grid flex-1 gap-4">
-                  <div className="flex items-end">
-                    <span className="text-4xl font-bold">{plan.price}</span>
+                <CardHeader className="flex-1">
+                  <CardTitle className="text-xl">{plan.name}</CardTitle>
+                  <div className="mt-4 flex items-baseline">
+                    <span className="text-3xl font-bold tracking-tight sm:text-4xl">
+                      {plan.price}
+                    </span>
                     {plan.price !== "$0" && (
-                      <span className="text-muted-foreground">/month</span>
+                      <span className="ml-1 text-sm text-muted-foreground">/month</span>
                     )}
                   </div>
-                  <ul className="grid gap-2 text-sm text-muted-foreground">
+                  <CardDescription className="mt-4">{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <ul className="grid gap-3 text-sm">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-primary" />
-                        {feature}
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
