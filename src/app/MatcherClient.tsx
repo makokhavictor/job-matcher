@@ -106,7 +106,8 @@ export function MatcherClient() {
 
   const handleFileUpload = async (
     type: keyof UploadState,
-    fileOrText: File | string
+    fileOrText: File | string,
+    methods: any,
   ) => {
     const uploadStartTime = performance.now()
     try {
@@ -158,6 +159,7 @@ export function MatcherClient() {
           type === 'jobDescription' ? fileOrText : uploadState.jobDescription!
         )
       } 
+        methods.next()
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Error processing input'
@@ -249,12 +251,12 @@ export function MatcherClient() {
     }
   }
 
-  const handleReset = () => {
-    setUploadState({ cv: null, jobDescription: null })
-    setAnalysisResult(null)
-    setIsAnalyzing(false)
-    toast('All documents cleared')
-  }
+  // const handleReset = () => {
+  //   setUploadState({ cv: null, jobDescription: null })
+  //   setAnalysisResult(null)
+  //   setIsAnalyzing(false)
+  //   toast('All documents cleared')
+  // }
 
   return (
     <>
@@ -278,7 +280,7 @@ export function MatcherClient() {
                 <Card className="p-6">
                   <FileUpload
                     type="cv"
-                    onUploadComplete={(file) => handleFileUpload('cv', file)}
+                    onUploadComplete={(file) => handleFileUpload('cv', file, methods)}
                   />
                 </Card>
               ),
@@ -287,7 +289,7 @@ export function MatcherClient() {
                   <FileUpload
                     type="jobDescription"
                     onUploadComplete={(file) =>
-                      handleFileUpload('jobDescription', file)
+                      handleFileUpload('jobDescription', file, methods)
                     }
                   />
                 </Card>
