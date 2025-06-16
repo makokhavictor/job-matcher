@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
 import { FileUpload } from '@/components/upload/FileUpload'
 import { AnalysisResults } from '@/components/analysis/AnalysisResults'
 import { Card } from '@/components/ui/card'
@@ -37,7 +37,7 @@ interface AnalysisError extends Error {
   details?: string
 }
 
-const { Stepper } = defineStepper(
+const stepperSteps = [
   { id: 'cv', title: 'Resume/CV', description: 'Upload your resume/cv' },
   {
     id: 'jd',
@@ -45,7 +45,13 @@ const { Stepper } = defineStepper(
     description: 'Upload or paste the job description',
   },
   { id: 'results', title: 'Results', description: 'Analysis results' }
-)
+] as const;
+
+
+const stepperInstance = defineStepper(...stepperSteps);
+const { Stepper } = stepperInstance;
+
+type StepperMethods = ReturnType<typeof stepperInstance.useStepper>;
 
 export function MatcherClient() {
   const [uploadState, setUploadState] = useState<UploadState>({
@@ -107,7 +113,7 @@ export function MatcherClient() {
   const handleFileUpload = async (
     type: keyof UploadState,
     fileOrText: File | string,
-    methods: any,
+    methods: StepperMethods
   ) => {
     const uploadStartTime = performance.now()
     try {
