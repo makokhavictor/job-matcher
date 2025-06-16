@@ -37,15 +37,15 @@ export function Hero() {
           </div>
         </div>
         <div className="mt-16 sm:mt-24 lg:mt-0 lg:flex-shrink-0 lg:flex-grow">
-          <div className="relative mx-auto w-full max-w-[364px] drop-shadow-xl">
-            <div className="bg-white rounded-2xl ring-1 ring-gray-900/10 p-6 sm:p-8">
-              <div className="aspect-[1/1.2] overflow-hidden rounded-lg bg-gray-50">
+          <div className="relative mx-auto w-full max-w-[600px] drop-shadow-xl">
+            <div className="bg-white rounded-2xl ring-1 ring-gray-900/10 p-4 sm:p-6">
+              <div className="aspect-[16/9] overflow-hidden rounded-lg bg-gray-50">
                 <Image
-                  src="/dashboard-preview.png"
+                  src="/app-screenshot.png"
                   alt="App screenshot"
-                  width={364}
-                  height={437}
-                  className="h-full w-full object-cover rounded-lg"
+                  width={800}
+                  height={450}
+                  className="h-full w-full object-fit rounded-lg"
                   priority
                 />
               </div>
