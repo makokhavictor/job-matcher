@@ -1,4 +1,3 @@
-import { AnalysisResult } from '../nlp/documentAnalyzer';
 import { isServerSide, InMemoryStorage } from '../utils';
 
 // Metric types
@@ -243,34 +242,34 @@ export class MetricsService {
   }
 
   // Analysis metrics tracking
-  public trackAnalysisResult(result: AnalysisResult) {
-    // Update average score
-    const prevTotal = this.analysisMetrics.averageScore * (this.usageMetrics.totalAnalyses - 1);
-    this.analysisMetrics.averageScore = 
-      (prevTotal + result.score) / this.usageMetrics.totalAnalyses;
+  // public trackAnalysisResult(result: AnalysisResult) {
+  //   // Update average score
+  //   const prevTotal = this.analysisMetrics.averageScore * (this.usageMetrics.totalAnalyses - 1);
+  //   this.analysisMetrics.averageScore = 
+  //     (prevTotal + result.score) / this.usageMetrics.totalAnalyses;
 
-    // Update score distribution
-    const scoreRange = `${Math.floor(result.score / 10) * 10}-${Math.floor(result.score / 10) * 10 + 9}`;
-    this.analysisMetrics.scoreDistribution.set(
-      scoreRange,
-      (this.analysisMetrics.scoreDistribution.get(scoreRange) || 0) + 1
-    );
+  //   // Update score distribution
+  //   const scoreRange = `${Math.floor(result.score / 10) * 10}-${Math.floor(result.score / 10) * 10 + 9}`;
+  //   this.analysisMetrics.scoreDistribution.set(
+  //     scoreRange,
+  //     (this.analysisMetrics.scoreDistribution.get(scoreRange) || 0) + 1
+  //   );
 
-    // Track missing skills
-    result.missing.skills.forEach(skill => {
-      this.analysisMetrics.commonMissingSkills.set(
-        skill,
-        (this.analysisMetrics.commonMissingSkills.get(skill) || 0) + 1
-      );
-    });
+  //   // Track missing skills
+  //   result.missing.skills.forEach(skill => {
+  //     this.analysisMetrics.commonMissingSkills.set(
+  //       skill,
+  //       (this.analysisMetrics.commonMissingSkills.get(skill) || 0) + 1
+  //     );
+  //   });
 
-    // Update average suggestions
-    const prevSuggTotal = this.analysisMetrics.averageSuggestions * (this.usageMetrics.totalAnalyses - 1);
-    this.analysisMetrics.averageSuggestions = 
-      (prevSuggTotal + result.suggestions.length) / this.usageMetrics.totalAnalyses;
+  //   // Update average suggestions
+  //   const prevSuggTotal = this.analysisMetrics.averageSuggestions * (this.usageMetrics.totalAnalyses - 1);
+  //   this.analysisMetrics.averageSuggestions = 
+  //     (prevSuggTotal + result.suggestions.length) / this.usageMetrics.totalAnalyses;
 
-    this.saveMetrics();
-  }
+  //   this.saveMetrics();
+  // }
 
   // Document metrics tracking
   public trackDocument(size: number, format: string, parseSuccess: boolean) {
