@@ -30,7 +30,9 @@ export function MainNav() {
             </span>
           </Link>
           {!isDashboard && (
+            
             <nav className="hidden md:flex items-center space-x-4 md:space-x-6 text-sm font-medium">
+              {user && ( <Link href="/dashboard">Dashboard</Link>)}
               <Link
                 href="/#features"
                 className={
