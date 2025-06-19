@@ -18,19 +18,6 @@ interface UploadState {
   jobDescription: File | string | null
 }
 
-// interface Analysis {
-//   id: string
-//   score: number
-//   createdAt: Date
-//   cv: {
-//     id: string
-//     filename: string
-//   }
-//   jobDescription: {
-//     id: string
-//     filename: string
-//   }
-// }
 
 interface AnalysisError extends Error {
   code?: string

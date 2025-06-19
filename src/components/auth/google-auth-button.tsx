@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface GoogleAuthButtonProps {
   isSubmitting?: boolean
@@ -10,10 +10,11 @@ interface GoogleAuthButtonProps {
 }
 
 export function GoogleAuthButton({
-  isSubmitting,
+  isSubmitting = false,
   mode = 'login',
 }: GoogleAuthButtonProps) {
   useEffect(() => {
+    console.log(isSubmitting, mode);
     // Load GSI script
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
@@ -34,6 +35,8 @@ export function GoogleAuthButton({
     document.body.appendChild(script)
   }, [])
 
+  const router = useRouter()
+
   const handleCredentialResponse = async (response: {credential: string}) => {
     const idToken = response.credential
     const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
@@ -49,7 +52,11 @@ export function GoogleAuthButton({
     if (res.ok) {
       console.log('Logged in:', data)
       toast.success(`Successfully ${mode === 'login' ? 'logged in' : 'registered'} with Google!`);
-      // save JWT/token, redirect, etc
+      // save JWT/token and redirect
+      if (data.access_token) {
+        localStorage.setItem('auth', JSON.stringify(data));
+        router.push('/dashboard')
+      }
     } else {
       console.error('Login failed:', data.detail);
       toast.error(`Failed to ${mode === 'login' ? 'log in' : 'register'} with Google: ${data.detail || 'Unknown error'}`);

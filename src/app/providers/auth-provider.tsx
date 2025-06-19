@@ -1,4 +1,5 @@
 // context/AuthContext.js
+'use client'
 import {
   createContext,
   ReactNode,
@@ -14,6 +15,7 @@ interface User {
   id: string
   email: string
   name: string
+  image?: string
 }
 
 interface AuthContextType {
@@ -35,10 +37,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [])
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('access_token')
-    if (token) {
+    const auth = localStorage.getItem('auth')
+    if (auth) {
+      const { access_token: token } = JSON.parse(auth)
+      const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
       try {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch(`${backendApiUrl}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -48,7 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const userData = await response.json()
           setUser(userData)
         } else {
-          localStorage.removeItem('access_token')
+          localStorage.removeItem('auth')
         }
       } catch (error: unknown) {
         // Handle network or other errors
@@ -56,7 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           'Authentication error:',
           error instanceof Error ? error.message : 'Unknown error'
         )
-        localStorage.removeItem('access_token')
+        localStorage.removeItem('auth')
         setUser(null)
       }
     }

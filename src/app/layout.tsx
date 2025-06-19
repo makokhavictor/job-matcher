@@ -4,6 +4,7 @@ import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { MainNav } from '@/components/layout/main-nav'
 import Script from 'next/script'
+import { AuthProvider } from './providers/auth-provider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,9 +38,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MainNav />
-        {children}
-        <Toaster />
+        <AuthProvider>
+          <MainNav />
+          {children}
+          <Toaster />
+        </AuthProvider>
+
         <Script
           src="https://accounts.google.com/gsi/client"
           strategy="beforeInteractive"

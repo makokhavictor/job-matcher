@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
+import { useRouter } from 'next/navigation'
 import { GoogleAuthButton } from "./google-auth-button"
 
 const loginSchema = z.object({
@@ -18,6 +19,7 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>
 
 export function LoginForm() {
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -28,9 +30,25 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginValues) => {
     try {
-      // TODO: Implement login logic
-      console.log(data)
-      toast.success("Successfully logged in!")
+      const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
+      const response = await fetch(`${backendApiUrl}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      const responseData = await response.json()
+
+      if (response.ok) {
+        toast.success("Successfully logged in!")
+        // Save the token and redirect
+        if (responseData.token) {
+          localStorage.setItem('auth_token', responseData.token)
+          router.push('/dashboard')
+        }
+      } else {
+        throw new Error(responseData.detail || 'Failed to login')
+      }
     } catch (error) {
       console.log("Login error:", error);
       toast.error("Failed to login. Please try again.")
