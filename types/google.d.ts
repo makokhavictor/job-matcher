@@ -14,7 +14,7 @@ declare global {
     callback: (response: CredentialResponse) => void
     auto_select?: boolean
     login_uri?: string
-    native_callback?: Function
+    native_callback?: (response: CredentialResponse) => void // More specific type
     cancel_on_tap_outside?: boolean
     prompt_parent_id?: string
     nonce?: string
@@ -22,7 +22,7 @@ declare global {
     state_cookie_domain?: string
     ux_mode?: "popup" | "redirect"
     allowed_parent_origin?: string | string[]
-    intermediate_iframe_close_callback?: Function
+    intermediate_iframe_close_callback?: () => void // More specific type
   }
 
   interface GsiButtonConfiguration {
