@@ -43,7 +43,7 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="bg-gray-50">
+    <section id="pricing" className="bg-gray-50 flex justify-center">
       <div className="container px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
         <div className="mx-auto mb-12 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
           <h2 className="font-bold text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">

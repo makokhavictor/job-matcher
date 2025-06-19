@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
+import { GoogleAuthButton } from "./google-auth-button"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -31,6 +32,7 @@ export function LoginForm() {
       console.log(data)
       toast.success("Successfully logged in!")
     } catch (error) {
+      console.log("Login error:", error);
       toast.error("Failed to login. Please try again.")
     }
   }
@@ -47,9 +49,9 @@ export function LoginForm() {
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
-              aria-invalid={errors.email ? "true" : "false"}
+              disabled={isSubmitting}
             />
-            {errors.email && (
+            {errors?.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
             )}
           </div>
@@ -59,23 +61,40 @@ export function LoginForm() {
               placeholder="Password"
               type="password"
               autoComplete="current-password"
-              aria-invalid={errors.password ? "true" : "false"}
+              disabled={isSubmitting}
             />
-            {errors.password && (
+            {errors?.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
           </div>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Signing in..." : "Sign in"}
+          <Button disabled={isSubmitting}>
+            {isSubmitting && (
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent" />
+            )}
+            Sign In
           </Button>
         </div>
       </form>
-      <div className="text-sm text-muted-foreground text-center">
-        Don't have an account?{" "}
-        <Link href="/register" className="text-primary hover:underline">
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div>
+
+      <GoogleAuthButton isSubmitting={isSubmitting} mode="login" />
+
+      <p className="text-center text-sm text-muted-foreground">
+        Don&apos;t have an account?{" "}
+        <Link href="/register" className="font-medium text-primary hover:underline">
           Sign up
         </Link>
-      </div>
+      </p>
     </div>
   )
 }

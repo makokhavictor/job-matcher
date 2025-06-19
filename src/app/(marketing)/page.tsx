@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <>
+    <div>
       <Hero />
       <Features />
       <Pricing />
       <CTA />
-    </>
+    </div>
   )
 }

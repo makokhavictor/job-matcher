@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { GoogleAuthButton } from "./google-auth-button"
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -40,6 +41,7 @@ export function RegisterForm() {
       console.log(data, { plan })
       toast.success("Account created successfully!")
     } catch (error) {
+      console.log("Registration error:", error);
       toast.error("Failed to create account. Please try again.")
     }
   }
@@ -51,11 +53,13 @@ export function RegisterForm() {
           <div className="grid gap-2">
             <Input
               {...register("name")}
-              placeholder="Name"
+              placeholder="Your name"
+              autoCapitalize="none"
               autoComplete="name"
-              aria-invalid={errors.name ? "true" : "false"}
+              autoCorrect="off"
+              disabled={isSubmitting}
             />
-            {errors.name && (
+            {errors?.name && (
               <p className="text-sm text-red-500">{errors.name.message}</p>
             )}
           </div>
@@ -67,21 +71,21 @@ export function RegisterForm() {
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
-              aria-invalid={errors.email ? "true" : "false"}
+              disabled={isSubmitting}
             />
-            {errors.email && (
+            {errors?.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
             )}
           </div>
           <div className="grid gap-2">
             <Input
               {...register("password")}
-              placeholder="Password"
+              placeholder="Create a password"
               type="password"
               autoComplete="new-password"
-              aria-invalid={errors.password ? "true" : "false"}
+              disabled={isSubmitting}
             />
-            {errors.password && (
+            {errors?.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
           </div>
@@ -91,23 +95,40 @@ export function RegisterForm() {
               placeholder="Confirm password"
               type="password"
               autoComplete="new-password"
-              aria-invalid={errors.confirmPassword ? "true" : "false"}
+              disabled={isSubmitting}
             />
-            {errors.confirmPassword && (
+            {errors?.confirmPassword && (
               <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
             )}
           </div>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Creating account..." : "Create account"}
+          <Button disabled={isSubmitting}>
+            {isSubmitting && (
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent" />
+            )}
+            Create Account
           </Button>
         </div>
       </form>
-      <div className="text-sm text-muted-foreground text-center">
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+      </div>
+
+      <GoogleAuthButton isSubmitting={isSubmitting} mode="register" />
+
+      <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary hover:underline">
+        <Link href="/login" className="font-medium text-primary hover:underline">
           Sign in
         </Link>
-      </div>
+      </p>
     </div>
   )
 }
