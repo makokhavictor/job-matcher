@@ -33,7 +33,7 @@ export function GoogleAuthButton({
     }
 
     document.body.appendChild(script)
-  }, [])
+  })
 
   const router = useRouter()
 

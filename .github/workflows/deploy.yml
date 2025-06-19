@@ -17,6 +17,7 @@ jobs:
       KUBE_DEPLOYMENT_FILE: kube-deployment.yaml
       NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
       NEXT_PUBLIC_BACKEND_API_KEY: ${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,6 +53,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
             NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
       - name: Check deployment file changes
         id: check-changes

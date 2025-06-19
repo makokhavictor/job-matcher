@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const isDashboardRoute = pathname?.startsWith('/dashboard')
   useEffect(() => {
     checkAuth()
-  }, [pathname, isDashboardRoute])
+  })
 
   const checkAuth = async () => {
     const auth = localStorage.getItem('auth')
