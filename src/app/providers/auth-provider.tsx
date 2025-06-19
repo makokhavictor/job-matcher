@@ -1,5 +1,6 @@
 // context/AuthContext.js
 'use client'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   createContext,
   ReactNode,
@@ -15,7 +16,7 @@ interface User {
   id: string
   email: string
   name: string
-  image?: string
+  picture?: string
 }
 
 interface AuthContextType {
@@ -31,13 +32,20 @@ export const useAuth = () => useContext(AuthContext)
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-
+  const pathname = usePathname()
+  const router = useRouter()
+  const isDashboardRoute = pathname?.startsWith('/dashboard')
   useEffect(() => {
     checkAuth()
-  }, [])
+  }, [pathname, isDashboardRoute])
 
   const checkAuth = async () => {
     const auth = localStorage.getItem('auth')
+
+    if (isDashboardRoute && !auth) {
+      router.push('/login')
+      return
+    }
     if (auth) {
       const { access_token: token } = JSON.parse(auth)
       const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
@@ -68,8 +76,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   const logout = () => {
-    localStorage.removeItem('access_token')
+    localStorage.removeItem('auth')
     setUser(null)
+    router.push('/login')
   }
 
   return (

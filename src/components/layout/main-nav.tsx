@@ -61,7 +61,7 @@ export function MainNav() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
                     <Avatar className="h-8 w-8 ring-2 ring-primary ring-offset-2 ring-offset-background">
-                      <AvatarImage src={user.image} alt={user.name} />
+                      <AvatarImage src={user.picture} alt={user.name} />
                       <AvatarFallback>
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                       </AvatarFallback>
@@ -87,10 +87,7 @@ export function MainNav() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onClick={() => {
-                      localStorage.removeItem('auth_token')
-                      window.location.href = '/'
-                    }}
+                    onClick={auth?.logout}
                   >
                     Log out
                   </DropdownMenuItem>
