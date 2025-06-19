@@ -91,7 +91,7 @@ export function Hero() {
                   alt="App screenshot"
                   width={800}
                   height={450}
-                  className="h-full w-full object-cover rounded-lg"
+                  className="h-full w-full object-contain rounded-lg"
                   priority
                 />
               </div>
