@@ -1,3 +1,5 @@
+"use client"
+
 import {
   FileText,
   LineChart,
@@ -7,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { motion } from "framer-motion"
 
 const features = [
   {
@@ -62,21 +65,26 @@ export function Features() {
         </p>
       </div>
       <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
-        {features.map((feature) => (
-          <Card
+        {features.map((feature, index) => (
+          <motion.div
             key={feature.name}
-            className="relative overflow-hidden p-2"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            viewport={{ once: true }}
           >
-            <div className="flex h-[180px] flex-col justify-between rounded-lg p-6">
-              <feature.icon className="h-12 w-12 fill-current" />
-              <div className="space-y-2">
-                <h3 className="font-bold">{feature.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {feature.description}
-                </p>
+            <Card className="relative overflow-hidden p-2">
+              <div className="flex h-[180px] flex-col justify-between rounded-lg p-6">
+                <feature.icon className="h-12 w-12 fill-current" />
+                <div className="space-y-2">
+                  <h3 className="font-bold">{feature.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
         ))}
       </div>
     </section>

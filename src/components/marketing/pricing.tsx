@@ -1,3 +1,5 @@
+"use client"
+
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -8,6 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { motion } from "framer-motion"
+
+const MotionCard = motion(Card)
 
 const plans = [
   {
@@ -55,8 +60,15 @@ export function Pricing() {
         </div>
         <div className="mx-auto max-w-5xl">
           <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-            {plans.map((plan) => (
-              <Card key={plan.name} className="flex flex-col">
+            {plans.map((plan, index) => (
+              <MotionCard
+                key={plan.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.15 }}
+                viewport={{ once: true }}
+                className="flex flex-col"
+              >
                 <CardHeader className="flex-1">
                   <CardTitle className="text-xl">{plan.name}</CardTitle>
                   <div className="mt-4 flex items-baseline">
@@ -84,7 +96,7 @@ export function Pricing() {
                     <a href={plan.href}>{plan.cta}</a>
                   </Button>
                 </CardFooter>
-              </Card>
+              </MotionCard>
             ))}
           </div>
         </div>
