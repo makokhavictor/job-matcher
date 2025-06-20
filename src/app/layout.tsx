@@ -1,9 +1,11 @@
-import type { Metadata, Viewport } from 'next'
+"use client"
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { MainNav } from '@/components/layout/main-nav'
 import { AuthProvider } from './providers/auth-provider'
+import { LoadingMask } from '@/components/ui/loading-mask'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -15,17 +17,9 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-}
 
-export const metadata: Metadata = {
-  title: 'Job Matcher – Find Your Perfect Job Match',
-  description: 'A professional platform for matching candidates with jobs using CV analysis and smart algorithms.',
-}
+
+const queryClient = new QueryClient()
 
 export default function RootLayout({
   children,
@@ -37,11 +31,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <MainNav />
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <LoadingMask />
+            <MainNav />
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </QueryClientProvider>
       </body>
     </html>
   )

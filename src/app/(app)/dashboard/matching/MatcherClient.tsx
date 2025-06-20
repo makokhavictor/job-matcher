@@ -9,6 +9,8 @@ import { toast } from 'sonner'
 import { setupDOMPolyfills } from '@/lib/domPolyfills'
 import { defineStepper } from '@/components/ui/stepper'
 import { Button } from '@/components/ui/button'
+import { useMutation } from '@tanstack/react-query'
+import { useLoadingStore } from '@/stores/loading.store'
 
 // Initialize polyfills
 setupDOMPolyfills()
@@ -19,10 +21,6 @@ interface UploadState {
 }
 
 
-interface AnalysisError extends Error {
-  code?: string
-  details?: string
-}
 
 const stepperSteps = [
   { id: 'cv', title: 'Resume/CV', description: 'Upload your resume/cv' },
@@ -45,27 +43,14 @@ export function MatcherClient() {
     cv: null,
     jobDescription: null,
   })
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<null>(null)
   // const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([])
   const [sessionStartTime] = useState<number>(Date.now())
   const [uploadsThisSession, setUploadsThisSession] = useState<number>(0)
 
-  const metrics = MetricsService.getInstance()
+  const setLoading = useLoadingStore((state) => state.setLoading)
 
-  // const loadRecentAnalyses = useCallback(async () => {
-  //   try {
-  //     const response = await fetch('/api/analyses')
-  //     const analyses = await response.json()
-  //     setRecentAnalyses(analyses)
-  //     if (analyses.length > 0) {
-  //       metrics.getUserEngagementMetrics().recentAnalysesViewRate++
-  //     }
-  //   } catch (error) {
-  //     console.error('Error loading recent analyses:', error)
-  //     metrics.trackError('dbErrors')
-  //   }
-  // }, [metrics])
+  const metrics = MetricsService.getInstance()
 
   useEffect(() => {
     const initializeSession = () => {
@@ -96,6 +81,63 @@ export function MatcherClient() {
         2
     }
   }, [metrics, sessionStartTime])
+
+  // Mutation for running analysis
+  const analysisMutation = useMutation({
+    mutationFn: async ({ cv, jobDescription }: { cv: File | string, jobDescription: File | string }) => {
+      const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
+      const serverAPIKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY as string
+      let cvText = ''
+      if (typeof cv === 'string') {
+        cvText = cv
+        if (!/(experience|education|skills|curriculum vitae|resume)/i.test(cvText)) {
+          throw new Error('The uploaded CV does not appear to be a valid CV. Please check your document.')
+        }
+      }
+      const formData = new FormData()
+      if (typeof cv === 'string') {
+        formData.append('cv_text', cv)
+      } else {
+        formData.append('cv_file', cv, cv.name)
+      }
+      if (typeof jobDescription === 'string') {
+        formData.append('job_text', jobDescription)
+      } else {
+        formData.append('job_file', jobDescription, jobDescription.name)
+      }
+      const response = await fetch(`${backendApiUrl}/match`, {
+        method: 'POST',
+        headers: { 'X-API-Key': serverAPIKey },
+        body: formData,
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to analyze documents')
+      }
+      return response.json()
+    },
+    onSuccess: (result) => {
+      setAnalysisResult(result)
+      setLoading(false)
+      toast.success('Analysis complete!')
+    },
+    onError: (error: unknown) => {
+      let errorMessage = 'Error analyzing documents'
+      // Try to get error code if available
+      const err = error as { code?: string }
+      if (err?.code === 'TIMEOUT') {
+        metrics.trackError('timeoutErrors')
+        errorMessage = 'Analysis took too long. Please try again.'
+      } else {
+        metrics.trackError('analysisErrors')
+      }
+      setLoading(false)
+      toast.error(errorMessage)
+    },
+    onSettled: () => {
+      setLoading(false)
+    },
+  })
 
   const handleFileUpload = async (
     type: keyof UploadState,
@@ -147,100 +189,19 @@ export function MatcherClient() {
         (type === 'cv' && uploadState.jobDescription) ||
         (type === 'jobDescription' && uploadState.cv)
       ) {
-        await runAnalysis(
-          type === 'cv' ? fileOrText : uploadState.cv!,
-          type === 'jobDescription' ? fileOrText : uploadState.jobDescription!
-        )
+        setLoading(true)
+        analysisMutation.mutate({
+          cv: type === 'cv' ? fileOrText : uploadState.cv!,
+          jobDescription: type === 'jobDescription' ? fileOrText : uploadState.jobDescription!
+        })
       } 
-        methods.next()
+      methods.next()
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Error processing input'
       console.error('Upload error:', error)
       metrics.trackError('uploadErrors')
       toast.error(message)
-    }
-  }
-
-  const runAnalysis = async (
-    cv: File | string,
-    jobDescription: File | string
-  ) => {
-    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
-    const serverAPIKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY as string
-
-    let cvText = ''
-    if (typeof cv === 'string') {
-      cvText = cv
-      if (
-        !/(experience|education|skills|curriculum vitae|resume)/i.test(cvText)
-      ) {
-        toast.error(
-          'The uploaded CV does not appear to be a valid CV. Please check your document.'
-        )
-        setIsAnalyzing(false)
-        return
-      }
-    }
-
-    try {
-      setIsAnalyzing(true)
-      toast.info('Analyzing documents...')
-
-      const formData = new FormData()
-
-      // Only one of these gets appended
-      if (typeof cv === 'string') {
-        formData.append('cv_text', cv)
-      } else {
-        formData.append('cv_file', cv, cv.name)
-      }
-
-      if (typeof jobDescription === 'string') {
-        formData.append('job_text', jobDescription)
-      } else {
-        formData.append('job_file', jobDescription, jobDescription.name)
-      }
-
-      const response = await fetch(`${backendApiUrl}/match`, {
-        method: 'POST',
-        headers: {
-          'X-API-Key': serverAPIKey,
-        },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to analyze documents')
-      }
-
-      const result = await response.json()
-
-      // Handle result
-      setAnalysisResult(result)
-      // await loadRecentAnalyses()
-      // metrics.trackAnalysis()
-      // metrics.trackAnalysisResult(result)
-      // metrics.getUserEngagementMetrics().analysisCompletionRate++
-      // metrics.trackAnalysisTime(performance.now() - analysisStartTime)
-
-      toast.success('Analysis complete!')
-    } catch (error: unknown) {
-      const analysisError = error as AnalysisError
-      console.error('Analysis error:', analysisError)
-
-      let errorMessage = 'Error analyzing documents'
-      if (analysisError.code === 'TIMEOUT') {
-        metrics.trackError('timeoutErrors')
-        errorMessage = 'Analysis took too long. Please try again.'
-      } else {
-        metrics.trackError('analysisErrors')
-      }
-
-      toast.error(errorMessage)
-    } finally {
-      setIsAnalyzing(false)
     }
   }
 
@@ -290,13 +251,8 @@ export function MatcherClient() {
               results: () => (
                 <section className="space-y-6">
                   <div className="h-[calc(100vh-16rem)] overflow-y-auto pr-4">
-                    {isAnalyzing ? (
-                      <Card className="p-6">
-                        <div className="text-center text-secondary-600">
-                          <p>Analyzing your documents...</p>
-                        </div>
-                      </Card>
-                    ) : analysisResult ? (
+                    {/* The local isAnalyzing UI is now handled globally by the loading mask */}
+                    {analysisResult ? (
                       <AnalysisResults result={analysisResult} />
                     ) : (
                       <Card className="p-6">
