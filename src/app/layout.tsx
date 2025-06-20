@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { MainNav } from '@/components/layout/main-nav'
-import Script from 'next/script'
 import { AuthProvider } from './providers/auth-provider'
 
 const geistSans = Geist({
@@ -43,11 +42,6 @@ export default function RootLayout({
           {children}
           <Toaster />
         </AuthProvider>
-
-        <Script
-          src="https://accounts.google.com/gsi/client"
-          strategy="beforeInteractive"
-        />
       </body>
     </html>
   )

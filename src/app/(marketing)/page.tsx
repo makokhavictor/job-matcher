@@ -12,7 +12,7 @@ import { CTA } from "@/components/marketing/cta"
 
 export default function LandingPage() {
   return (
-    <div>
+    <div className="flex flex-col justify-center">
       <Hero />
       <Features />
       <Pricing />

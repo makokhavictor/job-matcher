@@ -51,7 +51,7 @@ export function Features() {
   return (
     <section
       id="features"
-      className="container space-y-6 bg-white py-8 dark:bg-transparent md:py-12 lg:py-24 flex flex-col justify-center"
+      className="space-y-6 bg-white py-8 dark:bg-transparent md:py-12 lg:py-24 flex flex-col justify-center"
     >
       <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
         <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
