@@ -11,6 +11,7 @@ import { defineStepper } from '@/components/ui/stepper'
 import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
 import { useLoadingStore } from '@/stores/loading.store'
+import { useAnalysisStore } from '@/stores/analysis.store'
 
 // Initialize polyfills
 setupDOMPolyfills()
@@ -19,8 +20,6 @@ interface UploadState {
   cv: File | string | null
   jobDescription: File | string | null
 }
-
-
 
 const stepperSteps = [
   { id: 'cv', title: 'Resume/CV', description: 'Upload your resume/cv' },
@@ -43,12 +42,11 @@ export function MatcherClient() {
     cv: null,
     jobDescription: null,
   })
-  const [analysisResult, setAnalysisResult] = useState<null>(null)
-  // const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([])
   const [sessionStartTime] = useState<number>(Date.now())
   const [uploadsThisSession, setUploadsThisSession] = useState<number>(0)
 
   const setLoading = useLoadingStore((state) => state.setLoading)
+  const setAnalysisResult = useAnalysisStore((state) => state.setResults)
 
   const metrics = MetricsService.getInstance()
 
@@ -117,7 +115,16 @@ export function MatcherClient() {
       return response.json()
     },
     onSuccess: (result) => {
-      setAnalysisResult(result)
+      // If result.results is a stringified JSON, parse it
+      let parsed = null
+      try {
+        parsed = typeof result.results === 'string' ? JSON.parse(result.results) : result.results
+      } catch {
+        parsed = null
+      }
+      if (parsed && typeof parsed.match_score === 'number') {
+        setAnalysisResult(parsed)
+      }
       setLoading(false)
       toast.success('Analysis complete!')
     },
@@ -251,19 +258,7 @@ export function MatcherClient() {
               results: () => (
                 <section className="space-y-6">
                   <div className="h-[calc(100vh-16rem)] overflow-y-auto pr-4">
-                    {/* The local isAnalyzing UI is now handled globally by the loading mask */}
-                    {analysisResult ? (
-                      <AnalysisResults result={analysisResult} />
-                    ) : (
-                      <Card className="p-6">
-                        <div className="text-center text-secondary-600">
-                          <p>
-                            Upload your CV and a job description to see the
-                            analysis results.
-                          </p>
-                        </div>
-                      </Card>
-                    )}
+                    <AnalysisResults />
                   </div>
                 </section>
               ),
