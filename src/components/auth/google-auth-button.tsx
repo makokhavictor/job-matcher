@@ -14,7 +14,7 @@ export function GoogleAuthButton({
   mode = 'login',
 }: GoogleAuthButtonProps) {
   useEffect(() => {
-    console.log(isSubmitting, mode);
+    console.log(isSubmitting, mode, process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
     // Load GSI script
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
@@ -33,7 +33,7 @@ export function GoogleAuthButton({
     }
 
     document.body.appendChild(script)
-  })
+  },[])
 
   const router = useRouter()
 
