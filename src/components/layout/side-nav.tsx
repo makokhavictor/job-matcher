@@ -27,6 +27,11 @@ const navItems = [
     icon: FileSearch
   },
   {
+    title: 'Packages',
+    href: '/dashboard/packages',
+    icon: FileSearch
+  },
+  {
     title: 'Settings',
     href: '/dashboard/settings',
     icon: Settings
