@@ -1,11 +1,30 @@
+'use client';
 import { PackageList } from "@/components/dashboard/packages/PackageList";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { PackageForm } from "@/components/dashboard/packages/PackageForm";
 import { Plus } from "lucide-react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/providers/auth-provider";
+import { toast } from "sonner";
 
 
 export default function PackagesPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+
+  useEffect(() => {
+    if (!loading && user && !user.is_admin) {
+      toast.error("Unauthorized: Admins only");
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
+
+  if (loading) return <div className="text-primary-700">Loading...</div>;
+  if (!user || !user.is_admin) return null;
+
   return (
     <div className="max-w-4xl mx-auto py-8 space-y-8">
       <div className="flex items-center justify-between mb-4">
@@ -26,5 +45,5 @@ export default function PackagesPage() {
       </div>
       <PackageList />
     </div>
-  )
+  );
 }

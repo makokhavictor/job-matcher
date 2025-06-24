@@ -9,6 +9,7 @@ import {
   Settings, 
   ChartLine 
 } from 'lucide-react'
+import { useAuth } from '@/app/providers/auth-provider'
 
 const navItems = [
   {
@@ -40,6 +41,12 @@ const navItems = [
 
 export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   const pathname = usePathname()
+  const { user } = useAuth()
+
+  // Filter nav items: only show Packages if user is admin
+  const filteredNavItems = navItems.filter(
+    (item) => item.title !== 'Packages' || user?.is_admin
+  )
 
   return (
     <div className={cn("pb-12 w-64 border-r bg-secondary-50", className)} {...props}>
@@ -50,7 +57,7 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
               Dashboard
             </h2>
             <nav className="space-y-1">
-              {navItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
