@@ -4,45 +4,13 @@ import { useForm, Controller } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from "@/components/ui/checkbox"
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { apiClient } from '@/lib/utils/apiClient'
+import { Package, FEATURE_FIELDS } from '@/types/package'
+import { useEffect } from 'react'
 
-const FEATURE_FIELDS: Array<{
-  key: keyof PackageFormValues['features']
-  label: string
-  type: 'boolean' | 'number'
-}> = [
-  { key: 'unlimited_cv_analysis', label: 'Unlimited CV Analysis', type: 'boolean' },
-  { key: 'max_cvs', label: 'Max CVs', type: 'number' },
-  { key: 'advanced_match_scoring', label: 'Advanced Match Scoring', type: 'boolean' },
-  { key: 'tailored_improvement_suggestions', label: 'Tailored Improvement Suggestions', type: 'boolean' },
-  { key: 'result_history_days', label: 'Result History (days)', type: 'number' },
-  { key: 'priority_support', label: 'Priority Support', type: 'boolean' },
-  { key: 'multiple_cv_versions', label: 'Multiple CV Versions', type: 'boolean' },
-  { key: 'report_export', label: 'Report Export', type: 'boolean' },
-]
-
-type PackageFormValues = {
-  name: string
-  description: string
-  price: number
-  currency: string
-  billing_cycle: string
-  is_active: boolean
-  features: {
-    unlimited_cv_analysis: boolean
-    max_cvs: number
-    advanced_match_scoring: boolean
-    tailored_improvement_suggestions: boolean
-    result_history_days: number
-    priority_support: boolean
-    multiple_cv_versions: boolean
-    report_export: boolean
-  }
-}
-
-const defaultValues: PackageFormValues = {
+const defaultValues: Package = {
   name: '',
   description: '',
   price: 0,
@@ -60,39 +28,58 @@ const defaultValues: PackageFormValues = {
     report_export: true,
   },
 }
-
-export function PackageForm() {
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<PackageFormValues>({
-    defaultValues,
+export function PackageForm({ initialData, onSuccess }: { initialData?: Package, onSuccess?: () => void }) {
+  const queryClient = useQueryClient()
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<Package>({
+    defaultValues: initialData || defaultValues,
   })
 
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData)
+    } else {
+      reset(defaultValues)
+    }
+  }, [initialData, reset])
+
   const mutation = useMutation({
-    mutationFn: async (data: PackageFormValues) => {
+    mutationFn: async (data: Package) => {
       const payload = { ...data, features: data.features }
-      const res = await apiClient('/packages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      })
-      return res
+      if (data.id) {
+        // Update
+        const res = await apiClient(`/packages/${data.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        return res
+      } else {
+        // Create
+        const res = await apiClient('/packages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        return res
+      }
     },
     onSuccess: () => {
-      toast.success('Package created successfully!')
+      toast.success('Package saved successfully!')
       reset(defaultValues)
+      queryClient.invalidateQueries({ queryKey: ['packages'] })
+      if (onSuccess) onSuccess()
     },
     onError: (err: unknown) => {
       console.log(err);
       if (err instanceof Error) {
         toast.error(err.message)
       } else {
-        toast.error('Failed to create package')
+        toast.error('Failed to save package')
       }
     },
   })
 
-  const onSubmit = (data: PackageFormValues) => {
+  const onSubmit = (data: Package) => {
     mutation.mutate(data)
   }
 
