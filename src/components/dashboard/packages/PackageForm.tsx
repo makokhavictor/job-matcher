@@ -26,6 +26,7 @@ const defaultValues: Package = {
     priority_support: false,
     multiple_cv_versions: false,
     report_export: true,
+    is_trial: false,
   },
 }
 export function PackageForm({ initialData, onSuccess }: { initialData?: Package, onSuccess?: () => void }) {

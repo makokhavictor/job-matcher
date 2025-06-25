@@ -7,6 +7,7 @@ export interface PackageFeatures {
   priority_support: boolean
   multiple_cv_versions: boolean
   report_export: boolean
+  is_trial: boolean
 }
 
 export interface Package {
@@ -33,5 +34,6 @@ export const FEATURE_FIELDS: Array<{
   { key: 'priority_support', label: 'Priority Support', type: 'boolean' },
   { key: 'multiple_cv_versions', label: 'Multiple CV Versions', type: 'boolean' },
   { key: 'report_export', label: 'Report Export', type: 'boolean' },
+  { key: 'is_trial', label: 'Trial', type: 'boolean' },
 ]
 

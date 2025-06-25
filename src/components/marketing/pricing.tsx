@@ -11,42 +11,39 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { motion } from "framer-motion"
+import { useQuery } from '@tanstack/react-query'
+import { Package, FEATURE_FIELDS } from '@/types/package'
+import { apiClient } from '@/lib/utils/apiClient'
+import { Spinner } from '@/components/ui/spinner'
 
 const MotionCard = motion(Card)
 
-const plans = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Perfect for trying out CV Matcher",
-    features: [
-      "3 CV analyses per month",
-      "Basic match scoring",
-      "Key skills identification",
-      "24-hour result access",
-    ],
-    cta: "Get Started",
-    href: "/register"
-  },
-  {
-    name: "Pro",
-    price: "$12",
-    description: "For active job seekers",
-    features: [
-      "Unlimited CV analyses",
-      "Advanced match scoring",
-      "Tailored improvement suggestions",
-      "30-day result history",
-      "Priority support",
-      "Multiple CV versions",
-      "Export reports",
-    ],
-    cta: "Start Pro Trial",
-    href: "/register?plan=pro"
-  },
-]
+async function fetchPublicPackages(): Promise<Package[]> {
+  return await apiClient('/packages/public')
+}
 
 export function Pricing() {
+  const { data: plans, isLoading, error } = useQuery<Package[]>({
+    queryKey: ['public-packages'],
+    queryFn: fetchPublicPackages,
+  })
+
+  if (isLoading) return (
+    <section id="pricing" className="bg-gray-50 flex justify-center items-center min-h-[40vh]">
+      <Spinner size={48} />
+    </section>
+  )
+  if (error) return (
+    <section id="pricing" className="bg-gray-50 flex justify-center items-center min-h-[40vh]">
+      <div className="text-red-600 text-center w-full">Failed to load plans</div>
+    </section>
+  )
+  if (!plans || plans.length === 0) return (
+    <section id="pricing" className="bg-gray-50 flex justify-center items-center min-h-[40vh]">
+      <div className="text-secondary-500 text-center w-full">No plans found.</div>
+    </section>
+  )
+
   return (
     <section id="pricing" className="bg-gray-50 flex justify-center">
       <div className="container px-4 py-16 sm:px-6 sm:py-24 lg:py-32">
@@ -62,7 +59,7 @@ export function Pricing() {
           <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
             {plans.map((plan, index) => (
               <MotionCard
-                key={plan.name}
+                key={plan.id ?? plan.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.15 }}
@@ -73,27 +70,41 @@ export function Pricing() {
                   <CardTitle className="text-xl">{plan.name}</CardTitle>
                   <div className="mt-4 flex items-baseline">
                     <span className="text-3xl font-bold tracking-tight sm:text-4xl">
-                      {plan.price}
+                      {plan.price === 0 ? 'Free' : `${plan.currency} $${plan.price}`}
                     </span>
-                    {plan.price !== "$0" && (
-                      <span className="ml-1 text-sm text-muted-foreground">/month</span>
+                    {plan.price !== 0 && (
+                      <span className="ml-1 text-sm text-muted-foreground">/ {plan.billing_cycle.toLowerCase()}</span>
                     )}
                   </div>
                   <CardDescription className="mt-4">{plan.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1">
                   <ul className="grid gap-3 text-sm">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
+                    {FEATURE_FIELDS.filter(f => f.key !== 'is_trial').map((feature) => {
+                      const value = plan.features[feature.key]
+                      if (feature.type === 'boolean' && value) {
+                        return (
+                          <li key={feature.key} className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                            <span>{feature.label}</span>
+                          </li>
+                        )
+                      }
+                      if (feature.type === 'number' && typeof value === 'number') {
+                        return (
+                          <li key={feature.key} className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                            <span>{feature.label}: <span className="font-semibold">{value}</span></span>
+                          </li>
+                        )
+                      }
+                      return null
+                    })}
                   </ul>
                 </CardContent>
                 <CardFooter>
                   <Button asChild className="w-full">
-                    <a href={plan.href}>{plan.cta}</a>
+                    <a href={`/register?plan=${plan.name.toLowerCase()}`}>{plan.price === 0 ? 'Get Started' : 'Start Pro Trial'}</a>
                   </Button>
                 </CardFooter>
               </MotionCard>
