@@ -84,7 +84,6 @@ export function MatcherClient() {
   // Mutation for running analysis
   const analysisMutation = useMutation({
     mutationFn: async ({ cv, jobDescription }: { cv: File | string, jobDescription: File | string }) => {
-      const serverAPIKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY as string
       let cvText = ''
       if (typeof cv === 'string') {
         cvText = cv
