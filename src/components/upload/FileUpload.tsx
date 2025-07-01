@@ -160,10 +160,10 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
         {type === 'jobDescription' ? (
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'upload' | 'paste')} className="mt-4">
             <TabsList className="flex justify-center mb-4">
-              <TabsTrigger value="upload">Upload</TabsTrigger>
+              {/* <TabsTrigger value="upload">Upload</TabsTrigger> */}
               <TabsTrigger value="paste">Paste</TabsTrigger>
             </TabsList>
-            <TabsContent value="upload">
+            {/* <TabsContent value="upload">
               <div className="mt-2">
                 <Button
                   onClick={handleButtonClick}
@@ -180,7 +180,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
               <p className="mt-1 text-xs text-secondary-500">
                 PDF, DOCX, or TXT
               </p>
-            </TabsContent>
+            </TabsContent> */}
             <TabsContent value="paste">
               <textarea
                 className="mt-2 w-full rounded-md border p-2 text-sm text-secondary-700"
