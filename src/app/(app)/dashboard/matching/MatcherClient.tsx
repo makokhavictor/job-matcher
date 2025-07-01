@@ -47,7 +47,8 @@ export function MatcherClient() {
   const [uploadsThisSession, setUploadsThisSession] = useState<number>(0)
 
   const setLoading = useLoadingStore((state) => state.setLoading)
-  const setAnalysisResult = useAnalysisStore((state) => state.setResults)
+  const resetAnalysisStore = useAnalysisStore((state) => state.reset);
+  const setAnalysisResult = useAnalysisStore((state) => state.setResults);
 
   const metrics = MetricsService.getInstance()
 
@@ -210,12 +211,11 @@ export function MatcherClient() {
     }
   }
 
-  // const handleReset = () => {
-  //   setUploadState({ cv: null, jobDescription: null })
-  //   setAnalysisResult(null)
-  //   setIsAnalyzing(false)
-  //   toast('All documents cleared')
-  // }
+  const resetAnalysis = () => {
+    setUploadState({ cv: null, jobDescription: null })
+    resetAnalysisStore()
+    toast('All documents cleared')
+  }
 
   return (
     <>
@@ -271,7 +271,7 @@ export function MatcherClient() {
                   Previous
                 </Button>
               )}
-              <Button onClick={methods.isLast ? methods.reset : methods.next}>
+              <Button onClick={methods.isLast ? () => { methods.reset(); resetAnalysis(); } : methods.next}>
                 {methods.isLast ? 'Reset' : 'Next'}
               </Button>
             </Stepper.Controls>
