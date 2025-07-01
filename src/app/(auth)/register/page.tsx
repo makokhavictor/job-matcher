@@ -1,11 +1,7 @@
-import { Metadata } from 'next'
+'use client'
 import { RegisterForm } from '@/components/auth/register-form'
 import { Suspense } from 'react'
 
-export const metadata: Metadata = {
-  title: 'Register - CV Matcher',
-  description: 'Create your CV Matcher account',
-}
 
 export default function RegisterPage() {
   return (

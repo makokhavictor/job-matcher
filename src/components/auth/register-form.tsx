@@ -127,7 +127,7 @@ export function RegisterForm() {
           </div>
         </div>
 
-        <GoogleAuthButton isSubmitting={isSubmitting} mode="register" />
+        <GoogleAuthButton isSubmitting={isSubmitting} mode="register" plan={plan} />
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}

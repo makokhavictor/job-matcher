@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { GoogleAuthButton } from "./google-auth-button"
 
 const loginSchema = z.object({
@@ -20,6 +20,9 @@ type LoginValues = z.infer<typeof loginSchema>
 
 export function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const plan = searchParams.get('plan')
+
   const {
     register,
     handleSubmit,
@@ -105,7 +108,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <GoogleAuthButton isSubmitting={isSubmitting} mode="login" />
+      <GoogleAuthButton isSubmitting={isSubmitting} mode="login" plan={plan} />
 
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}

@@ -56,7 +56,7 @@ export function Pricing() {
           </p>
         </div>
         <div className="mx-auto max-w-5xl">
-          <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
+          <div className="flex flex-row gap-6 overflow-x-auto pb-4 md:justify-center">
             {plans.map((plan, index) => (
               <MotionCard
                 key={plan.id ?? plan.name}
@@ -64,7 +64,7 @@ export function Pricing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.15 }}
                 viewport={{ once: true }}
-                className="flex flex-col"
+                className="flex flex-col min-w-[320px] max-w-xs flex-shrink-0"
               >
                 <CardHeader className="flex-1">
                   <CardTitle className="text-xl">{plan.name}</CardTitle>

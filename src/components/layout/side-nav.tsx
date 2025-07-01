@@ -10,6 +10,7 @@ import {
   ChartLine 
 } from 'lucide-react'
 import { useAuth } from '@/app/providers/auth-provider'
+import { differenceInDays, parseISO } from 'date-fns'
 
 const navItems = [
   {
@@ -76,6 +77,22 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
           </div>
         </div>
       </div>
+      {/* Plan footer */}
+      {user?.subscription && (
+        <div className="absolute bottom-0 left-0 w-full bg-secondary-100 px-4 py-4 flex flex-col items-start gap-2">
+          <span className="text-xs text-muted-foreground font-medium">
+            Plan: {user.subscription.package.name}
+            {user.subscription.end_date && (
+              <> ({differenceInDays(parseISO(user.subscription.end_date), new Date())} days left)</>
+            )}
+          </span>
+          <Link href="/dashboard/packages/upgrade">
+            <button className="text-xs font-semibold text-primary hover:underline focus:outline-none">
+              Upgrade / Change Plan
+            </button>
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

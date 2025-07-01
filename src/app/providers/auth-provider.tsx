@@ -8,18 +8,19 @@ import {
   useCallback,
   ReactNode,
 } from 'react'
+import type { Subscription } from '@/types/package'
 
 interface AuthProviderProps {
   children: ReactNode
 }
 
 interface User {
-  id: string
+  id: string | number
   email: string
   name: string
   picture?: string
   is_admin?: boolean
-
+  subscription?: Subscription
 }
 
 interface AuthContextType {

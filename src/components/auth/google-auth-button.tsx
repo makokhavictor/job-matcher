@@ -7,11 +7,13 @@ import { useRouter } from 'next/navigation'
 interface GoogleAuthButtonProps {
   isSubmitting?: boolean
   mode?: 'login' | 'register'
+  plan?: string | null
 }
 
 export function GoogleAuthButton({
   isSubmitting = false,
   mode = 'login',
+  plan = null
 }: GoogleAuthButtonProps) {
   useEffect(() => {
     console.log(isSubmitting, mode);
@@ -44,7 +46,7 @@ export function GoogleAuthButton({
     const res = await fetch(`${backendApiUrl}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: idToken }),
+      body: JSON.stringify({ token: idToken, ...(plan && { plan }) }),
     })
 
     const data = await res.json()

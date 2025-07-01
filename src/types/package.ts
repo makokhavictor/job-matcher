@@ -21,16 +21,28 @@ export interface Package {
   features: PackageFeatures
 }
 
+export interface Subscription {
+  id: number
+  package_id: number
+  status: string
+  start_date: string
+  end_date: string
+  canceled_at: string | null
+  renewal_date: string | null
+  payment_method: string | null
+  package: Package
+}
+
 export const FEATURE_FIELDS: Array<{
   key: keyof PackageFeatures
   label: string
   type: 'boolean' | 'number'
 }> = [
   { key: 'unlimited_cv_analysis', label: 'Unlimited CV Analysis', type: 'boolean' },
-  { key: 'max_cvs', label: 'Max CVs', type: 'number' },
+  { key: 'max_cvs', label: 'Max CV Analysis', type: 'number' },
   { key: 'advanced_match_scoring', label: 'Advanced Match Scoring', type: 'boolean' },
   { key: 'tailored_improvement_suggestions', label: 'Tailored Improvement Suggestions', type: 'boolean' },
-  { key: 'result_history_days', label: 'Result History (days)', type: 'number' },
+  { key: 'result_history_days', label: 'Days Result History', type: 'number' },
   { key: 'priority_support', label: 'Priority Support', type: 'boolean' },
   { key: 'multiple_cv_versions', label: 'Multiple CV Versions', type: 'boolean' },
   { key: 'report_export', label: 'Report Export', type: 'boolean' },
