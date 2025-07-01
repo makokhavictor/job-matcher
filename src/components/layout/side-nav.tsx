@@ -50,8 +50,8 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
   )
 
   return (
-    <div className={cn("pb-12 w-64 border-r bg-secondary-50", className)} {...props}>
-      <div className="space-y-4 py-4">
+    <div className={cn("pb-12 w-64 border-r bg-secondary-50 flex flex-col h-full min-h-screen", className)} {...props}>
+      <div className="space-y-4 py-4 flex-1">
         <div className="px-3 py-2">
           <div className="space-y-1">
             <h2 className="mb-4 px-4 text-xl font-semibold tracking-tight">
@@ -79,7 +79,7 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
       </div>
       {/* Plan footer */}
       {user?.subscription && (
-        <div className="absolute bottom-0 left-0 w-full bg-secondary-100 px-4 py-4 flex flex-col items-start gap-2">
+        <div className="mt-auto bg-secondary-100 px-4 py-4 flex flex-col items-start gap-2">
           <span className="text-xs text-muted-foreground font-medium">
             Plan: {user.subscription.package.name}
             {user.subscription.end_date && (
