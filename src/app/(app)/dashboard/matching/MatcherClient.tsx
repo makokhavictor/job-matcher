@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
 import { useLoadingStore } from '@/stores/loading.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
+import { apiClient } from '@/lib/utils/apiClient'
 
 // Initialize polyfills
 setupDOMPolyfills()
@@ -83,7 +84,6 @@ export function MatcherClient() {
   // Mutation for running analysis
   const analysisMutation = useMutation({
     mutationFn: async ({ cv, jobDescription }: { cv: File | string, jobDescription: File | string }) => {
-      const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
       const serverAPIKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY as string
       let cvText = ''
       if (typeof cv === 'string') {
@@ -103,16 +103,15 @@ export function MatcherClient() {
       } else {
         formData.append('job_file', jobDescription, jobDescription.name)
       }
-      const response = await fetch(`${backendApiUrl}/match`, {
+      // Use apiClient for the request
+      // apiClient expects JSON by default, but we need to send FormData and custom headers
+      // So we pass headers and body, and override Content-Type
+      const response = await apiClient('/match', {
         method: 'POST',
-        headers: { 'X-API-Key': serverAPIKey },
         body: formData,
       })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to analyze documents')
-      }
-      return response.json()
+      // apiClient throws on !ok, so no need for manual error check
+      return response
     },
     onSuccess: (result) => {
       // If result.results is a stringified JSON, parse it

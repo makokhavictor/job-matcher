@@ -8,7 +8,6 @@ export const apiClient = async (url: string, options: RequestInit = {}) => {
   const config = {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
       ...options.headers,
       // Only add Authorization header if token exists
       ...(token && { Authorization: `Bearer ${token}` }),
