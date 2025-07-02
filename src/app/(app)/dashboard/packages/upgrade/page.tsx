@@ -5,9 +5,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/utils/apiClient'
 import { Spinner } from '@/components/ui/spinner'
 import { Package } from '@/types/package'
-import { FEATURE_FIELDS } from '@/types/package'
 import { toast } from 'sonner'
 import { useAuth } from '@/app/providers/auth-provider'
+import { PricingCard } from '@/components/marketing/PricingCard'
+import { CardFooter } from '@/components/ui/card'
 
 async function fetchPublicPackages(): Promise<Package[]> {
   return await apiClient('/packages/public')
@@ -107,58 +108,10 @@ export default function UpgradePackagesPage() {
           {packages.filter(pkg => !pkg.features.is_trial).map((pkg) => {
             const isSubscribed = user?.subscription?.package?.id === pkg.id
             return (
-              <div
-                key={pkg.id}
-                className="min-w-[300px] max-w-xs w-full h-[420px] bg-white rounded-lg shadow flex flex-col border border-secondary-200 flex-shrink-0"
-              >
-                {/* Top: Name & Price */}
-                <div className="pt-6 px-6 text-center">
-                  <h2 className="text-xl font-semibold mb-2">{pkg.name}</h2>
-                  <div className="text-2xl font-bold mb-2">
-                    {pkg.price === 0 ? 'Free' : `${pkg.currency} $${pkg.price}`}
-                  </div>
-                </div>
-                {/* Center: Features */}
-                <div className="flex-1 flex items-center justify-center px-6">
-                  <ul className="space-y-2 text-sm text-secondary-700 w-full">
-                    {FEATURE_FIELDS.filter((f) => f.key !== 'is_trial').map(
-                      (feature) => {
-                        const value = pkg.features[feature.key]
-                        if (feature.type === 'boolean' && value) {
-                          return (
-                            <li
-                              key={feature.key}
-                              className="flex items-center justify-center"
-                            >
-                              <span className="mr-2 text-primary">•</span>{' '}
-                              {feature.label}
-                            </li>
-                          )
-                        }
-                        if (
-                          feature.type === 'number' &&
-                          typeof value === 'number'
-                        ) {
-                          return (
-                            <li
-                              key={feature.key}
-                              className="flex items-center justify-center"
-                            >
-                              <span className="mr-2 text-primary">•</span>{' '}
-                              <span className="text-primary mr-2">{value}</span>{' '}
-                              {feature.label}
-                            </li>
-                          )
-                        }
-                        return null
-                      }
-                    )}
-                  </ul>
-                </div>
-                {/* Bottom: Subscribe/Cancel Button */}
-                <div className="px-6 pb-6 flex flex-col gap-2">
+              <PricingCard key={pkg.id} plan={pkg}>
+                <CardFooter>
                   {isSubscribed ? (
-                    <>
+                    <div className="flex flex-col gap-2 w-full">
                       <button
                         className="w-full py-2 px-4 rounded font-semibold text-white bg-green-500 cursor-default opacity-80"
                         disabled
@@ -172,7 +125,7 @@ export default function UpgradePackagesPage() {
                       >
                         {isCancelling ? 'Cancelling...' : 'Cancel Subscription'}
                       </button>
-                    </>
+                    </div>
                   ) : (
                     <button
                       className={`w-full py-2 px-4 rounded font-semibold text-white bg-primary hover:bg-primary-dark disabled:opacity-60`}
@@ -182,8 +135,8 @@ export default function UpgradePackagesPage() {
                       {isSubscribing ? 'Subscribing...' : 'Subscribe'}
                     </button>
                   )}
-                </div>
-              </div>
+                </CardFooter>
+              </PricingCard>
             )
           })}
         </div>
