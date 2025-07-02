@@ -41,7 +41,7 @@ export function PricingCard({ plan, children }: { plan: Package, children?: Reac
               return (
                 <li key={feature.key} className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>{feature.label}: <span className="font-semibold">{value}</span></span>
+                  <span>{value} <span className="">{feature.label}</span></span>
                 </li>
               );
             }
