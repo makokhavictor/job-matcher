@@ -5,7 +5,7 @@ import React from 'react';
 
 export function PricingCard({ plan, children }: { plan: Package, children?: React.ReactNode }) {
   return (
-    <Card className="flex flex-col min-w-[320px] max-w-xs flex-shrink-0 h-full">
+    <Card className="flex flex-col min-w-[320px] min-h-[600px] max-w-xs flex-shrink-0 h-full">
       {/* Top Section: Title + Price + Description */}
       <CardHeader className="space-y-4">
         <div>
@@ -21,7 +21,12 @@ export function PricingCard({ plan, children }: { plan: Package, children?: Reac
           )}
         </div>
 
-        <CardDescription>{plan.description}</CardDescription>
+        {/* Render HTML if present in plan.description */}
+        {plan.description ? (
+          <div className="text-muted-foreground text-sm" data-slot="card-description" dangerouslySetInnerHTML={{ __html: plan.description }} />
+        ) : (
+          <CardDescription>{plan.description}</CardDescription>
+        )}
       </CardHeader>
 
       {/* Middle Section: Features */}

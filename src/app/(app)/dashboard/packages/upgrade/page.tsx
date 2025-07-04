@@ -10,15 +10,70 @@ import { useAuth } from '@/app/providers/auth-provider'
 import { PricingCard } from '@/components/marketing/PricingCard'
 import { CardFooter } from '@/components/ui/card'
 
-async function fetchPublicPackages(): Promise<Package[]> {
-  return await apiClient('/packages/public')
-}
 
-async function subscribeToPlan(plan: string) {
-  return await apiClient('/auth/subscribe', {
-    method: 'POST',
-    body: JSON.stringify({ plan }),
-  })
+
+async function fetchPublicPackages(): Promise<Package[]> {
+  const res = await fetch('/api/payments/products');
+  if (!res.ok) throw new Error('Failed to fetch products');
+  const data = await res.json();
+  // Default features for LemonSqueezy variants (customize as needed)
+  const defaultFeatures = {
+    unlimited_cv_analysis: false,
+    max_cvs: 1,
+    advanced_match_scoring: false,
+    tailored_improvement_suggestions: false,
+    result_history_days: 7,
+    priority_support: false,
+    multiple_cv_versions: false,
+    report_export: false,
+    is_trial: false,
+  };
+
+  const featureMap: Record<string, Partial<typeof defaultFeatures>> = {
+    'Trial': {
+      is_trial: true,
+      result_history_days: 7,
+    },
+    'Basic': {
+      max_cvs: 3,
+      tailored_improvement_suggestions: true,
+      result_history_days: 30,
+    },
+    'Pro': {
+      unlimited_cv_analysis: true,
+      max_cvs: 10,
+      advanced_match_scoring: true,
+      tailored_improvement_suggestions: true,
+      result_history_days: 90,
+      priority_support: true,
+      multiple_cv_versions: true,
+      report_export: true,
+    }
+  }
+  // Map each variant to a displayable package, extracting info from product and variant
+  const variants = (data.products as Record<string, unknown>[] || []).flatMap((product) =>
+    (product.variants as Record<string, unknown>[] || [])
+      .slice(1) // Ignore the first variant
+      .map((variant) => {
+        const name = (variant.attributes as Record<string, unknown>)?.name as string || '';
+        const baseFeatures = { ...defaultFeatures };
+        const mappedFeatures = featureMap[name] || {};
+        
+        return {
+          id: typeof variant.id === 'string' ? parseInt(variant.id, 10) : (typeof variant.id === 'number' ? variant.id : undefined),
+          name,
+          description: (variant.attributes as Record<string, unknown>)?.description as string || '',
+          price: typeof (variant.attributes as Record<string, unknown>)?.price === 'number' ? ((variant.attributes as Record<string, unknown>)?.price as number) / 100 : 0,
+          currency: 'USD',
+          billing_cycle: (variant.attributes as Record<string, unknown>)?.interval as string || 'month',
+          is_active: (product.attributes as Record<string, unknown>)?.status === 'published',
+          features: {
+            ...baseFeatures,
+            ...mappedFeatures,
+          },
+        };
+      }))
+  return variants;
 }
 
 async function cancelSubscription() {
@@ -38,25 +93,6 @@ export default function UpgradePackagesPage() {
   })
 
   const {
-    mutate: subscribe,
-    isPending: isSubscribing,
-  } = useMutation({
-    mutationFn: subscribeToPlan,
-    onSuccess: () => {
-      toast.success('Subscription successful!')
-      queryClient.invalidateQueries({ queryKey: ['public-packages'] })
-      checkAuth()
-    },
-    onError: (err: unknown) => {
-      if (err instanceof Error) {
-        toast.error(err.message)
-      } else {
-        toast.error('Failed to subscribe')
-      }
-    },
-  })
-
-  const {
     mutate: cancel,
     isPending: isCancelling,
   } = useMutation({
@@ -71,6 +107,42 @@ export default function UpgradePackagesPage() {
         toast.error(err.message)
       } else {
         toast.error('Failed to cancel subscription')
+      }
+    },
+  })
+
+  // New: Checkout mutation for LemonSqueezy
+  const {
+    mutate: startCheckout,
+    isPending: isCheckingOut,
+  } = useMutation({
+    mutationFn: async (plan: Package) => {
+      const res: { checkoutUrl?: string; checkoutId?: string } = await apiClient('/payments/create-checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          variantId: (plan as any).variantId || plan.id, // use variantId for LemonSqueezy
+          customData: {
+            email: user?.email,
+            name: user?.name,
+            userId: user?.id,
+          },
+        }),
+      })
+      return res
+    },
+    onSuccess: (data: unknown) => {
+      const checkoutData = data as { checkoutUrl?: string; checkoutId?: string }
+      if (checkoutData?.checkoutUrl) {
+        window.location.href = checkoutData.checkoutUrl
+      } else {
+        toast.error('Failed to start checkout')
+      }
+    },
+    onError: (err: unknown) => {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error('Failed to start checkout')
       }
     },
   })
@@ -129,10 +201,10 @@ export default function UpgradePackagesPage() {
                   ) : (
                     <button
                       className={`w-full py-2 px-4 rounded font-semibold text-white bg-primary hover:bg-primary-dark disabled:opacity-60`}
-                      disabled={isSubscribing}
-                      onClick={() => subscribe(pkg.name)}
+                      disabled={isCheckingOut}
+                      onClick={() => startCheckout(pkg)}
                     >
-                      {isSubscribing ? 'Subscribing...' : 'Subscribe'}
+                      {isCheckingOut ? 'Redirecting...' : 'Subscribe'}
                     </button>
                   )}
                 </CardFooter>
