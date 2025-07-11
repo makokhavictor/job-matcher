@@ -19,11 +19,13 @@ export interface Package {
   billing_cycle: string
   is_active: boolean
   features: PackageFeatures
+  variantId?: number | undefined
 }
 
 export interface Subscription {
   id: number
   package_id: number
+  plan_id?: number // Added to support LemonSqueezy plan/variant id
   status: string
   start_date: string
   end_date: string

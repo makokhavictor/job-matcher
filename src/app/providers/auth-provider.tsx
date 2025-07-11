@@ -14,7 +14,7 @@ interface AuthProviderProps {
   children: ReactNode
 }
 
-interface User {
+export interface User {
   id: string | number
   email: string
   name: string
@@ -69,6 +69,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (response.ok) {
           const userData = await response.json()
+          // If userData has a subscription with a plan_id, fetch the variant and add it
+          if (userData?.subscription?.plan_id) {
+            try {
+              const variantRes = await fetch(`/api/payments/products/variant/${userData.subscription.plan_id}`)
+              if (variantRes.ok) {
+                const { variant } = await variantRes.json()
+                userData.subscription.package = variant?.data?.attributes
+              }
+            } catch (err) {
+              console.error('Failed to fetch variant:', err)
+            }
+          }
           setUser(userData)
         } else {
           localStorage.removeItem('auth')

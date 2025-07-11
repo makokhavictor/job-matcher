@@ -1,5 +1,5 @@
 // lib/lemonsqueezy.js
-import { lemonSqueezySetup, listProducts, listVariants } from '@lemonsqueezy/lemonsqueezy.js';
+import { lemonSqueezySetup, listProducts, listVariants, getVariant, cancelSubscription } from '@lemonsqueezy/lemonsqueezy.js';
 
 lemonSqueezySetup({
   apiKey: process.env.LEMONSQUEEZY_API_KEY,
@@ -8,4 +8,4 @@ lemonSqueezySetup({
   },
 });
 
-export { lemonSqueezySetup, listProducts, listVariants };
+export { lemonSqueezySetup, listProducts, listVariants, getVariant, cancelSubscription };

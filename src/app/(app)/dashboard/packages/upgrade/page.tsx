@@ -1,12 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/lib/utils/apiClient'
 import { Spinner } from '@/components/ui/spinner'
 import { Package } from '@/types/package'
 import { toast } from 'sonner'
 import { useAuth } from '@/app/providers/auth-provider'
+import type { User } from '@/app/providers/auth-provider'
 import { PricingCard } from '@/components/marketing/PricingCard'
 import { CardFooter } from '@/components/ui/card'
 
@@ -76,8 +77,14 @@ async function fetchPublicPackages(): Promise<Package[]> {
   return variants;
 }
 
-async function cancelSubscription() {
-  return await apiClient('/auth/cancel', { method: 'POST' })
+async function cancelSubscription(user: User | null) {
+  // Use the new API route and pass the user's subscription id
+  const res = await apiClient('/api/payments/cancel', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subscriptionId: user?.subscription?.id || user?.subscription?.plan_id }),
+  })
+  return res
 }
 
 export default function UpgradePackagesPage() {
@@ -96,7 +103,7 @@ export default function UpgradePackagesPage() {
     mutate: cancel,
     isPending: isCancelling,
   } = useMutation({
-    mutationFn: cancelSubscription,
+    mutationFn: () => cancelSubscription(user),
     onSuccess: () => {
       toast.success('Subscription cancelled!')
       queryClient.invalidateQueries({ queryKey: ['public-packages'] })
@@ -111,16 +118,23 @@ export default function UpgradePackagesPage() {
     },
   })
 
+  // Local state to track which plan is being checked out
+  const [checkingOutPlanId, setCheckingOutPlanId] = useState<number | null>(null)
   // New: Checkout mutation for LemonSqueezy
   const {
     mutate: startCheckout,
-    isPending: isCheckingOut,
+    // Remove isPending, we'll use our own state
   } = useMutation({
     mutationFn: async (plan: Package) => {
-      const res: { checkoutUrl?: string; checkoutId?: string } = await apiClient('/payments/create-checkout', {
+      setCheckingOutPlanId(plan.id ?? null)
+      // Use fetch for Next.js API route
+      const res = await fetch('/api/payments/create-checkout', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          variantId: (plan as any).variantId || plan.id, // use variantId for LemonSqueezy
+          variantId: plan.variantId || plan.id, // use variantId for LemonSqueezy
           customData: {
             email: user?.email,
             name: user?.name,
@@ -128,9 +142,12 @@ export default function UpgradePackagesPage() {
           },
         }),
       })
-      return res
+      if (!res.ok) throw new Error('Failed to start checkout')
+      const data = await res.json()
+      return data as { checkoutUrl?: string; checkoutId?: string }
     },
     onSuccess: (data: unknown) => {
+      setCheckingOutPlanId(null)
       const checkoutData = data as { checkoutUrl?: string; checkoutId?: string }
       if (checkoutData?.checkoutUrl) {
         window.location.href = checkoutData.checkoutUrl
@@ -139,6 +156,7 @@ export default function UpgradePackagesPage() {
       }
     },
     onError: (err: unknown) => {
+      setCheckingOutPlanId(null)
       if (err instanceof Error) {
         toast.error(err.message)
       } else {
@@ -178,7 +196,8 @@ export default function UpgradePackagesPage() {
         </h1>
         <div className="flex flex-row gap-8 overflow-x-auto pb-4 md:justify-center">
           {packages.filter(pkg => !pkg.features.is_trial).map((pkg) => {
-            const isSubscribed = user?.subscription?.package?.id === pkg.id
+            const isSubscribed = user?.subscription?.plan_id === pkg.id
+            const isCheckingOutThisPlan = checkingOutPlanId === pkg.id
             return (
               <PricingCard key={pkg.id} plan={pkg}>
                 <CardFooter>
@@ -201,10 +220,10 @@ export default function UpgradePackagesPage() {
                   ) : (
                     <button
                       className={`w-full py-2 px-4 rounded font-semibold text-white bg-primary hover:bg-primary-dark disabled:opacity-60`}
-                      disabled={isCheckingOut}
+                      disabled={isCheckingOutThisPlan}
                       onClick={() => startCheckout(pkg)}
                     >
-                      {isCheckingOut ? 'Redirecting...' : 'Subscribe'}
+                      {isCheckingOutThisPlan ? 'Redirecting...' : 'Subscribe'}
                     </button>
                   )}
                 </CardFooter>
