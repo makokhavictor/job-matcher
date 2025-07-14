@@ -20,12 +20,14 @@ export interface Package {
   is_active: boolean
   features: PackageFeatures
   variantId?: number | undefined
+  product_id?: number | undefined
 }
 
 export interface Subscription {
   id: number
   package_id: number
   plan_id?: number // Added to support LemonSqueezy plan/variant id
+  subscription_id?: number // Added to support LemonSqueezy plan/variant id
   status: string
   start_date: string
   end_date: string

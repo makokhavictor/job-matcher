@@ -65,6 +65,7 @@ export async function POST(request: NextRequest) {
         payment_method: attributes.card_brand
           ? `${attributes.card_brand} ${attributes.card_last_four}`
           : null,
+        subscription_id: body.data.id
       };
       // Send to Python backend
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
@@ -86,12 +87,35 @@ export async function POST(request: NextRequest) {
         console.error('Error sending subscription to backend:', err);
       }
     } else if (
-      eventName === 'subscription_cancelled' ||
-      eventName === 'subscription_expired' ||
-      eventName === 'subscription_paused'
+      eventName === 'subscription_cancelled'
+      //  ||
+      // eventName === 'subscription_expired' ||
+      // eventName === 'subscription_paused'
     ) {
       console.log('Subscription cancelled/expired/paused:', body);
       // Implement your business logic here for cancelled, expired, or paused subscriptions
+      const attributes = body.data.attributes;
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+      const apiKey = process.env.NEXT_PUBLIC_BACKEND_API_KEY;
+      try {
+        const resp = await fetch(`${backendUrl}/subscriptions/cancel`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey || '',
+          },
+          body: JSON.stringify({
+            subscription_id: body.data.id,
+            user_email: attributes.user_email,
+          }),
+        });
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          console.error('Failed to cancel subscription in backend:', errorText);
+        }
+      } catch (err) {
+        console.error('Error sending cancel subscription to backend:', err);
+      }
     } else if (eventName === 'subscription_payment_successful') {
       console.log('Subscription payment successful:', body);
       // Implement your business logic here for successful subscription payments

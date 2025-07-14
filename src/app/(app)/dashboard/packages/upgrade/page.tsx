@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/lib/utils/apiClient'
 import { Spinner } from '@/components/ui/spinner'
 import { Package } from '@/types/package'
 import { toast } from 'sonner'
@@ -10,81 +9,22 @@ import { useAuth } from '@/app/providers/auth-provider'
 import type { User } from '@/app/providers/auth-provider'
 import { PricingCard } from '@/components/marketing/PricingCard'
 import { CardFooter } from '@/components/ui/card'
-
+import { Button } from '@/components/ui/button'
+import { apiClient } from '@/lib/utils/apiClient'
 
 
 async function fetchPublicPackages(): Promise<Package[]> {
-  const res = await fetch('/api/payments/products');
-  if (!res.ok) throw new Error('Failed to fetch products');
-  const data = await res.json();
-  // Default features for LemonSqueezy variants (customize as needed)
-  const defaultFeatures = {
-    unlimited_cv_analysis: false,
-    max_cvs: 1,
-    advanced_match_scoring: false,
-    tailored_improvement_suggestions: false,
-    result_history_days: 7,
-    priority_support: false,
-    multiple_cv_versions: false,
-    report_export: false,
-    is_trial: false,
-  };
-
-  const featureMap: Record<string, Partial<typeof defaultFeatures>> = {
-    'Trial': {
-      is_trial: true,
-      result_history_days: 7,
-    },
-    'Basic': {
-      max_cvs: 3,
-      tailored_improvement_suggestions: true,
-      result_history_days: 30,
-    },
-    'Pro': {
-      unlimited_cv_analysis: true,
-      max_cvs: 10,
-      advanced_match_scoring: true,
-      tailored_improvement_suggestions: true,
-      result_history_days: 90,
-      priority_support: true,
-      multiple_cv_versions: true,
-      report_export: true,
-    }
-  }
-  // Map each variant to a displayable package, extracting info from product and variant
-  const variants = (data.products as Record<string, unknown>[] || []).flatMap((product) =>
-    (product.variants as Record<string, unknown>[] || [])
-      .slice(1) // Ignore the first variant
-      .map((variant) => {
-        const name = (variant.attributes as Record<string, unknown>)?.name as string || '';
-        const baseFeatures = { ...defaultFeatures };
-        const mappedFeatures = featureMap[name] || {};
-        
-        return {
-          id: typeof variant.id === 'string' ? parseInt(variant.id, 10) : (typeof variant.id === 'number' ? variant.id : undefined),
-          name,
-          description: (variant.attributes as Record<string, unknown>)?.description as string || '',
-          price: typeof (variant.attributes as Record<string, unknown>)?.price === 'number' ? ((variant.attributes as Record<string, unknown>)?.price as number) / 100 : 0,
-          currency: 'USD',
-          billing_cycle: (variant.attributes as Record<string, unknown>)?.interval as string || 'month',
-          is_active: (product.attributes as Record<string, unknown>)?.status === 'published',
-          features: {
-            ...baseFeatures,
-            ...mappedFeatures,
-          },
-        };
-      }))
-  return variants;
+  return await apiClient('/packages/public')
 }
 
 async function cancelSubscription(user: User | null) {
-  // Use the new API route and pass the user's subscription id
-  const res = await apiClient('/api/payments/cancel', {
+  const res = await fetch('/api/payments/cancel', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ subscriptionId: user?.subscription?.id || user?.subscription?.plan_id }),
+    body: JSON.stringify({ subscriptionId: user?.subscription?.subscription_id }),
   })
-  return res
+  if (!res.ok) throw new Error('Failed to cancel subscription')
+  return res.json()
 }
 
 export default function UpgradePackagesPage() {
@@ -134,7 +74,7 @@ export default function UpgradePackagesPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          variantId: plan.variantId || plan.id, // use variantId for LemonSqueezy
+          variantId: plan.product_id || plan.id, // use variantId for LemonSqueezy
           customData: {
             email: user?.email,
             name: user?.name,
@@ -203,28 +143,29 @@ export default function UpgradePackagesPage() {
                 <CardFooter>
                   {isSubscribed ? (
                     <div className="flex flex-col gap-2 w-full">
-                      <button
-                        className="w-full py-2 px-4 rounded font-semibold text-white bg-green-500 cursor-default opacity-80"
+                      <Button
+                        className="w-full bg-green-500 cursor-default opacity-80"
                         disabled
                       >
                         Subscribed
-                      </button>
-                      <button
-                        className="w-full py-2 px-4 rounded font-semibold text-white bg-destructive hover:bg-destructive-dark disabled:opacity-60"
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="w-full"
                         disabled={isCancelling}
                         onClick={() => cancel()}
                       >
                         {isCancelling ? 'Cancelling...' : 'Cancel Subscription'}
-                      </button>
+                      </Button>
                     </div>
                   ) : (
-                    <button
-                      className={`w-full py-2 px-4 rounded font-semibold text-white bg-primary hover:bg-primary-dark disabled:opacity-60`}
+                    <Button
+                      className="w-full"
                       disabled={isCheckingOutThisPlan}
                       onClick={() => startCheckout(pkg)}
                     >
                       {isCheckingOutThisPlan ? 'Redirecting...' : 'Subscribe'}
-                    </button>
+                    </Button>
                   )}
                 </CardFooter>
               </PricingCard>

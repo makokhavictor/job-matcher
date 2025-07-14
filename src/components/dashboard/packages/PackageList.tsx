@@ -69,14 +69,22 @@ export function PackageList() {
             <div className="text-secondary-700 mb-2">{pkg.description}</div>
             <ul className="list-disc pl-6 text-accent-700">
               {FEATURE_FIELDS.map((feature) => {
-                const value = pkg.features[feature.key]
-                if (feature.type === 'boolean' && value) {
-                  return <li key={feature.key}>{feature.label}</li>
+                const value = pkg.features?.[feature.key];
+                if (feature.type === 'boolean') {
+                  if (value === true) {
+                    return <li key={feature.key}>{feature.label}</li>;
+                  }
+                  // If missing or false, skip
+                  return null;
                 }
-                if (feature.type === 'number' && typeof value === 'number') {
-                  return <li key={feature.key}>{feature.label}: <span className="font-semibold">{value}</span></li>
+                if (feature.type === 'number') {
+                  if (typeof value === 'number') {
+                    return <li key={feature.key}>{feature.label}: <span className="font-semibold">{value}</span></li>;
+                  }
+                  // If missing or not a number, skip
+                  return null;
                 }
-                return null
+                return null;
               })}
             </ul>
             <div className="mt-2 flex items-center justify-between">
