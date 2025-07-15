@@ -78,11 +78,11 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
         </div>
       </div>
       {/* Plan footer */}
-      {user?.subscription && (
         <div className="mt-auto bg-secondary-100 px-4 py-4 flex flex-col items-start gap-2">
-          <span className="text-xs text-muted-foreground font-medium">
-            Plan: {user.subscription?.package?.name}
-            {user.subscription.end_date && (
+          <span className="text-sm text-muted-foreground font-bold">
+            Plan: <span className="text-primary">{user?.subscription?.package?.name || "Free Plan"}</span>
+            {user?.subscription?.status?.toLowerCase() === 'trial' && <>(Trial)</>}
+            {user?.subscription?.end_date && (
               <> ({differenceInDays(parseISO(user.subscription.end_date), new Date())} days left)</>
             )}
           </span>
@@ -92,7 +92,6 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
             </button>
           </Link>
         </div>
-      )}
     </div>
   )
 }
