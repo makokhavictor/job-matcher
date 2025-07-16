@@ -11,7 +11,7 @@ async function handleResponse(res: Response) {
 export async function createCheckout(variantId: number, user: User | null) {
   if (!user) throw new Error("User not found");
 
-  const res = await fetch("/api/payments/create-checkout", {
+  const res = await fetch("api/payments/create-checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -31,7 +31,7 @@ export async function updateSubscription(
   subscriptionId: number,
   variantId: number
 ) {
-  const res = await fetch("/api/payments/update-subscription", {
+  const res = await fetch("api/payments/update-subscription", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -45,7 +45,7 @@ export async function updateSubscription(
 }
 
 export async function cancelSubscription(subscriptionId: number) {
-  const res = await fetch("/api/payments/cancel", {
+  const res = await fetch("api/payments/cancel", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ subscriptionId }),
