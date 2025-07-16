@@ -9,6 +9,13 @@ export function isServerSide(): boolean {
   return typeof window === 'undefined';
 }
 
+export function getApiPath(path: string): string {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  // Ensure the path starts with a slash
+  const formattedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${basePath}${formattedPath}`;
+}
+
 export class InMemoryStorage {
   private store: Record<string, string> = {};
 
