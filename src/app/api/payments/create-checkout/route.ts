@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     let checkout;
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
     try {
       const checkoutPayload: NewCheckout = {
           checkoutOptions: {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
           },
           productOptions: {
             enabledVariants: [+variantId],
-            redirectUrl: `${process.env.NEXTAUTH_URL}/dashboard`,
+            redirectUrl: `${process.env.NEXTAUTH_URL}/${basePath}/dashboard`,
             receiptButtonText: 'Go to Dashboard',
             receiptThankYouNote: 'Thank you for your purchase!',
           },
