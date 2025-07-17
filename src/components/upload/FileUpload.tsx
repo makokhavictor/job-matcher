@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -19,6 +19,11 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
   const [uploaded, setUploaded] = useState<File | string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'upload' | 'paste'>(type === 'jobDescription' ? 'paste' : 'upload');
+ 
+
+  useEffect(() => {
+    setActiveTab(type === 'jobDescription' ? 'paste' : 'upload');
+  }, [type]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -130,6 +135,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
 
   const uploadAreaId = `${type}-upload-area`;
   const fileInputId = `${type}-file-input`;
+  const uploadedLabel = `${type === 'cv' ? 'CV' : 'job description'}`;
 
   return (
     <div
@@ -149,7 +155,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
         className="sr-only"
         accept=".pdf,.doc,.docx"
         onChange={handleFileInput}
-        aria-label={`Upload ${type === 'cv' ? 'CV' : 'job description'}`}
+        aria-label={`Upload ${uploadedLabel}`}
       />
 
       <div className="text-center" id={uploadAreaId}>
@@ -157,11 +163,31 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
           className="mx-auto h-12 w-12 text-secondary-400" 
           aria-hidden="true"
         />
+        {uploaded && (
+          <div className="mt-4 rounded bg-secondary-50 p-3 text-left text-sm text-secondary-700 border border-secondary-200">
+            {typeof uploaded === 'string' ? (
+              <>
+                <div className="font-semibold mb-1">Pasted Text:</div>
+                <div className="whitespace-pre-line break-words max-h-32 overflow-y-auto text-xs">
+                  {uploaded.length > 300 ? `${uploaded.slice(0, 300)}...` : uploaded}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="font-semibold mb-1">Uploaded File:</div>
+                <div className="flex items-center gap-2">
+                  <span className="truncate max-w-xs" title={uploaded.name}>{uploaded.name}</span>
+                  <span className="text-secondary-500 text-xs">({(uploaded.size / 1024).toFixed(1)} KB)</span>
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {type === 'jobDescription' ? (
           <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'upload' | 'paste')} className="mt-4">
             <TabsList className="flex justify-center mb-4">
               {/* <TabsTrigger value="upload">Upload</TabsTrigger> */}
-              <TabsTrigger value="paste">Paste</TabsTrigger>
+              <TabsTrigger value="paste">Paste your job description</TabsTrigger>
             </TabsList>
             {/* <TabsContent value="upload">
               <div className="mt-2">
@@ -212,26 +238,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
             </p>
           </>
         )}
-        {uploaded && (
-          <div className="mt-4 rounded bg-secondary-50 p-3 text-left text-sm text-secondary-700 border border-secondary-200">
-            {typeof uploaded === 'string' ? (
-              <>
-                <div className="font-semibold mb-1">Pasted Text:</div>
-                <div className="whitespace-pre-line break-words max-h-32 overflow-y-auto text-xs">
-                  {uploaded.length > 300 ? `${uploaded.slice(0, 300)}...` : uploaded}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="font-semibold mb-1">Uploaded File:</div>
-                <div className="flex items-center gap-2">
-                  <span className="truncate max-w-xs" title={uploaded.name}>{uploaded.name}</span>
-                  <span className="text-secondary-500 text-xs">({(uploaded.size / 1024).toFixed(1)} KB)</span>
-                </div>
-              </>
-            )}
-          </div>
-        )}
+        
       </div>
       {isUploading && (
         <div 
