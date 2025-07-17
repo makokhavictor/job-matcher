@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import type { Package } from '@/types/package'
-import type { User } from '@/app/providers/auth-provider'
 
 interface PlanCardFooterProps {
   plan: Package
-  user: User | null
   isSubscribed: boolean
   isProcessing: boolean
   isCancelling: boolean
@@ -16,7 +14,6 @@ interface PlanCardFooterProps {
 
 export function PlanCardFooter({
   plan,
-  user,
   isSubscribed,
   isProcessing,
   isCancelling,
