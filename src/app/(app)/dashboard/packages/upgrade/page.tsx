@@ -14,6 +14,7 @@ import {
   useUpdateSubscription,
   useCancelSubscription,
 } from '@/hooks/useSubscriptions'
+import { PlanCardFooter } from '@/components/marketing/PlanCardFooter'
 
 async function fetchPublicPackages(): Promise<Package[]> {
   return await apiClient('/packages/public')
@@ -79,34 +80,18 @@ export default function UpgradePackagesPage() {
               const isProcessing = isCreatingCheckout || isUpdatingSubscription
 
               return (
-                <PricingCard key={pkg.id} plan={pkg}>
+                <PricingCard key={pkg.id} plan={pkg} active={isSubscribed}>
                   <CardFooter>
-                    {isSubscribed ? (
-                      <div className="flex flex-col gap-2 w-full">
-                        <Button
-                          className="w-full bg-green-500 cursor-default opacity-80"
-                          disabled
-                        >
-                          Subscribed
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          className="w-full"
-                          disabled={isCancelling}
-                          onClick={() => cancelSubscription(user?.subscription?.subscription_id as number)}
-                        >
-                          {isCancelling ? 'Cancelling...' : 'Cancel Subscription'}
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        className="w-full"
-                        disabled={isProcessing}
-                        onClick={() => handlePlanChange(pkg)}
-                      >
-                        {isProcessing ? 'Processing...' : 'Subscribe'}
-                      </Button>
-                    )}
+                    <PlanCardFooter
+                      plan={pkg}
+                      user={user}
+                      isSubscribed={isSubscribed}
+                      isProcessing={isProcessing}
+                      isCancelling={isCancelling}
+                      handlePlanChange={handlePlanChange}
+                      cancelSubscription={(id) => id && cancelSubscription(id)}
+                      subscriptionId={user?.subscription?.subscription_id}
+                    />
                   </CardFooter>
                 </PricingCard>
               )
