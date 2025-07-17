@@ -80,7 +80,7 @@ export function Pricing() {
                   <CardFooter>
                     <Button asChild className="w-full">
                       <a href={`/register?plan=${plan.name.toLowerCase()}`}>
-                        {plan.price === 0 ? 'Get Started' : 'Subscribe'}
+                        {plan.price === 0 ? 'Get Started' : 'Start Now'}
                       </a>
                     </Button>
                   </CardFooter>
