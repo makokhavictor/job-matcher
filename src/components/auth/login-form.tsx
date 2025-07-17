@@ -60,6 +60,9 @@ export function LoginForm() {
 
   return (
     <div className="grid gap-6">
+      <div className="mb-4 p-3 rounded bg-yellow-100 text-yellow-800 text-center font-medium">
+        🚧 Email/password login is coming soon! Please use <span className="font-semibold">Google</span> to sign in below.
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4">
           <div className="grid gap-2">
@@ -70,7 +73,7 @@ export function LoginForm() {
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
-              disabled={isSubmitting}
+              disabled
             />
             {errors?.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -82,16 +85,13 @@ export function LoginForm() {
               placeholder="Password"
               type="password"
               autoComplete="current-password"
-              disabled={isSubmitting}
+              disabled
             />
             {errors?.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
           </div>
-          <Button disabled={isSubmitting}>
-            {isSubmitting && (
-              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent" />
-            )}
+          <Button disabled>
             Sign In
           </Button>
         </div>
