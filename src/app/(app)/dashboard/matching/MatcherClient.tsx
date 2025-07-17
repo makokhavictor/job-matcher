@@ -129,6 +129,7 @@ export function MatcherClient() {
     },
     onError: (error: unknown) => {
       let errorMessage = 'Error analyzing documents'
+      console.log(error);
       // Try to get error code if available
       const err = error as { code?: string }
       if (err?.code === 'TIMEOUT') {

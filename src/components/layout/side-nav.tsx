@@ -7,10 +7,19 @@ import {
   LayoutDashboard, 
   FileSearch, 
   Settings, 
-  ChartLine 
+  ChartLine,
+  Zap
 } from 'lucide-react'
 import { useAuth } from '@/app/providers/auth-provider'
 import { differenceInDays, parseISO } from 'date-fns'
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 
 const navItems = [
   {
@@ -49,6 +58,12 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
     (item) => item.title !== 'Packages' || user?.is_admin
   )
 
+  const trialDays = user?.subscription?.trial_ends_at 
+    ? differenceInDays(parseISO(user.subscription.trial_ends_at), new Date())
+    : 0
+  
+  const trialProgress = trialDays > 0 ? (14 - trialDays) / 14 * 100 : 0
+
   return (
     <div className={cn("pb-12 w-64 border-r bg-secondary-50 flex flex-col h-full min-h-screen", className)} {...props}>
       <div className="space-y-4 py-4 flex-1">
@@ -78,20 +93,30 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
         </div>
       </div>
       {/* Plan footer */}
-        <div className="mt-auto bg-secondary-100 px-4 py-4 flex flex-col items-start gap-2">
-          <span className="text-sm text-muted-foreground font-bold">
-            Plan: <span className="text-primary">{user?.subscription?.package?.name || "Free Plan"}</span>
-            {user?.subscription?.status?.toLowerCase() === 'trial' && <>(Trial)</>}
-            {user?.subscription?.end_date && (
-              <> ({differenceInDays(parseISO(user.subscription.end_date), new Date())} days left)</>
+      <div className="mt-auto p-4">
+        <Card>
+          <CardHeader className="p-2 pt-0 md:p-4">
+            <CardTitle>
+              {user?.subscription?.package?.name || "Free Plan"}
+              {user?.subscription?.status?.toLowerCase() === 'trial' && <span className="text-primary"> (Trial)</span>}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
+            {user?.subscription?.status?.toLowerCase() === 'trial' && (
+              <div className="text-center text-sm text-muted-foreground mb-4">
+                <p>{trialDays} days left</p>
+                <Progress value={trialProgress} className="w-full mt-2" />
+              </div>
             )}
-          </span>
-          <Link href="/dashboard/packages/upgrade">
-            <button className="text-xs font-semibold text-primary hover:underline focus:outline-none">
-              Upgrade / Change Plan
-            </button>
-          </Link>
-        </div>
+            <Link href="/dashboard/packages/upgrade">
+              <Button size="sm" className="w-full">
+                <Zap className="mr-2 h-4 w-4" />
+                Upgrade plan
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
