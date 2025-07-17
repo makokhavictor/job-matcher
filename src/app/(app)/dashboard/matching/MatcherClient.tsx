@@ -106,7 +106,7 @@ export function MatcherClient() {
       // Use apiClient for the request
       // apiClient expects JSON by default, but we need to send FormData and custom headers
       // So we pass headers and body, and override Content-Type
-      const response = await apiClient('/match', {
+      const response = await apiClient('/matcher/match', {
         method: 'POST',
         body: formData,
       })

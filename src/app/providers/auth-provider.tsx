@@ -9,6 +9,7 @@ import {
   ReactNode,
 } from 'react'
 import type { Subscription } from '@/types/package'
+import { useAnalysisStore } from '@/stores/analysis.store'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -47,6 +48,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const pathname = usePathname()
   const router = useRouter()
   const isDashboardRoute = pathname?.startsWith('/dashboard')
+
+  const fetchRecentAnalyses = useAnalysisStore((state) => state.fetchRecentAnalyses)
 
   const checkAuth = useCallback(async () => {
     const auth = localStorage.getItem('auth')
@@ -100,6 +103,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       checkAuth()
     }
   }, [isDashboardRoute, checkAuth])
+
+  // Fetch recent analyses after login or reload if user is present
+  useEffect(() => {
+    if (isDashboardRoute && user) {
+      fetchRecentAnalyses()
+    }
+  }, [isDashboardRoute, user, fetchRecentAnalyses])
 
   const logout = () => {
     localStorage.removeItem('auth')
