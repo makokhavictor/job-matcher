@@ -12,13 +12,35 @@ interface PlansGridProps {
   user: User | null
   title?: string
   className?: string
+  showFreePlan?: boolean
+}
+
+const freePlan: Package = {
+  id: 0,
+  name: 'Free Plan',
+  description: 'Basic access to job matching features.',
+  price: 0,
+  currency: '',
+  billing_cycle: 'month',
+  is_active: true,
+  features: {
+    unlimited_cv_analysis: false,
+    max_cvs: 2,
+    advanced_match_scoring: false,
+    tailored_improvement_suggestions: false,
+    result_history_days: 7,
+    priority_support: false,
+    multiple_cv_versions: false,
+    report_export: false,
+    is_trial: false,
+  },
 }
 
 async function fetchPublicPackages(): Promise<Package[]> {
   return await apiClient('/packages/public')
 }
 
-export function PlansGrid({ user, title, className }: PlansGridProps) {
+export function PlansGrid({ user, title, className, showFreePlan }: PlansGridProps) {
   const {
     data: plans,
     isLoading,
@@ -38,7 +60,8 @@ export function PlansGrid({ user, title, className }: PlansGridProps) {
   return (
     <div className={className}>
       {title && <h2 className="text-3xl font-bold mb-8 text-center">{title}</h2>}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {showFreePlan && <PricingCard plan={freePlan} />}
         {isLoading ? (
           <div className="col-span-3 flex justify-center items-center min-h-[200px]"><Spinner size={32} /></div>
         ) : error ? (
@@ -52,7 +75,6 @@ export function PlansGrid({ user, title, className }: PlansGridProps) {
                 <CardFooter>
                   <PlanCardFooter
                     plan={plan}
-                    user={user}
                     isSubscribed={isSubscribed}
                     isProcessing={isProcessing}
                     isCancelling={isCancelling}

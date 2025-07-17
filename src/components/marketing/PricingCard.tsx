@@ -5,7 +5,7 @@ import React from 'react';
 
 export function PricingCard({ plan, children, active }: { plan: Package, children?: React.ReactNode, active?: boolean }) {
   return (
-    <Card className={`flex flex-col min-w-[320px] min-h-[600px] max-w-xs flex-shrink-0 h-full relative transition-all ${active ? 'border-2 border-primary ring-2 ring-primary/30 shadow-lg scale-105' : ''}`}>
+    <Card className={`flex flex-col min-w-[320px] min-h-[600px] max-w-xs flex-shrink-0 h-full relative transition-all ${active ? 'bg-primary/10' : ''}`}>
       {active && (
         <span className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full shadow">Current Plan</span>
       )}
