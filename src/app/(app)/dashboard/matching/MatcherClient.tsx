@@ -129,12 +129,14 @@ export function MatcherClient() {
     },
     onError: (error: unknown) => {
       let errorMessage = 'Error analyzing documents'
-      console.log(error);
       // Try to get error code if available
-      const err = error as { code?: string }
+      const err = error as { code?: string, detail?: string, message?: string }
       if (err?.code === 'TIMEOUT') {
         metrics.trackError('timeoutErrors')
         errorMessage = 'Analysis took too long. Please try again.'
+      } else if (err?.detail) {
+        errorMessage = err.detail
+        metrics.trackError('analysisErrors')
       } else {
         metrics.trackError('analysisErrors')
       }

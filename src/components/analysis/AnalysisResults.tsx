@@ -2,9 +2,7 @@
 
 import { 
   Card, 
-  CardContent, 
   CardDescription, 
-  CardHeader, 
   CardTitle 
 } from '@/components/ui/card'
 import { useAnalysisStore } from '@/stores/analysis.store'
@@ -18,13 +16,11 @@ import { useAuth } from '@/app/providers/auth-provider'
 import { Button } from '@/components/ui/button'
 import { Lock } from 'lucide-react'
 import Link from 'next/link'
-import { useIsMobile } from '@/hooks/use-mobile'
-import { cn } from '@/lib/utils'
 
 export function AnalysisResults() {
   const { results: parsed, loading, error } = useAnalysisStore()
   const { user } = useAuth()
-  const isMobile = useIsMobile()
+  // const isMobile = useIsMobile() // removed unused assignment
 
   const hasAdvancedMatchScoring = user?.subscription?.package?.features?.advanced_match_scoring
   const hasTailoredImprovementSuggestions = user?.subscription?.package?.features?.tailored_improvement_suggestions
