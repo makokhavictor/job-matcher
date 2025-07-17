@@ -9,6 +9,11 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
     cell: ({ row }) => new Date(row.original.created_at).toLocaleString(),
   },
   {
+    id: "title",
+    header: "Title",
+    cell: ({ row }) => row.original.result_data?.title || "No title",
+  },
+  {
     accessorKey: "result_data.match_score",
     header: "Score",
     cell: ({ row }) => row.original.result_data?.match_score ?? "N/A",

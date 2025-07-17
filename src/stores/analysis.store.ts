@@ -18,6 +18,7 @@ export type AnalysisResults = {
   resume_improvements: string[];
   match_score: number;
   score_breakdown: string;
+  title?: string;
 };
 
 export type RecentAnalysis = {
@@ -35,6 +36,7 @@ export type RecentAnalysis = {
     resume_improvements: string[];
     match_score: number;
     score_breakdown: string;
+    title?: string;
   };
   created_at: string;
   updated_at: string;

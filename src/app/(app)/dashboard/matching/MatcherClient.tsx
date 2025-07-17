@@ -49,6 +49,7 @@ export function MatcherClient() {
   const setLoading = useLoadingStore((state) => state.setLoading)
   const resetAnalysisStore = useAnalysisStore((state) => state.reset);
   const setAnalysisResult = useAnalysisStore((state) => state.setResults);
+  const fetchRecentAnalyses = useAnalysisStore((state) => state.fetchRecentAnalyses);
 
   const metrics = MetricsService.getInstance()
 
@@ -123,6 +124,8 @@ export function MatcherClient() {
       }
       if (parsed && typeof parsed.match_score === 'number') {
         setAnalysisResult(parsed)
+        // Fire-and-forget refetch of recent analyses
+        fetchRecentAnalyses()
       }
       setLoading(false)
       toast.success('Analysis complete!')
