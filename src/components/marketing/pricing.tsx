@@ -1,13 +1,13 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { CardFooter } from '@/components/ui/card'
 import { useQuery } from '@tanstack/react-query'
 import { Package } from '@/types/package'
 import { apiClient } from '@/lib/utils/apiClient'
 import { Spinner } from '@/components/ui/spinner'
 import { PricingCard } from './PricingCard'
 import { motion } from 'framer-motion'
+import { freePlan } from '@/types/package';
 
 async function fetchPublicPackages(): Promise<Package[]> {
   return await apiClient('/packages/public')
@@ -68,6 +68,20 @@ export function Pricing() {
         </div>
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-row gap-6 overflow-x-auto pb-4 md:justify-center">
+            {/* Static Free Plan Card */}
+            <motion.div
+              key="free-plan"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0 }}
+              viewport={{ once: true }}
+            >
+              <PricingCard plan={freePlan}>
+                <Button asChild className="w-full">
+                  <a href="/register?plan=free">Start Now</a>
+                </Button>
+              </PricingCard>
+            </motion.div>
             {plans.map((plan, index) => (
               <motion.div
                 key={plan.id || index} // Use plan.id if available, fallback to index
@@ -77,13 +91,11 @@ export function Pricing() {
                 viewport={{ once: true }}
               >
                 <PricingCard plan={plan}>
-                  <CardFooter>
-                    <Button asChild className="w-full">
-                      <a href={`/register?plan=${plan.name.toLowerCase()}`}>
-                        {plan.price === 0 ? 'Get Started' : 'Start Now'}
-                      </a>
-                    </Button>
-                  </CardFooter>
+                  <Button asChild className="w-full">
+                    <a href={`/register?plan=${plan.name.toLowerCase()}`}>
+                      {plan.price === 0 ? 'Get Started' : 'Start Now'}
+                    </a>
+                  </Button>
                 </PricingCard>
               </motion.div>
             ))}

@@ -53,3 +53,25 @@ export const FEATURE_FIELDS: Array<{
   { key: 'is_trial', label: 'Trial', type: 'boolean' },
 ]
 
+// Shared free plan for use in both Pricing and PlansGrid components
+export const freePlan: Package = {
+  id: 0,
+  name: 'Free',
+  description: 'Get started with basic features for your job search. Perfect for those exploring or just starting out.',
+  price: 0,
+  currency: 'USD',
+  billing_cycle: 'Forever',
+  is_active: true,
+  features: {
+    unlimited_cv_analysis: false,
+    max_cvs: 2,
+    advanced_match_scoring: false,
+    tailored_improvement_suggestions: false,
+    result_history_days: 7,
+    priority_support: false,
+    multiple_cv_versions: false,
+    report_export: false,
+    is_trial: false,
+  },
+};
+

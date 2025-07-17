@@ -30,6 +30,9 @@ export function PricingCard({ plan, children, active }: { plan: Package, childre
         ) : (
           <CardDescription>{plan.description}</CardDescription>
         )}
+
+        {/* Action Buttons: Moved here just below price/description */}
+        {children && <div className="pt-2">{children}</div>}
       </CardHeader>
 
       {/* Middle Section: Features */}
@@ -56,9 +59,6 @@ export function PricingCard({ plan, children, active }: { plan: Package, childre
             return null;
           })}
         </ul>
-
-        {/* Footer: Action Button or Children */}
-        {children && <div className="mt-auto pt-2">{children}</div>}
       </CardContent>
     </Card>
   );

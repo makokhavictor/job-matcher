@@ -5,6 +5,7 @@ import { CardFooter } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { usePlanActions } from '@/hooks/usePlanActions'
 import type { Package } from '@/types/package'
+import { freePlan } from '@/types/package';
 import type { User } from '@/app/providers/auth-provider'
 import { apiClient } from '@/lib/utils/apiClient'
 
@@ -13,27 +14,6 @@ interface PlansGridProps {
   title?: string
   className?: string
   showFreePlan?: boolean
-}
-
-const freePlan: Package = {
-  id: 0,
-  name: 'Free Plan',
-  description: 'Basic access to job matching features.',
-  price: 0,
-  currency: '',
-  billing_cycle: 'month',
-  is_active: true,
-  features: {
-    unlimited_cv_analysis: false,
-    max_cvs: 2,
-    advanced_match_scoring: false,
-    tailored_improvement_suggestions: false,
-    result_history_days: 7,
-    priority_support: false,
-    multiple_cv_versions: false,
-    report_export: false,
-    is_trial: false,
-  },
 }
 
 async function fetchPublicPackages(): Promise<Package[]> {
