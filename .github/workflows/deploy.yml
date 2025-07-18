@@ -94,4 +94,4 @@ jobs:
             echo "Applying Kustomize configuration for $KUSTOMIZE_OVERLAY..."
             kustomize build . | kubectl apply -f -
             echo "Restarting deployment to pull latest image..."
-            kubectl rollout restart deployment/$DEPLOYMENT_NAME
+            kubectl rollout restart deployment/$DEPLOYMENT_NAME -n $NAMESPACE
