@@ -31,19 +31,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}:latest
-          build-args: |
-            NEXT_PUBLIC_BASE_PATH=/jobmatcher
-            NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
-            NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
-            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
-
       - name: Determine environment
         id: determine_env
         run: |
@@ -51,14 +38,29 @@ jobs:
             echo "KUSTOMIZE_OVERLAY=production" >> $GITHUB_OUTPUT
             echo "NAMESPACE=prod" >> $GITHUB_OUTPUT
             echo "DEPLOYMENT_NAME=jobmatcher-prod" >> $GITHUB_OUTPUT
+            echo "IMAGE_TAG=latest" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "KUSTOMIZE_OVERLAY=test" >> $GITHUB_OUTPUT
             echo "NAMESPACE=test" >> $GITHUB_OUTPUT
             echo "DEPLOYMENT_NAME=jobmatcher-test" >> $GITHUB_OUTPUT
+            echo "IMAGE_TAG=test" >> $GITHUB_OUTPUT
           else
             echo "Skipping deployment for branch ${{ github.ref }}"
             exit 0
           fi
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ steps.determine_env.outputs.IMAGE_TAG }}
+          build-args: |
+            NEXT_PUBLIC_BASE_PATH=/jobmatcher
+            NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+            NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
       - name: Copy k8s directory to server
         uses: appleboy/scp-action@v0.1.7
