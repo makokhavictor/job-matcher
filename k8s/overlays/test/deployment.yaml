@@ -7,6 +7,4 @@ spec:
     spec:
       containers:
         - name: jobmatcher
-          envFrom:
-            - secretRef:
-                name: jobmatcher-secrets-test
+          
