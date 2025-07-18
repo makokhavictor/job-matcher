@@ -3,10 +3,9 @@ kind: Service
 metadata:
   name: jobmatcher
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 35000
   selector:
     app: jobmatcher
