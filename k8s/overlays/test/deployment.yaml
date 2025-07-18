@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobmatcher
+spec:
+  template:
+    spec:
+      containers:
+        - name: jobmatcher
+          envFrom:
+            - secretRef:
+                name: jobmatcher-secrets-test
