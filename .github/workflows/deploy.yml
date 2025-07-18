@@ -44,11 +44,6 @@ jobs:
             NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
             NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
-      - name: Install Kustomize
-        run: |
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/main/hack/install_kustomize.sh" | bash
-          sudo mv kustomize /usr/local/bin/
-
       - name: Determine environment
         id: determine_env
         run: |
