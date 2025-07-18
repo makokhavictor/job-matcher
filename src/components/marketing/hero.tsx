@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
-import * as motion from "motion/react-client"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 
 export function Hero() {
