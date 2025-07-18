@@ -27,7 +27,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # Install pnpm
 RUN npm install -g pnpm
 
-RUN pnpm run build
+RUN pnpm build
 
 # Final production image
 FROM node:20-alpine AS runner
