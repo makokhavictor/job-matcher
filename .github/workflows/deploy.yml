@@ -38,11 +38,12 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+          no-cache: true
           build-args: |
-            NEXT_PUBLIC_BASE_PATH: /jobmatcher
-            NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
-            NEXT_PUBLIC_BACKEND_API_KEY: ${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
-            NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_BASE_PATH=/jobmatcher
+            NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+            NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
       - name: Check deployment file changes
         id: check-changes
