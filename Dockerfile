@@ -15,7 +15,6 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-COPY test ./test
 ARG NEXT_PUBLIC_BACKEND_API_URL
 ARG NEXT_PUBLIC_BACKEND_API_KEY
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
@@ -25,8 +24,6 @@ ENV NEXT_PUBLIC_BACKEND_API_KEY=$NEXT_PUBLIC_BACKEND_API_KEY
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 ENV NEXT_TELEMETRY_DISABLED 1
-ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x
-RUN npx prisma generate
 RUN npm run build
 
 # Final production image
@@ -40,12 +37,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/test ./test
 COPY --from=deps /app/node_modules ./node_modules
-ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x
-RUN npx prisma generate
 
 EXPOSE 3000
-
 CMD ["npm", "start"]
