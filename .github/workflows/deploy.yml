@@ -39,11 +39,13 @@ jobs:
             echo "NAMESPACE=prod" >> $GITHUB_OUTPUT
             echo "DEPLOYMENT_NAME=jobmatcher-prod" >> $GITHUB_OUTPUT
             echo "IMAGE_TAG=latest" >> $GITHUB_OUTPUT
+            echo "NEXT_PUBLIC_BASE_PATH=" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "KUSTOMIZE_OVERLAY=test" >> $GITHUB_OUTPUT
             echo "NAMESPACE=test" >> $GITHUB_OUTPUT
             echo "DEPLOYMENT_NAME=jobmatcher-test" >> $GITHUB_OUTPUT
             echo "IMAGE_TAG=test" >> $GITHUB_OUTPUT
+            echo "NEXT_PUBLIC_BASE_PATH=/jobmatcher" >> $GITHUB_OUTPUT
           else
             echo "Skipping deployment for branch ${{ github.ref }}"
             exit 0
@@ -57,7 +59,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ steps.determine_env.outputs.IMAGE_TAG }}
           build-args: |
-            NEXT_PUBLIC_BASE_PATH=/jobmatcher
+            NEXT_PUBLIC_BASE_PATH=${{ steps.determine_env.outputs.NEXT_PUBLIC_BASE_PATH }}
             NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
             NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
             NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
