@@ -71,7 +71,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: k8s/
-          target: ~/jobmatcher-deployments/
+          target: ~/jobmatcher-deployments/frontend
 
       - name: Deploy to Kubernetes
         uses: appleboy/ssh-action@v1.0.3
@@ -92,7 +92,7 @@ jobs:
               echo "Namespace $NAMESPACE already exists."
             fi
 
-            cd ~/jobmatcher-deployments/k8s/overlays/$KUSTOMIZE_OVERLAY
+            cd ~/jobmatcher-deployments/frontend/k8s/overlays/$KUSTOMIZE_OVERLAY
             echo "Applying Kustomize configuration for $KUSTOMIZE_OVERLAY..."
             kustomize build . | kubectl apply -f -
             echo "Restarting deployment to pull latest image..."
