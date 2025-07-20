@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
 
 jobs:
   build-and-deploy:
@@ -14,7 +15,6 @@ jobs:
     env:
       IMAGE_NAME: ${{ github.repository }}
       REGISTRY: ghcr.io
-      KUBE_DEPLOYMENT_FILE: kube-deployment.yaml
       NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
       NEXT_PUBLIC_BACKEND_API_KEY: ${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
@@ -31,36 +31,46 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Determine environment
+        id: determine_env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "KUSTOMIZE_OVERLAY=production" >> $GITHUB_OUTPUT
+            echo "NAMESPACE=prod" >> $GITHUB_OUTPUT
+            echo "DEPLOYMENT_NAME=jobmatcher-prod" >> $GITHUB_OUTPUT
+            echo "IMAGE_TAG=latest" >> $GITHUB_OUTPUT
+            echo "NEXT_PUBLIC_BASE_PATH=" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "KUSTOMIZE_OVERLAY=test" >> $GITHUB_OUTPUT
+            echo "NAMESPACE=test" >> $GITHUB_OUTPUT
+            echo "DEPLOYMENT_NAME=jobmatcher-test" >> $GITHUB_OUTPUT
+            echo "IMAGE_TAG=test" >> $GITHUB_OUTPUT
+            echo "NEXT_PUBLIC_BASE_PATH=/jobmatcher" >> $GITHUB_OUTPUT
+          else
+            echo "Skipping deployment for branch ${{ github.ref }}"
+            exit 0
+          fi
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ github.repository }}:${{ steps.determine_env.outputs.IMAGE_TAG }}
           build-args: |
-            NEXT_PUBLIC_BASE_PATH=/jobmatcher
+            NEXT_PUBLIC_BASE_PATH=${{ steps.determine_env.outputs.NEXT_PUBLIC_BASE_PATH }}
             NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
             NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
             NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
-      - name: Check deployment file changes
-        id: check-changes
-        run: |
-          if git diff --quiet HEAD^1 HEAD -- ${{ env.KUBE_DEPLOYMENT_FILE }}; then
-            echo "deployment_changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "deployment_changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Copy kube-deployment.yaml to server
-        if: steps.check-changes.outputs.deployment_changed == 'true'
+      - name: Copy k8s directory to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: kube-deployment.yaml
+          source: k8s/
           target: ~/jobmatcher-deployments/
 
       - name: Deploy to Kubernetes
@@ -70,10 +80,20 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ~/jobmatcher-deployments
-            if [ "${{ steps.check-changes.outputs.deployment_changed }}" = "true" ]; then
-              echo "Applying new deployment configuration..."
-              kubectl apply -f kube-deployment.yaml
+            NAMESPACE="${{ steps.determine_env.outputs.NAMESPACE }}"
+            KUSTOMIZE_OVERLAY="${{ steps.determine_env.outputs.KUSTOMIZE_OVERLAY }}"
+            DEPLOYMENT_NAME="${{ steps.determine_env.outputs.DEPLOYMENT_NAME }}"
+
+            echo "Checking for namespace $NAMESPACE..."
+            if ! kubectl get namespace $NAMESPACE &> /dev/null; then
+              echo "Namespace $NAMESPACE not found. Creating..."
+              kubectl create namespace $NAMESPACE
+            else
+              echo "Namespace $NAMESPACE already exists."
             fi
+
+            cd ~/jobmatcher-deployments/k8s/overlays/$KUSTOMIZE_OVERLAY
+            echo "Applying Kustomize configuration for $KUSTOMIZE_OVERLAY..."
+            kustomize build . | kubectl apply -f -
             echo "Restarting deployment to pull latest image..."
-            kubectl rollout restart deployment/jobmatcher
+            kubectl rollout restart deployment/$DEPLOYMENT_NAME -n $NAMESPACE
