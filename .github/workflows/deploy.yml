@@ -15,7 +15,7 @@ jobs:
     env:
       IMAGE_NAME: ${{ github.repository }}
       REGISTRY: ghcr.io
-      NEXT_PUBLIC_BACKEND_API_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+      NEXT_PUBLIC_BACKEND_API_URL: ${{ github.ref == 'refs/heads/main' && secrets.NEXT_PUBLIC_BACKEND_API_PROD_URL || secrets.NEXT_PUBLIC_BACKEND_API_URL }}
       NEXT_PUBLIC_BACKEND_API_KEY: ${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
     steps:
@@ -60,7 +60,7 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:${{ steps.determine_env.outputs.IMAGE_TAG }}
           build-args: |
             NEXT_PUBLIC_BASE_PATH=${{ steps.determine_env.outputs.NEXT_PUBLIC_BASE_PATH }}
-            NEXT_PUBLIC_BACKEND_API_URL=${{ secrets.NEXT_PUBLIC_BACKEND_API_URL }}
+            NEXT_PUBLIC_BACKEND_API_URL=${{ github.ref == 'refs/heads/main' && secrets.NEXT_PUBLIC_BACKEND_API_PROD_URL || secrets.NEXT_PUBLIC_BACKEND_API_URL }}
             NEXT_PUBLIC_BACKEND_API_KEY=${{ secrets.NEXT_PUBLIC_BACKEND_API_KEY }}
             NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
