@@ -37,6 +37,7 @@ export function useMatcher() {
       jobDescription: File | string
     }) => {
       let cvText = ''
+      setAnalysisResult(null); // Reset analysis result before starting new analysis
       if (typeof cv === 'string') {
         cvText = cv
         if (
