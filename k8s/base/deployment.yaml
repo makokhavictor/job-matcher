@@ -16,6 +16,7 @@ spec:
       containers:
         - name: jobmatcher
           image: ghcr.io/makokhavictor/job-matcher:latest
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
                 name: jobmatcher-secrets
