@@ -40,14 +40,14 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
       return skills || "N/A"
     },
   },
-  {
-    id: "missing_skills",
-    header: "Missing Skills",
-    cell: ({ row }) => {
-      const missing = row.original.result_data?.critical_missing_skills?.slice(0, 2).map((m) => m.skill).join(", ")
-      return missing || "None"
-    },
-  },
+  // {
+  //   id: "missing_skills",
+  //   header: "Missing Skills",
+  //   cell: ({ row }) => {
+  //     const missing = row.original.result_data?.critical_missing_skills?.slice(0, 2).map((m) => m.skill).join(", ")
+  //     return missing || "None"
+  //   },
+  // },
   {
     id: "cv_filename",
     header: "CV File",
