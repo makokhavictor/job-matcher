@@ -29,7 +29,7 @@ export default function AnalysesPage() {
       <h1 className="text-3xl font-bold mb-8">Analysis History</h1>
       <DataTable columns={columns} data={recentAnalyses} meta={{ onViewDetails: handleViewDetails }} />
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-xl w-full">
+        <DialogContent className="!max-w-[calc(60%)] !sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Analysis Details</DialogTitle>
           </DialogHeader>
