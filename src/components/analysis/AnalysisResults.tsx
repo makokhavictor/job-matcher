@@ -139,13 +139,13 @@ export function AnalysisResults() {
 
       <Tabs defaultValue="summary" className="w-full">
         <TabsList className={'grid w-full grid-cols-3'}>
-          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="summary">Key Matches</TabsTrigger>
           <TabsTrigger value="full-match">
-            Full Match
+            Critical Missing Skills
             {!hasAdvancedMatchScoring && <Lock className="w-4 h-4 ml-2" />}
           </TabsTrigger>
           <TabsTrigger value="semantic-match">
-            Semantic Match
+            Resume Improvements
             {!hasTailoredImprovementSuggestions && <Lock className="w-4 h-4 ml-2" />}
           </TabsTrigger>
         </TabsList>
