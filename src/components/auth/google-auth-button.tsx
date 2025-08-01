@@ -78,5 +78,5 @@ export function GoogleAuthButton({
   // isSubmitting and mode are only used in the callback,
   // so they don't need to be here if handleCredentialResponse is stable.
 
-  return <div id="google-signin-btn" />
+  return <div id="google-signin-btn" className="w-full" />
 }
