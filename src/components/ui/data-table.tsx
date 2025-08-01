@@ -36,7 +36,10 @@ export function DataTable<TData, TValue>({ columns, data, meta }: DataTableProps
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead 
+                  key={header.id}
+                  className={header.column.id === 'actions' ? 'sticky right-0 bg-white z-10' : ''}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -50,7 +53,10 @@ export function DataTable<TData, TValue>({ columns, data, meta }: DataTableProps
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id}>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell 
+                    key={cell.id}
+                    className={cell.column.id === 'actions' ? 'sticky right-0 bg-white z-10' : ''}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
