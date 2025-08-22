@@ -55,8 +55,8 @@ export function MatcherClient() {
                 <Card className="p-6">
                   <FileUpload
                     type="cv"
-                    onUploadComplete={(file) =>
-                      handleFileUpload('cv', file, () => methods.next())
+                    onUploadComplete={(file, metadata) =>
+                      handleFileUpload('cv', file, metadata, () => methods.next())
                     }
                   />
                 </Card>
@@ -65,8 +65,8 @@ export function MatcherClient() {
                 <Card className="p-6">
                   <FileUpload
                     type="jobDescription"
-                    onUploadComplete={(file) =>
-                      handleFileUpload('jobDescription', file, () =>
+                    onUploadComplete={(file, metadata) =>
+                      handleFileUpload('jobDescription', file, metadata, () =>
                         methods.next(),
                       )
                     }

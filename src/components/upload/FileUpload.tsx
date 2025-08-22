@@ -5,10 +5,11 @@ import { UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 
 interface FileUploadProps {
   type: 'cv' | 'jobDescription';
-  onUploadComplete: (file: File | string) => void; // Updated to accept string for pasted text
+  onUploadComplete: (file: File | string, metadata?: { type: 'text' | 'url' | 'file' }) => void; // Updated to include data type metadata
 }
 
 export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
@@ -18,7 +19,8 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
   const [pastedText, setPastedText] = useState(''); // New state for pasted text
   const [uploaded, setUploaded] = useState<File | string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState<'upload' | 'paste'>(type === 'jobDescription' ? 'paste' : 'upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'paste' | 'url'>(type === 'jobDescription' ? 'paste' : 'upload');
+  const [jobUrl, setJobUrl] = useState(''); // New state for job URL
  
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
       }, interval);
 
       // Call the completion handler
-      await onUploadComplete(file);
+      await onUploadComplete(file, { type: 'file' });
       setUploaded(file); // Track uploaded file
       
       clearInterval(progressInterval);
@@ -129,8 +131,17 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
   const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const text = e.clipboardData.getData('text');
     setPastedText(text);
-    onUploadComplete(text); // Trigger upload complete with pasted text
+    onUploadComplete(text, { type: 'text' }); // Specify this is pasted text
     setUploaded(text); // Track uploaded text
+  }, [onUploadComplete]);
+
+  const handleUrlChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setJobUrl(url);
+    if (url.trim()) {
+      onUploadComplete(url, { type: 'url' }); // Specify this is a URL
+      setUploaded(url); // Track uploaded URL
+    }
   }, [onUploadComplete]);
 
   const uploadAreaId = `${type}-upload-area`;
@@ -184,10 +195,11 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
           </div>
         )}
         {type === 'jobDescription' ? (
-          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'upload' | 'paste')} className="mt-4">
+          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'upload' | 'paste' | 'url')} className="mt-4">
             <TabsList className="flex justify-center mb-4">
               {/* <TabsTrigger value="upload">Upload</TabsTrigger> */}
               <TabsTrigger value="paste">Paste your job description</TabsTrigger>
+              <TabsTrigger value="url">Enter job URL</TabsTrigger>
             </TabsList>
             {/* <TabsContent value="upload">
               <div className="mt-2">
@@ -216,6 +228,20 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
                 onChange={(e) => setPastedText(e.target.value)}
                 rows={5}
               />
+            </TabsContent>
+            <TabsContent value="url">
+              <div className="mt-2">
+                <Input
+                  type="url"
+                  className="w-full"
+                  placeholder="Enter job posting URL"
+                  value={jobUrl}
+                  onChange={handleUrlChange}
+                />
+                <p className="mt-1 text-xs text-secondary-500">
+                  Enter the URL of the job posting (LinkedIn, Indeed, etc.)
+                </p>
+              </div>
             </TabsContent>
           </Tabs>
         ) : (
