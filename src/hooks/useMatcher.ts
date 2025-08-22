@@ -131,8 +131,8 @@ export function useMatcher() {
   const handleFileUpload = async (
     type: 'cv' | 'jobDescription',
     fileOrText: File | string,
-    metadata?: { type: 'text' | 'url' | 'file' },
     onSuccess: () => void,
+    metadata?: { type: 'text' | 'url' | 'file' },
   ) => {
     try {
       // Store both the content and its metadata
