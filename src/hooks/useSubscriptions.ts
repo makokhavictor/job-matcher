@@ -39,7 +39,7 @@ export function useUpdateSubscription({ onSuccess }: MutationCallbacks = {}) {
       toast.success(
         'Your subscription has been updated! Changes will take effect within 2 minutes. Please refresh the page if you do not see the update.'
       );
-      queryClient.invalidateQueries({ queryKey: ["public-packages"] });
+      queryClient.invalidateQueries({ queryKey: ["public-plans"] });
       onSuccess?.();
     },
     onError: (err: unknown) => {
@@ -60,7 +60,7 @@ export function useCancelSubscription({ onSuccess }: MutationCallbacks = {}) {
       toast.success(
         'Your subscription has been cancelled. Changes will take effect within 2 minutes. Please refresh the page if you do not see the update.'
       );
-      queryClient.invalidateQueries({ queryKey: ["public-packages"] });
+      queryClient.invalidateQueries({ queryKey: ["public-plans"] });
       onSuccess?.();
     },
     onError: (err: unknown) => {

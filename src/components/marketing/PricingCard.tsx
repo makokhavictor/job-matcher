@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { Package, FEATURE_FIELDS } from '@/types/package';
 import React from 'react';
@@ -30,14 +30,11 @@ export function PricingCard({ plan, children, active }: { plan: Package, childre
         ) : (
           <CardDescription>{plan.description}</CardDescription>
         )}
-
-        {/* Action Buttons: Moved here just below price/description */}
-        {children && <div className="pt-2">{children}</div>}
       </CardHeader>
 
       {/* Middle Section: Features */}
-      <CardContent className="flex-1 flex flex-col justify-between">
-        <ul className="grid gap-3 text-sm mb-4">
+      <CardContent className="flex-1">
+        <ul className="grid gap-3 text-sm">
           {FEATURE_FIELDS.filter(f => f.key !== 'is_trial').map((feature) => {
             const value = plan.features[feature.key];
             if (feature.type === 'boolean' && value) {
@@ -60,6 +57,13 @@ export function PricingCard({ plan, children, active }: { plan: Package, childre
           })}
         </ul>
       </CardContent>
+
+      {/* Bottom Section: Action Buttons - Always aligned at bottom */}
+      {children && (
+        <CardFooter>
+          {children}
+        </CardFooter>
+      )}
     </Card>
   );
 }

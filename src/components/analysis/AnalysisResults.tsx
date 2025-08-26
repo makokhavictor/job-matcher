@@ -22,8 +22,8 @@ export function AnalysisResults() {
   const { user } = useAuth()
   // const isMobile = useIsMobile() // removed unused assignment
 
-  const hasAdvancedMatchScoring = user?.subscription?.package?.features?.advanced_match_scoring
-  const hasTailoredImprovementSuggestions = user?.subscription?.package?.features?.tailored_improvement_suggestions
+  const hasAdvancedMatchScoring = user?.subscription?.plan?.features?.advanced_match_scoring
+  const hasTailoredImprovementSuggestions = user?.subscription?.plan?.features?.tailored_improvement_suggestions
 
   // Enhanced score color and styling logic
   const getScorestyling = (score: number) => {
