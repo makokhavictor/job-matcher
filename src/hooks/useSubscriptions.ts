@@ -16,6 +16,7 @@ export function useCreateCheckout(user: User | null) {
   return useMutation({
     mutationFn: (variantId: number) => createCheckout(variantId, user),
     onSuccess: (data) => {
+      console.log(data);
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       }

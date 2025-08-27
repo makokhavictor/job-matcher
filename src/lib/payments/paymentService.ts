@@ -12,9 +12,22 @@ async function handleResponse(res: Response) {
 export async function createCheckout(variantId: number, user: User | null) {
   if (!user) throw new Error("User not found");
 
+  // Get JWT token from localStorage
+  const auth = localStorage.getItem('auth');
+  const token = auth ? JSON.parse(auth).access_token : null;
+
+  const headers: Record<string, string> = { 
+    "Content-Type": "application/json" 
+  };
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(getApiPath("/api/payments/create-checkout"), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       variantId,
       customData: {

@@ -16,11 +16,14 @@ export function usePlanActions(user: User | null, onSuccess?: () => void) {
       // Update existing subscription
       updateSubscription({
         subscriptionId: user.subscription!.id as number, // Use non-null assertion since we checked hasActiveSubscription
-        variantId: plan.id as number, // Use plan.id instead of product_id
+        variantId: plan.plan_price_id as number, // Use plan_price_id for backend API
       })
     } else {
       // Create new checkout for new subscribers or trial users
-      createCheckout(plan.id as number) // Use plan.id instead of product_id
+      if (!plan.plan_price_id) {
+        throw new Error('Plan price ID is required for checkout')
+      }
+      createCheckout(plan.plan_price_id as number) // Use plan_price_id for backend API
     }
   }
 

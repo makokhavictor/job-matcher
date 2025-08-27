@@ -21,6 +21,7 @@ export interface Package {
   features: PackageFeatures
   variantId?: number | undefined
   product_id?: number | undefined
+  plan_price_id?: number | undefined
   display_order?: number | undefined
 }
 

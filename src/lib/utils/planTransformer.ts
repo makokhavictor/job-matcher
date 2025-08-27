@@ -31,11 +31,11 @@ export interface PlanResponse {
       is_recurring: boolean
       is_archived: boolean
       organization_id: string
-      metadata: Record<string, any>
-      prices: any[]
-      benefits: any[]
-      medias: any[]
-      attached_custom_fields: any[]
+      metadata: Record<string, unknown>
+      prices: unknown[]
+      benefits: unknown[]
+      medias: unknown[]
+      attached_custom_fields: unknown[]
       _sync_order: number
       created_at: string
       modified_at: string
@@ -94,6 +94,7 @@ export function transformPlanToPackage(plan: PlanResponse): Package {
       ...plan.features,
     },
     product_id: plan.id, // Use plan.id as product_id for consistency
+    plan_price_id: activePrice ? activePrice.id : undefined, // Add the price ID for backend API
     display_order: plan.plan_metadata.polar_display_order, // Preserve display order for sorting
   }
 }
