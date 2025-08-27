@@ -37,7 +37,12 @@ export function PlansGrid({ user, title, className }: PlansGridProps) {
             const isSubscribed = activePlanId === plan.id
             const isProcessing = isCreatingCheckout || isUpdatingSubscription
             return (
-              <PricingCard key={plan.id || idx} plan={plan} active={isSubscribed}>
+              <PricingCard 
+                key={plan.id || idx} 
+                plan={plan} 
+                active={isSubscribed}
+                subscription={user?.subscription}
+              >
                 <PlanCardFooter
                   plan={plan}
                   isSubscribed={isSubscribed}
@@ -46,6 +51,7 @@ export function PlansGrid({ user, title, className }: PlansGridProps) {
                   handlePlanChange={handlePlanChange}
                   cancelSubscription={(id) => id && cancelSubscription(id)}
                   subscriptionId={user?.subscription?.id}
+                  subscription={user?.subscription}
                 />
               </PricingCard>
             )

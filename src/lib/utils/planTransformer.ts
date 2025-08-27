@@ -1,4 +1,5 @@
 import type { Package } from '@/types/package'
+import { cleanPlanName } from './planUtils'
 
 // Type definition for the new plan API response structure
 export interface PlanResponse {
@@ -83,7 +84,7 @@ export function transformPlanToPackage(plan: PlanResponse): Package {
 
   return {
     id: plan.id,
-    name: plan.name,
+    name: cleanPlanName(plan.name),
     description: plan.description,
     price: activePrice ? activePrice.amount : 0,
     currency: activePrice ? activePrice.currency : 'USD',

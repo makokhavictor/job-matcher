@@ -3,9 +3,9 @@ import { serverApiClient } from '@/lib/utils/serverApiClient';
 
 export async function POST(request: NextRequest) {
   try {
-    const { subscriptionId, variantId, invoiceImmediately } = await request.json();
+    const { subscriptionId, newPlanPriceId } = await request.json();
     
-    if (!subscriptionId || !variantId) {
+    if (!subscriptionId || !newPlanPriceId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -19,14 +19,13 @@ export async function POST(request: NextRequest) {
     // Prepare the update request payload for backend API
     const updatePayload = {
       subscription_id: subscriptionId,
-      plan_price_id: variantId,
-      invoice_immediately: !!invoiceImmediately
+      new_plan_price_id: newPlanPriceId
     };
 
-    console.log('Calling backend update subscription API with payload:', updatePayload);
+    console.log('Calling backend update-plan API with payload:', updatePayload);
 
     // Call the backend API using serverApiClient
-    const responseData = await serverApiClient('/payments/update-subscription', {
+    const responseData = await serverApiClient('/subscriptions/update-plan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -38,14 +37,31 @@ export async function POST(request: NextRequest) {
       success: true,
       data: responseData
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Subscription update error:', error);
     
     // Handle serverApiClient errors which include status and detail
-    if (error.status && error.detail) {
+    if (typeof error === 'object' && error !== null && 'status' in error && 'detail' in error) {
+      const errorObj = error as { status: number; detail: unknown };
+      let errorMessage = 'Failed to update subscription';
+      
+      // Extract error message from nested detail structure
+      if (typeof errorObj.detail === 'string') {
+        errorMessage = errorObj.detail;
+      } else if (typeof errorObj.detail === 'object' && errorObj.detail !== null) {
+        const detailObj = errorObj.detail as Record<string, unknown>;
+        if (typeof detailObj.message === 'string') {
+          errorMessage = detailObj.message;
+        } else if (typeof detailObj.detail === 'string') {
+          errorMessage = detailObj.detail;
+        } else if (typeof detailObj.error === 'string') {
+          errorMessage = detailObj.error;
+        }
+      }
+      
       return NextResponse.json(
-        { error: error.detail },
-        { status: error.status }
+        { error: errorMessage },
+        { status: errorObj.status }
       );
     }
     

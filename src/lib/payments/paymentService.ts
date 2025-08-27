@@ -43,7 +43,7 @@ export async function createCheckout(variantId: number, user: User | null) {
 
 export async function updateSubscription(
   subscriptionId: number,
-  variantId: number
+  newPlanPriceId: number
 ) {
   // Get JWT token from localStorage
   const auth = localStorage.getItem('auth');
@@ -63,8 +63,7 @@ export async function updateSubscription(
     headers,
     body: JSON.stringify({
       subscriptionId,
-      variantId,
-      invoiceImmediately: true,
+      newPlanPriceId,
     }),
   });
 

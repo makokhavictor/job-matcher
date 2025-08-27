@@ -1,13 +1,42 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
-import { Package, FEATURE_FIELDS } from '@/types/package';
+import { Package, FEATURE_FIELDS, Subscription } from '@/types/package';
 import React from 'react';
+import { parseISO, format, isAfter } from 'date-fns';
 
-export function PricingCard({ plan, children, active }: { plan: Package, children?: React.ReactNode, active?: boolean }) {
+interface PricingCardProps {
+  plan: Package
+  children?: React.ReactNode
+  active?: boolean
+  subscription?: Subscription
+}
+
+export function PricingCard({ plan, children, active, subscription }: PricingCardProps) {
+  // Check if subscription is canceled but still active
+  const isCanceledButActive = subscription && 
+    subscription.canceled_at && 
+    isAfter(parseISO(subscription.end_date), new Date());
+
+  // Determine card styling based on subscription state
+  const cardClassName = active 
+    ? isCanceledButActive 
+      ? 'bg-orange-50 border-orange-200' // Different background for canceled but active
+      : 'bg-primary/10'
+    : '';
+
   return (
-    <Card className={`flex flex-col min-w-[320px] min-h-[600px] max-w-xs flex-shrink-0 h-full relative transition-all ${active ? 'bg-primary/10' : ''}`}>
+    <Card className={`flex flex-col min-w-[320px] min-h-[600px] max-w-xs flex-shrink-0 h-full relative transition-all ${cardClassName}`}>
       {active && (
-        <span className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full shadow">Current Plan</span>
+        <span className={`absolute top-4 right-4 text-xs font-semibold px-3 py-1 rounded-full shadow ${
+          isCanceledButActive 
+            ? 'bg-orange-500 text-white' 
+            : 'bg-primary text-primary-foreground'
+        }`}>
+          {isCanceledButActive 
+            ? `Ends ${format(parseISO(subscription.end_date), 'MMM dd')}` 
+            : 'Current Plan'
+          }
+        </span>
       )}
       {/* Top Section: Title + Price + Description */}
       <CardHeader className="space-y-4">

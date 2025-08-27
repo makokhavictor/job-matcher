@@ -18,6 +18,7 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card'
+import { cleanPlanName } from '@/lib/utils/planUtils'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 
@@ -101,7 +102,7 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
         <Card>
           <CardHeader className="p-2 pt-0 md:p-3">
             <CardTitle className="flex items-center gap-2">
-              {user?.subscription?.plan?.name || "Free Plan"}
+              {cleanPlanName(user?.subscription?.plan?.name)}
               <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">Current</span>
             </CardTitle>
           </CardHeader>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import type { Package } from '@/types/package'
+import type { Package, Subscription } from '@/types/package'
+import { parseISO, format, isAfter } from 'date-fns'
 
 interface PlanCardFooterProps {
   plan: Package
@@ -10,6 +11,7 @@ interface PlanCardFooterProps {
   handlePlanChange: (plan: Package) => void
   cancelSubscription: (subscriptionId: number | undefined) => void
   subscriptionId?: number
+  subscription?: Subscription
 }
 
 export function PlanCardFooter({
@@ -20,25 +22,38 @@ export function PlanCardFooter({
   handlePlanChange,
   cancelSubscription,
   subscriptionId,
+  subscription,
 }: PlanCardFooterProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+
+  // Check if subscription is canceled but still active
+  const isCanceledButActive = subscription && 
+    subscription.canceled_at && 
+    isAfter(parseISO(subscription.end_date), new Date());
 
   if (isSubscribed) {
     return (
       <div className="flex flex-col gap-1 w-full items-stretch">
         <Button
-          className="w-full bg-green-500 cursor-default opacity-80 min-w-[160px]"
+          className={`w-full cursor-default opacity-80 min-w-[160px] ${
+            isCanceledButActive ? 'bg-orange-500 hover:bg-orange-500' : 'bg-green-500'
+          }`}
           disabled
         >
-          Subscribed
+          {isCanceledButActive ? 'Ends Soon' : 'Subscribed'}
         </Button>
         <button
           type="button"
           className="text-xs text-muted-foreground underline hover:text-primary mt-1 self-center disabled:opacity-50"
-          disabled={isCancelling}
+          disabled={isCancelling || !!isCanceledButActive}
           onClick={() => setShowCancelConfirm(true)}
         >
-          {isCancelling ? 'Cancelling...' : 'Cancel Subscription'}
+          {isCancelling 
+            ? 'Cancelling...' 
+            : isCanceledButActive 
+              ? `Ends ${format(parseISO(subscription.end_date), 'MMM dd, yyyy')}`
+              : 'Cancel Subscription'
+          }
         </button>
         {showCancelConfirm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">

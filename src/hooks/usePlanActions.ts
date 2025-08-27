@@ -16,7 +16,7 @@ export function usePlanActions(user: User | null, onSuccess?: () => void) {
       // Update existing subscription
       updateSubscription({
         subscriptionId: user.subscription!.id as number, // Use non-null assertion since we checked hasActiveSubscription
-        variantId: plan.plan_price_id as number, // Use plan_price_id for backend API
+        newPlanPriceId: plan.plan_price_id as number, // Use plan_price_id for backend API
       })
     } else {
       // Create new checkout for new subscribers or trial users
