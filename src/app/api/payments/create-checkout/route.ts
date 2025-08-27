@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CheckoutData } from '@/types/payments';
-import { serverApiClient } from '@/lib/utils/serverApiClient';
+import { isApiError, serverApiClient } from '@/lib/utils/serverApiClient';
 
 export async function POST(request: NextRequest) {
   try {
-    const { variantId, customData }: CheckoutData = await request.json();
+    const { variantId }: CheckoutData = await request.json();
 
     if (!variantId) {
       return NextResponse.json(
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     console.log('Checkout response from backend:', checkoutResponse);
     
     // Extract URL from various possible field names
-    let checkoutUrl = checkoutResponse.checkout_url || 
+    const checkoutUrl = checkoutResponse.checkout_url || 
                      checkoutResponse.checkoutUrl || 
                      checkoutResponse.url ||
                      checkoutResponse;
@@ -68,11 +68,11 @@ export async function POST(request: NextRequest) {
       checkoutUrl: checkoutUrl,
       checkoutId: null, // Backend doesn't return checkout ID
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Checkout creation error:', error);
     
     // Handle apiClient errors which include status and detail
-    if (error.status && error.detail) {
+    if (isApiError(error)) {
       return NextResponse.json(
         { message: error.detail },
         { status: error.status }

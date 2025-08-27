@@ -1,5 +1,13 @@
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
+// Type guard for API error objects thrown by serverApiClient
+export function isApiError(e: unknown): e is { status: number; detail: string } {
+  if (typeof e !== 'object' || e === null) return false;
+  if (!('status' in e) || !('detail' in e)) return false;
+  const rec = e as Record<string, unknown>;
+  return typeof rec.status === 'number' && typeof rec.detail === 'string';
+}
+
 export const serverApiClient = async (
   url: string, 
   options: RequestInit = {}, 

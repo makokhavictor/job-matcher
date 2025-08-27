@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { serverApiClient } from '@/lib/utils/serverApiClient';
+import { serverApiClient, isApiError } from '@/lib/utils/serverApiClient';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,17 +36,17 @@ export async function POST(request: NextRequest) {
       success: true,
       data: responseData
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Subscription cancellation error:', error);
-    
+
     // Handle serverApiClient errors which include status and detail
-    if (error.status && error.detail) {
+    if (isApiError(error)) {
       return NextResponse.json(
         { error: error.detail },
         { status: error.status }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to cancel subscription' },
       { status: 500 }
