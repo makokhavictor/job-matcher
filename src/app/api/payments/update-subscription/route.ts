@@ -1,22 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { updateSubscription } from '@/lib/payments/lemonsqueezy'
+import { NextRequest, NextResponse } from 'next/server';
+import { serverApiClient } from '@/lib/utils/serverApiClient';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { subscriptionId, variantId, invoiceImmediately } = await req.json()
+    const { subscriptionId, variantId, invoiceImmediately } = await request.json();
+    
     if (!subscriptionId || !variantId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
-    const result = await updateSubscription({
-      subscriptionId,
-      variantId,
-      invoiceImmediately: !!invoiceImmediately,
-    })
-    if (result.error) {
-      return NextResponse.json({ error: result.error, data: result.data }, { status: 500 })
+
+    // Extract JWT token from request headers
+    const authorization = request.headers.get('authorization');
+    const authToken = authorization?.replace('Bearer ', '') || undefined;
+
+    // Prepare the update request payload for backend API
+    const updatePayload = {
+      subscription_id: subscriptionId,
+      plan_price_id: variantId,
+      invoice_immediately: !!invoiceImmediately
+    };
+
+    console.log('Calling backend update subscription API with payload:', updatePayload);
+
+    // Call the backend API using serverApiClient
+    const responseData = await serverApiClient('/payments/update-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatePayload),
+    }, authToken);
+
+    return NextResponse.json({
+      success: true,
+      data: responseData
+    });
+  } catch (error: any) {
+    console.error('Subscription update error:', error);
+    
+    // Handle serverApiClient errors which include status and detail
+    if (error.status && error.detail) {
+      return NextResponse.json(
+        { error: error.detail },
+        { status: error.status }
+      );
     }
-    return NextResponse.json({ success: true, data: result.data })
-  } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 })
+    
+    return NextResponse.json(
+      { error: 'Failed to update subscription' },
+      { status: 500 }
+    );
   }
-} 
+}

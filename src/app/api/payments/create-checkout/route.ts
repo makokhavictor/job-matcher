@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CheckoutData } from '@/types/payments';
-
-const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+import { serverApiClient } from '@/lib/utils/serverApiClient';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,22 +13,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!BACKEND_API_URL) {
-      console.error('Backend API URL is not configured');
-      return NextResponse.json(
-        { message: 'Backend service not configured' },
-        { status: 500 }
-      );
-    }
-
-    // Get user's JWT token from request headers
+    // Extract JWT token from request headers
     const authorization = request.headers.get('authorization');
-    if (!authorization) {
-      return NextResponse.json(
-        { message: 'Authorization required' },
-        { status: 401 }
-      );
-    }
+    const authToken = authorization?.replace('Bearer ', '') || undefined;
 
     // Prepare the checkout request payload for backend API
     const checkoutPayload = {
@@ -42,54 +28,22 @@ export async function POST(request: NextRequest) {
 
     console.log('Calling backend checkout API with payload:', checkoutPayload);
 
-    // Call the backend API
-    const backendResponse = await fetch(`${BACKEND_API_URL}/payments/checkout`, {
+    // Call the backend API using serverApiClient
+    const checkoutResponse = await serverApiClient('/payments/checkout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authorization, // Forward the JWT token
       },
       body: JSON.stringify(checkoutPayload),
-    });
+    }, authToken);
 
-    if (!backendResponse.ok) {
-      const errorData = await backendResponse.text();
-      console.error(`Backend API error (${backendResponse.status}):`, errorData);
-      return NextResponse.json(
-        { message: `Backend API error: ${errorData}` },
-        { status: backendResponse.status }
-      );
-    }
-
-    // Try to parse as JSON first, fallback to text if it fails
-    let checkoutUrl: string;
-    const contentType = backendResponse.headers.get('content-type') || '';
+    console.log('Checkout response from backend:', checkoutResponse);
     
-    try {
-      if (contentType.includes('application/json')) {
-        // Backend returned JSON object
-        const checkoutResponse = await backendResponse.json();
-        console.log('Checkout JSON response from backend:', checkoutResponse);
-        
-        // Extract URL from various possible field names
-        checkoutUrl = checkoutResponse.checkout_url || 
+    // Extract URL from various possible field names
+    let checkoutUrl = checkoutResponse.checkout_url || 
                      checkoutResponse.checkoutUrl || 
                      checkoutResponse.url ||
                      checkoutResponse;
-      } else {
-        // Backend returned plain string
-        checkoutUrl = await backendResponse.text();
-        console.log('Checkout text response from backend:', checkoutUrl);
-        
-        // Remove quotes if present
-        checkoutUrl = checkoutUrl.replace(/^"|"$/g, '');
-      }
-    } catch (parseError) {
-      // If JSON parsing fails, try as text
-      console.log('Failed to parse as JSON, trying as text:', parseError);
-      checkoutUrl = await backendResponse.text();
-      checkoutUrl = checkoutUrl.replace(/^"|"$/g, '');
-    }
     
     if (!checkoutUrl || typeof checkoutUrl !== 'string') {
       console.error('Invalid checkout URL received from backend:', checkoutUrl);
@@ -114,8 +68,17 @@ export async function POST(request: NextRequest) {
       checkoutUrl: checkoutUrl,
       checkoutId: null, // Backend doesn't return checkout ID
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Checkout creation error:', error);
+    
+    // Handle apiClient errors which include status and detail
+    if (error.status && error.detail) {
+      return NextResponse.json(
+        { message: error.detail },
+        { status: error.status }
+      );
+    }
+    
     return NextResponse.json(
       { message: 'Failed to create checkout' },
       { status: 500 }

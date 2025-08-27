@@ -45,9 +45,22 @@ export async function updateSubscription(
   subscriptionId: number,
   variantId: number
 ) {
+  // Get JWT token from localStorage
+  const auth = localStorage.getItem('auth');
+  const token = auth ? JSON.parse(auth).access_token : null;
+
+  const headers: Record<string, string> = { 
+    "Content-Type": "application/json" 
+  };
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(getApiPath("/api/payments/update-subscription"), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       subscriptionId,
       variantId,
@@ -59,9 +72,22 @@ export async function updateSubscription(
 }
 
 export async function cancelSubscription(subscriptionId: number) {
+  // Get JWT token from localStorage
+  const auth = localStorage.getItem('auth');
+  const token = auth ? JSON.parse(auth).access_token : null;
+
+  const headers: Record<string, string> = { 
+    "Content-Type": "application/json" 
+  };
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(getApiPath("/api/payments/cancel"), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ subscriptionId }),
   });
 
