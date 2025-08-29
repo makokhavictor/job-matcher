@@ -135,7 +135,7 @@ export function PlansGrid({ user, title, className }: PlansGridProps) {
   return (
     <div className={className}>
       {title && <h2 className="text-3xl font-bold mb-8 text-center">{title}</h2>}
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
           <div className="col-span-3 flex justify-center items-center min-h-[200px]"><Spinner size={32} /></div>
         ) : error ? (
