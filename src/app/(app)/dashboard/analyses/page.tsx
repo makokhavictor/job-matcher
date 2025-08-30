@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { columns } from './columns'
 import { DataTable } from '@/components/ui/data-table'
@@ -9,8 +9,12 @@ import { AnalysisResults } from '@/components/analysis/AnalysisResults'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 export default function AnalysesPage() {
-  const { recentAnalyses, loading, error, setResults } = useAnalysisStore()
+  const { recentAnalyses, loading, error, setResults, fetchRecentAnalyses } = useAnalysisStore()
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    fetchRecentAnalyses()
+  }, [fetchRecentAnalyses])
 
   const handleViewDetails = (analysis: typeof recentAnalyses[0]) => {
     setResults(analysis.result_data)
@@ -29,7 +33,7 @@ export default function AnalysesPage() {
       <h1 className="text-3xl font-bold mb-8">Analysis History</h1>
       <DataTable columns={columns} data={recentAnalyses} meta={{ onViewDetails: handleViewDetails }} />
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl w-full">
+        <DialogContent className="!max-w-[calc(60%)] !sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Analysis Details</DialogTitle>
           </DialogHeader>

@@ -47,7 +47,7 @@ export type AnalysisStore = {
   loading: boolean;
   error: string | null;
   recentAnalyses: RecentAnalysis[];
-  setResults: (results: AnalysisResults) => void;
+  setResults: (results: AnalysisResults | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;

@@ -2,8 +2,13 @@ import { Metadata } from "next"
 import { LoginForm } from "@/components/auth/login-form"
 
 export const metadata: Metadata = {
-  title: "Login - CV Matcher",
-  description: "Login to your CV Matcher account",
+  title: "Login | CV Matcher",
+  description: "Sign in to your CV Matcher account to access your dashboard and continue optimizing your resume for job applications.",
+  keywords: "login, sign in, CV matcher, resume optimizer, job application tool",
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
 
 export default function LoginPage() {

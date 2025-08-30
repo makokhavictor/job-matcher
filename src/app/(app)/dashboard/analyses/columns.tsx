@@ -3,6 +3,14 @@ import { ColumnDef } from "@tanstack/react-table"
 import { RecentAnalysis } from '@/stores/analysis.store'
 import { format } from 'date-fns'
 
+// Function to determine score color
+const getScoreColor = (score: number | undefined) => {
+  if (score === undefined) return "text-gray-500"
+  if (score >= 80) return "text-green-600 font-bold"
+  if (score >= 60) return "text-yellow-600 font-medium"
+  return "text-red-600 font-medium"
+}
+
 export const columns: ColumnDef<RecentAnalysis>[] = [
   {
     accessorKey: "created_at",
@@ -25,38 +33,61 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
   {
     id: "title",
     header: "Titles",
-    cell: ({ row }) => row.original.result_data?.title || "No title",
+    cell: ({ row }) => (
+      <div className="max-w-xs break-words">
+        {row.original.result_data?.title || "No title"}
+      </div>
+    ),
   },
   {
     accessorKey: "result_data.match_score",
     header: "Score",
-    cell: ({ row }) => row.original.result_data?.match_score ?? "N/A",
+    cell: ({ row }) => {
+      const score = row.original.result_data?.match_score
+      return (
+        <span className={getScoreColor(score)}>
+          {score !== undefined ? `${score}%` : "N/A"}
+        </span>
+      )
+    },
   },
   {
     id: "top_skills",
     header: "Top Skills",
     cell: ({ row }) => {
       const skills = row.original.result_data?.key_matches?.slice(0, 3).map((m) => m.skill).join(", ")
-      return skills || "N/A"
+      return (
+        <div className="max-w-xs break-words">
+          {skills || "N/A"}
+        </div>
+      )
     },
   },
-  {
-    id: "missing_skills",
-    header: "Missing Skills",
-    cell: ({ row }) => {
-      const missing = row.original.result_data?.critical_missing_skills?.slice(0, 2).map((m) => m.skill).join(", ")
-      return missing || "None"
-    },
-  },
+  // {
+  //   id: "missing_skills",
+  //   header: "Missing Skills",
+  //   cell: ({ row }) => {
+  //     const missing = row.original.result_data?.critical_missing_skills?.slice(0, 2).map((m) => m.skill).join(", ")
+  //     return missing || "None"
+  //   },
+  // },
   {
     id: "cv_filename",
     header: "CV File",
-    cell: ({ row }) => row.original.input_data?.cv_filename || "N/A",
+    cell: ({ row }) => (
+      <div className="max-w-xs break-words">
+        {row.original.input_data?.cv_filename || "N/A"}
+      </div>
+    ),
   },
   {
     id: "job_filename",
     header: "Job File",
-    cell: ({ row }) => row.original.input_data?.job_filename || "N/A",
+    cell: ({ row }) => (
+      <div className="max-w-xs break-words">
+        {row.original.input_data?.job_filename || "N/A"}
+      </div>
+    ),
   },
   {
     id: "actions",
@@ -65,12 +96,14 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
       // The parent page will inject a function via meta to handle view details
       const onViewDetails = (table.options.meta as { onViewDetails?: (analysis: RecentAnalysis) => void })?.onViewDetails;
       return (
-        <button
-          className="px-3 py-1 rounded bg-primary text-white hover:bg-primary/80 text-sm"
-          onClick={() => onViewDetails?.(row.original)}
-        >
-          View Details
-        </button>
+        <div className="sticky right-0 bg-white p-2">
+          <button
+            className="px-3 py-1 rounded bg-primary text-white hover:bg-primary/80 text-sm whitespace-nowrap"
+            onClick={() => onViewDetails?.(row.original)}
+          >
+            View Details
+          </button>
+        </div>
       )
     },
     enableSorting: false,

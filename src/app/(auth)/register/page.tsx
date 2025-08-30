@@ -1,6 +1,15 @@
-'use client'
 import { RegisterForm } from '@/components/auth/register-form'
+import { Metadata } from 'next'
 
+export const metadata: Metadata = {
+  title: 'Register | CV Matcher',
+  description: 'Create an account to start matching your CV with job descriptions. Get personalized compatibility scores and resume optimization suggestions.',
+  keywords: 'register, sign up, CV matcher, resume optimizer, job application tool',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export default function RegisterPage() {
   return (

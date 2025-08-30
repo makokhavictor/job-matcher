@@ -21,20 +21,48 @@ export interface Package {
   features: PackageFeatures
   variantId?: number | undefined
   product_id?: number | undefined
+  plan_price_id?: number | undefined
+  display_order?: number | undefined
+}
+
+// New plan structure matching the API response
+export interface Plan {
+  id: number
+  code: string
+  name: string
+  description: string
+  features: PackageFeatures
+  plan_type: string
+}
+
+export interface PlanPrice {
+  id: number
+  amount: number
+  currency: string
+  interval: string
+  interval_count: number
+  trial_interval: string | null
+  trial_interval_count: number | null
 }
 
 export interface Subscription {
   id: number
-  package_id: number
-  plan_id?: number // Added to support LemonSqueezy plan/variant id
-  subscription_id?: number // Added to support LemonSqueezy plan/variant id
+  plan_id: number
+  plan_price_id: number
+  subscription_id: number | null
+  external_subscription_id: string | null
+  provider: string
   status: string
   start_date: string
   end_date: string
   canceled_at: string | null
   renewal_date: string | null
   payment_method: string | null
-  package: Package
+  plan: Plan
+  plan_price: PlanPrice
+  // Legacy fields for backward compatibility
+  package_id: number | null
+  package: Package | null
 }
 
 export const FEATURE_FIELDS: Array<{

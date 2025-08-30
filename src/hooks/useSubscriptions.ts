@@ -15,9 +15,10 @@ interface MutationCallbacks {
 export function useCreateCheckout(user: User | null) {
   return useMutation({
     mutationFn: (variantId: number) => createCheckout(variantId, user),
-    onSuccess: (data) => {
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+    onSuccess: (data: unknown) => {
+      console.log(data);
+      if (data && typeof data === 'object' && 'checkoutUrl' in data && typeof (data as { checkoutUrl: string }).checkoutUrl === 'string') {
+        window.location.href = (data as { checkoutUrl: string }).checkoutUrl;
       }
     },
     onError: (err: unknown) => {
@@ -33,13 +34,13 @@ export function useCreateCheckout(user: User | null) {
 export function useUpdateSubscription({ onSuccess }: MutationCallbacks = {}) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ subscriptionId, variantId }: { subscriptionId: number, variantId: number }) =>
-      updateSubscription(subscriptionId, variantId),
+    mutationFn: ({ subscriptionId, newPlanPriceId }: { subscriptionId: number, newPlanPriceId: number }) =>
+      updateSubscription(subscriptionId, newPlanPriceId),
     onSuccess: () => {
       toast.success(
         'Your subscription has been updated! Changes will take effect within 2 minutes. Please refresh the page if you do not see the update.'
       );
-      queryClient.invalidateQueries({ queryKey: ["public-packages"] });
+      queryClient.invalidateQueries({ queryKey: ["public-plans"] });
       onSuccess?.();
     },
     onError: (err: unknown) => {
@@ -60,7 +61,7 @@ export function useCancelSubscription({ onSuccess }: MutationCallbacks = {}) {
       toast.success(
         'Your subscription has been cancelled. Changes will take effect within 2 minutes. Please refresh the page if you do not see the update.'
       );
-      queryClient.invalidateQueries({ queryKey: ["public-packages"] });
+      queryClient.invalidateQueries({ queryKey: ["public-plans"] });
       onSuccess?.();
     },
     onError: (err: unknown) => {

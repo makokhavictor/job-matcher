@@ -69,7 +69,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <PlansGrid user={user} className="mt-8" showFreePlan />
+      <PlansGrid user={user} className="mt-8" />
 
       {/* Recent Activity Section */}
       <Card className="p-6 mt-8">

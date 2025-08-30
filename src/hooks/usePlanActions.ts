@@ -8,14 +8,20 @@ export function usePlanActions(user: User | null, onSuccess?: () => void) {
   const { mutate: cancelSubscription, isPending: isCancelling } = useCancelSubscription({ onSuccess })
 
   const handlePlanChange = (plan: Package) => {
-    const userPackageName = user?.subscription?.package?.name?.toLowerCase() || ''
-    if (user?.subscription && !userPackageName.includes('trial')) {
+    const hasActiveSubscription = user?.subscription && user.subscription.external_subscription_id
+    
+    if (hasActiveSubscription) {
+      // Update existing subscription
       updateSubscription({
-        subscriptionId: user.subscription.subscription_id as number,
-        variantId: plan.product_id as number,
+        subscriptionId: user.subscription!.id as number, // Use non-null assertion since we checked hasActiveSubscription
+        newPlanPriceId: plan.plan_price_id as number, // Use plan_price_id for backend API
       })
     } else {
-      createCheckout(plan.product_id as number)
+      // Create new checkout for new subscribers or trial users
+      if (!plan.plan_price_id) {
+        throw new Error('Plan price ID is required for checkout')
+      }
+      createCheckout(plan.plan_price_id as number) // Use plan_price_id for backend API
     }
   }
 

@@ -9,7 +9,7 @@ export default function UpgradePackagesPage() {
   return (
     <div className="min-h-screen bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        <PlansGrid user={user} showFreePlan title="Upgrade Your Plan" />
+        <PlansGrid user={user} title="Upgrade Your Plan" />
       </div>
     </div>
   )
