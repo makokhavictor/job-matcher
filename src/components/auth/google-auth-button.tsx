@@ -64,7 +64,12 @@ export function GoogleAuthButton({
 
       window.google.accounts.id.renderButton(
         document.getElementById('google-signin-btn')!,
-        { theme: 'outline', size: 'large' }
+        { 
+          theme: 'outline', 
+          size: 'large',
+          width: '100%',
+          type: 'standard'
+        }
       )
     }
 
@@ -78,5 +83,13 @@ export function GoogleAuthButton({
   // isSubmitting and mode are only used in the callback,
   // so they don't need to be here if handleCredentialResponse is stable.
 
-  return <div id="google-signin-btn" className="w-full" />
+  return (
+    <div 
+      id="google-signin-btn" 
+      className="w-full"
+      style={{
+        width: '100%'
+      }}
+    />
+  )
 }
