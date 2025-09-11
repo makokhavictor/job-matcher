@@ -67,10 +67,21 @@ export function GoogleAuthButton({
         { 
           theme: 'outline', 
           size: 'large',
-          width: '100%',
           type: 'standard'
         }
       )
+      
+      // Force the iframe to be full width after render
+      setTimeout(() => {
+        const container = document.getElementById('google-signin-btn')
+        if (container) {
+          const iframe = container.querySelector('iframe')
+          if (iframe) {
+            iframe.style.width = '100%'
+            iframe.style.minWidth = '100%'
+          }
+        }
+      }, 100)
     }
 
     document.body.appendChild(script)
