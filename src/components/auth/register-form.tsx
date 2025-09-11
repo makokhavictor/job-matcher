@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { GoogleAuthButton } from './google-auth-button'
+import { useAuth } from '@/app/providers/auth-provider'
+import { authService } from '@/lib/auth.service'
 
 const registerSchema = z
   .object({
@@ -26,8 +28,10 @@ const registerSchema = z
 type RegisterValues = z.infer<typeof registerSchema>
 
 export function RegisterForm() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const plan = searchParams.get('plan')
+  const { login } = useAuth()
 
   const {
     register,
@@ -39,20 +43,35 @@ export function RegisterForm() {
 
   const onSubmit = async (data: RegisterValues) => {
     try {
-      // TODO: Implement registration logic
-      console.log(data, { plan })
+      const registerData = {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        plan: plan || undefined
+      }
+      
+      const authResponse = await authService.register(registerData)
+      
+      // Update auth context with login data
+      login(authResponse)
+      
       toast.success('Account created successfully!')
+      
+      // Redirect to dashboard or plan-specific page
+      if (plan) {
+        router.push(`/dashboard?plan=${plan}`)
+      } else {
+        router.push('/dashboard')
+      }
     } catch (error) {
-      console.log('Registration error:', error)
-      toast.error('Failed to create account. Please try again.')
+      console.error('Registration error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create account. Please try again.'
+      toast.error(errorMessage)
     }
   }
 
   return (
       <div className="grid gap-6">
-        <div className="mb-4 p-3 rounded bg-yellow-100 text-yellow-800 text-center font-medium">
-          🚧 Email/password registration is coming soon! Please use <span className="font-semibold">Google</span> to sign up below.
-        </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -62,7 +81,6 @@ export function RegisterForm() {
                 autoCapitalize="none"
                 autoComplete="name"
                 autoCorrect="off"
-                disabled
               />
               {errors?.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -76,7 +94,6 @@ export function RegisterForm() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
-                disabled
               />
               {errors?.email && (
                 <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -88,7 +105,6 @@ export function RegisterForm() {
                 placeholder="Create a password"
                 type="password"
                 autoComplete="new-password"
-                disabled
               />
               {errors?.password && (
                 <p className="text-sm text-red-500">
@@ -102,7 +118,6 @@ export function RegisterForm() {
                 placeholder="Confirm password"
                 type="password"
                 autoComplete="new-password"
-                disabled
               />
               {errors?.confirmPassword && (
                 <p className="text-sm text-red-500">
@@ -110,8 +125,8 @@ export function RegisterForm() {
                 </p>
               )}
             </div>
-            <Button disabled>
-              Create Account
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating Account..." : "Create Account"}
             </Button>
           </div>
         </form>
