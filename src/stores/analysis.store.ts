@@ -52,10 +52,12 @@ export type AnalysisStore = {
   recentAnalyses: RecentAnalysis[];
   originalCv: File | string | null;
   originalJd: File | string | null;
+  currentAnalysis: RecentAnalysis | null;
   setResults: (results: AnalysisResults | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setOriginals: (cv: File | string, jd: File | string) => void;
+  setCurrentAnalysis: (analysis: RecentAnalysis | null) => void;
   reset: () => void;
   fetchRecentAnalyses: () => Promise<void>;
 }
@@ -67,11 +69,13 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   recentAnalyses: [],
   originalCv: null,
   originalJd: null,
+  currentAnalysis: null,
   setResults: (results) => set({ results, loading: false, error: null }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error, loading: false }),
   setOriginals: (cv, jd) => set({ originalCv: cv, originalJd: jd }),
-  reset: () => set({ results: null, loading: false, error: null, originalCv: null, originalJd: null }),
+  setCurrentAnalysis: (analysis) => set({ currentAnalysis: analysis }),
+  reset: () => set({ results: null, loading: false, error: null, originalCv: null, originalJd: null, currentAnalysis: null }),
   fetchRecentAnalyses: async () => {
     set({ loading: true, error: null })
     try {

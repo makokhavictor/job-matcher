@@ -77,11 +77,14 @@ export function useTailorCv() {
   const [tailoredCv, setTailoredCv] = useState<TailoredCvResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { originalCv, originalJd } = useAnalysisStore()
+  const { originalCv, originalJd, results } = useAnalysisStore()
   const { token } = useAuth()
 
-  const tailorCv = async () => {
-    if (!originalCv || !originalJd) {
+  const tailorCv = async (cvContent?: string, jdContent?: string) => {
+    const cvToUse = cvContent || originalCv
+    const jdToUse = jdContent || originalJd
+    
+    if (!cvToUse || !jdToUse) {
       setError('No analysis results available to tailor from.')
       return
     }
@@ -93,16 +96,16 @@ export function useTailorCv() {
     try {
       const formData = new FormData()
 
-      if (typeof originalCv === 'string') {
-        formData.append('cv_text', originalCv)
+      if (typeof cvToUse === 'string') {
+        formData.append('cv_text', cvToUse)
       } else {
-        formData.append('cv_file', originalCv)
+        formData.append('cv_file', cvToUse)
       }
 
-      if (typeof originalJd === 'string') {
-        formData.append('job_text', originalJd)
+      if (typeof jdToUse === 'string') {
+        formData.append('job_text', jdToUse)
       } else {
-        formData.append('job_file', originalJd)
+        formData.append('job_file', jdToUse)
       }
 
       const response = await apiClient('/matcher/tailor-cv', {

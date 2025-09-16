@@ -9,7 +9,7 @@ import { AnalysisResults } from '@/components/analysis/AnalysisResults'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 export default function AnalysesPage() {
-  const { recentAnalyses, loading, error, setResults, fetchRecentAnalyses } = useAnalysisStore()
+  const { recentAnalyses, loading, error, setResults, setCurrentAnalysis, fetchRecentAnalyses } = useAnalysisStore()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -18,6 +18,7 @@ export default function AnalysesPage() {
 
   const handleViewDetails = (analysis: typeof recentAnalyses[0]) => {
     setResults(analysis.result_data)
+    setCurrentAnalysis(analysis)
     setOpen(true)
   }
 

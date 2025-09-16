@@ -21,7 +21,7 @@ import { useTailorCv } from '@/hooks/useTailorCv';
 import { CvTemplate } from './CvTemplate';
 
 export function AnalysisResults() {
-  const { results: parsed, loading, error } = useAnalysisStore()
+  const { results: parsed, loading, error, currentAnalysis } = useAnalysisStore()
   const { user } = useAuth()
   const { tailorCv, tailoredCv, loading: tailoringLoading, error: tailoringError } = useTailorCv();
 
@@ -280,7 +280,10 @@ export function AnalysisResults() {
                   </div>
                   <div className="text-center">
                     <p className="text-gray-600 mb-4">Generate a tailored CV optimized for this job description</p>
-                    <Button onClick={tailorCv} size="lg">Tailor CV</Button>
+                    <Button onClick={() => tailorCv(
+                      currentAnalysis?.input_data?.cv_content,
+                      currentAnalysis?.input_data?.job_content
+                    )} size="lg">Tailor CV</Button>
                   </div>
                 </Card>
               )}
