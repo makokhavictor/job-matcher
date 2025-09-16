@@ -27,6 +27,7 @@ export function useMatcher() {
   const setLoading = useLoadingStore((state) => state.setLoading)
   const resetAnalysisStore = useAnalysisStore((state) => state.reset)
   const setAnalysisResult = useAnalysisStore((state) => state.setResults)
+  const setOriginals = useAnalysisStore((state) => state.setOriginals)
   const fetchRecentAnalyses = useAnalysisStore(
     (state) => state.fetchRecentAnalyses,
   )
@@ -196,12 +197,17 @@ export function useMatcher() {
           [type]: metadata || { type: typeof fileOrText === 'string' ? 'text' : 'file' }
         }
         
+        const cv = type === 'cv' ? fileOrText : uploadState.cv!;
+        const jobDescription =
+          type === 'jobDescription'
+            ? fileOrText
+            : uploadState.jobDescription!;
+
+        setOriginals(cv, jobDescription);
+
         analysisMutation.mutate({
-          cv: type === 'cv' ? fileOrText : uploadState.cv!,
-          jobDescription:
-            type === 'jobDescription'
-              ? fileOrText
-              : uploadState.jobDescription!,
+          cv,
+          jobDescription,
           metadata: newMetadata
         })
       }

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { apiClient } from '@/lib/utils/apiClient'
+import { CvTemplateProps } from '@/components/analysis/CvTemplate'
 
 export type KeyMatch = {
   skill: string;
@@ -19,6 +20,7 @@ export type AnalysisResults = {
   match_score: number;
   score_breakdown: string;
   title?: string;
+  tailored_cv?: CvTemplateProps['tailoredCv'];
 };
 
 export type RecentAnalysis = {
@@ -37,6 +39,7 @@ export type RecentAnalysis = {
     match_score: number;
     score_breakdown: string;
     title?: string;
+    tailored_cv?: CvTemplateProps['tailoredCv'];
   };
   created_at: string;
   updated_at: string;
@@ -47,9 +50,12 @@ export type AnalysisStore = {
   loading: boolean;
   error: string | null;
   recentAnalyses: RecentAnalysis[];
+  originalCv: File | string | null;
+  originalJd: File | string | null;
   setResults: (results: AnalysisResults | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setOriginals: (cv: File | string, jd: File | string) => void;
   reset: () => void;
   fetchRecentAnalyses: () => Promise<void>;
 }
@@ -59,10 +65,13 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   loading: false,
   error: null,
   recentAnalyses: [],
+  originalCv: null,
+  originalJd: null,
   setResults: (results) => set({ results, loading: false, error: null }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error, loading: false }),
-  reset: () => set({ results: null, loading: false, error: null }),
+  setOriginals: (cv, jd) => set({ originalCv: cv, originalJd: jd }),
+  reset: () => set({ results: null, loading: false, error: null, originalCv: null, originalJd: null }),
   fetchRecentAnalyses: async () => {
     set({ loading: true, error: null })
     try {

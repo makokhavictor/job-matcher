@@ -8,6 +8,7 @@ export interface PackageFeatures {
   multiple_cv_versions: boolean
   report_export: boolean
   is_trial: boolean
+  generate_tailored_cv: boolean
 }
 
 export interface Package {
