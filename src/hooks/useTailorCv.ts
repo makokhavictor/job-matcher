@@ -5,76 +5,84 @@ import { useAuth } from '@/app/providers/auth-provider'
 import { apiClient } from '@/lib/utils/apiClient'
 import { useAnalysisStore } from '@/stores/analysis.store'
 
-export interface TailoredCvResponse {
+export interface TailoredCVResponse {
   results: {
-    tailored_cv: {
-      personal_info: {
-        name: string | null
-        email: string | null
-        phone: string | null
-        location: string | null
-        linkedin: string | null
-        github: string | null
-      }
-      summary: string | null
-      skills: Array<{
-        name: string
-        level: string | null
-        category: string | null
-      }>
-      experience: Array<{
-        job_title: string | null
-        company: string | null
-        start_date: string | null
-        end_date: string | null
-        duration: string | null
-        location: string | null
-        description: string
-        skills_used: string[]
-        achievements: string[]
-      }>
-      education: Array<{
-        degree: string | null
-        field_of_study: string | null
-        institution: string | null
-        start_date: string | null
-        end_date: string | null
-        gpa: string | null
-        location: string | null
-        achievements: string[]
-      }>
-      certifications: Array<{
-        title: string
-        issuer: string | null
-        issue_date: string | null
-        expiration_date: string | null
-        credential_id: string | null
-        url: string | null
-      }>
-      projects: Array<{
-        name: string
-        description: string
-        technologies: string[]
-        achievements: string[]
-      }>
-      languages: Array<{
-        name: string
-        proficiency: string
-      }>
-      raw_text: string
-    }
-    original_cv: any
-    tailoring_summary: any
-    baseline_analysis: any
-    target_job: any
-    template_data: any
+    original_cv: string
+    tailored_cv: TailoredCV
+    job_description: string
   }
   success: boolean
   message: string
 }
 
+export interface TailoredCV {
+  summary: string
+  match_score: number
+  alignment_reasoning: string
+  personal_information: PersonalInformation
+  experience: Experience[]
+  projects: Project[]
+  education: Education[]
+  certifications: Certification[]
+  skills: Skills
+  soft_skills: string[]
+}
+
+export interface PersonalInformation {
+  name: string
+  location: string | null
+  email: string | null
+  phone: string | null
+  linkedin: string | null
+  portfolio: string | null
+  github: string | null
+}
+
+export interface Experience {
+  title: string
+  company: string
+  location: string | null
+  dates: string | null
+  description: string
+}
+
+export interface Project {
+  name: string
+  organization: string | null
+  dates: string | null
+  description: string
+  technologies: string[]
+}
+
+export interface Education {
+  degree: string
+  institution: string
+  location: string | null
+  dates: string | null
+}
+
+export interface Certification {
+  name: string
+  issuer: string | null
+  date: string | null
+}
+
+export interface Skills {
+  languages: string[]
+  frontend: string[]
+  backend: string[]
+  data_engineering: string[]
+  devops: string[]
+  ai_ml: string[]
+  tools: string[]
+  databases: string[]
+  cloud: string[]
+  project_management: string[]
+}
+
+
 export function useTailorCv() {
-  const [tailoredCv, setTailoredCv] = useState<TailoredCvResponse | null>(null)
+  const [tailoredCv, setTailoredCv] = useState<TailoredCVResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { originalCv, originalJd, results } = useAnalysisStore()

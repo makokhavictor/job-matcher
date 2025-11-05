@@ -261,12 +261,12 @@ export function AnalysisResults() {
               )}
               {/* Show existing tailored CV from analysis history if available */}
               {existingTailoredCv && (
-                <CvTemplate tailoredCv={existingTailoredCv} />
+                <CvTemplate tailored_cv={existingTailoredCv} />
               )}
               
               {/* Show newly generated tailored CV if available */}
               {!existingTailoredCv && tailoredCv?.results?.tailored_cv && (
-                <CvTemplate tailoredCv={tailoredCv.results.tailored_cv} />
+                <CvTemplate tailored_cv={tailoredCv.results.tailored_cv} />
               )}
               
               {/* Show generate button if no tailored CV exists yet */}
