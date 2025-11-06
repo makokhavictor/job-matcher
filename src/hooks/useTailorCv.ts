@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/app/providers/auth-provider'
 import { apiClient } from '@/lib/utils/apiClient'
 import { useAnalysisStore } from '@/stores/analysis.store'
 
@@ -85,8 +84,7 @@ export function useTailorCv() {
   const [tailoredCv, setTailoredCv] = useState<TailoredCVResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { originalCv, originalJd, results } = useAnalysisStore()
-  const { token } = useAuth()
+  const { originalCv, originalJd, currentAnalysis } = useAnalysisStore()
 
   const tailorCv = async (cvContent?: string, jdContent?: string) => {
     const cvToUse = cvContent || originalCv
@@ -116,6 +114,8 @@ export function useTailorCv() {
         formData.append('job_file', jdToUse)
       }
 
+      formData.append('analysis_result_id', currentAnalysis ? currentAnalysis.id.toString() : '');
+
       const response = await apiClient('/matcher/tailor-cv', {
         method: 'POST',
         body: formData,
@@ -124,7 +124,7 @@ export function useTailorCv() {
       console.log('API Response:', response);
       console.log('Has tailored_cv:', response.data?.results?.tailored_cv);
       setTailoredCv(response)
-    } catch (err) {
+    } catch {
       setError('Failed to tailor CV. Please try again.')
     } finally {
       setLoading(false)
