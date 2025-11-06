@@ -33,6 +33,36 @@ export function MainNav() {
             <nav className="hidden md:flex items-center space-x-4 md:space-x-6 text-sm font-medium">
               {user && <Link href="/dashboard">Dashboard</Link>}
               <Link
+                href="/resume-templates"
+                className={
+                  pathname?.startsWith('/resume-templates')
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                }
+              >
+                Resume Templates
+              </Link>
+              <Link
+                href="/job-descriptions"
+                className={
+                  pathname?.startsWith('/job-descriptions')
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                }
+              >
+                Job Descriptions
+              </Link>
+              <Link
+                href="/blog"
+                className={
+                  pathname?.startsWith('/blog')
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                }
+              >
+                Blog
+              </Link>
+              <Link
                 href="/#features"
                 className={
                   pathname === '/#features'
