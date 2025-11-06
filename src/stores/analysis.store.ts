@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { apiClient } from '@/lib/utils/apiClient'
-import { CvTemplateProps } from '@/components/analysis/CvTemplate'
+import { TailoredCV } from '@/hooks/useTailorCv';
 
 export type KeyMatch = {
   skill: string;
@@ -20,7 +20,7 @@ export type AnalysisResults = {
   match_score: number;
   score_breakdown: string;
   title?: string;
-  tailored_cv?: CvTemplateProps['tailoredCv'];
+  tailored_cv?: TailoredCV;
 };
 
 export type RecentAnalysis = {
@@ -39,7 +39,7 @@ export type RecentAnalysis = {
     match_score: number;
     score_breakdown: string;
     title?: string;
-    tailored_cv?: CvTemplateProps['tailoredCv'];
+    tailored_cv?: TailoredCV;
   };
   created_at: string;
   updated_at: string;

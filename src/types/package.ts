@@ -101,6 +101,7 @@ export const freePlan: Package = {
     multiple_cv_versions: false,
     report_export: false,
     is_trial: false,
+    generate_tailored_cv: false
   },
 };
 
