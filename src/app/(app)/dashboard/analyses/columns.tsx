@@ -57,7 +57,7 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
     cell: ({ row }) => {
       const skills = row.original.result_data?.key_matches?.slice(0, 3).map((m) => m.skill).join(", ")
       return (
-        <div className="max-w-xs break-words">
+        <div className="w-48 truncate" title={skills || "N/A"}>
           {skills || "N/A"}
         </div>
       )

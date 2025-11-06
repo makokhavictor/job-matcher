@@ -64,8 +64,24 @@ export function GoogleAuthButton({
 
       window.google.accounts.id.renderButton(
         document.getElementById('google-signin-btn')!,
-        { theme: 'outline', size: 'large' }
+        { 
+          theme: 'outline', 
+          size: 'large',
+          type: 'standard'
+        }
       )
+      
+      // Force the iframe to be full width after render
+      setTimeout(() => {
+        const container = document.getElementById('google-signin-btn')
+        if (container) {
+          const iframe = container.querySelector('iframe')
+          if (iframe) {
+            iframe.style.width = '100%'
+            iframe.style.minWidth = '100%'
+          }
+        }
+      }, 100)
     }
 
     document.body.appendChild(script)
@@ -78,5 +94,13 @@ export function GoogleAuthButton({
   // isSubmitting and mode are only used in the callback,
   // so they don't need to be here if handleCredentialResponse is stable.
 
-  return <div id="google-signin-btn" className="w-full" />
+  return (
+    <div 
+      id="google-signin-btn" 
+      className="w-full"
+      style={{
+        width: '100%'
+      }}
+    />
+  )
 }

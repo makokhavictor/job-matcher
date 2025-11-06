@@ -10,6 +10,8 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { GoogleAuthButton } from "./google-auth-button"
+import { useAuth } from '@/app/providers/auth-provider'
+import { authService } from '@/lib/auth.service'
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,6 +24,7 @@ export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const plan = searchParams.get('plan')
+  const { login } = useAuth()
 
   const {
     register,
@@ -33,36 +36,28 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginValues) => {
     try {
-      const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
-      const response = await fetch(`${backendApiUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-
-      const responseData = await response.json()
-
-      if (response.ok) {
-        toast.success("Successfully logged in!")
-        // Save the token and redirect
-        if (responseData.token) {
-          localStorage.setItem('auth_token', responseData.token)
-          router.push('/dashboard')
-        }
+      const authResponse = await authService.login(data)
+      
+      // Update auth context with login data
+      login(authResponse)
+      
+      toast.success("Successfully logged in!")
+      
+      // Redirect to dashboard or plan-specific page
+      if (plan) {
+        router.push(`/dashboard?plan=${plan}`)
       } else {
-        throw new Error(responseData.detail || 'Failed to login')
+        router.push('/dashboard')
       }
     } catch (error) {
-      console.log("Login error:", error);
-      toast.error("Failed to login. Please try again.")
+      console.error("Login error:", error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to login. Please try again.'
+      toast.error(errorMessage)
     }
   }
 
   return (
     <div className="grid gap-6">
-      <div className="mb-4 p-3 rounded bg-yellow-100 text-yellow-800 text-center font-medium">
-        🚧 Email/password login is coming soon! Please use <span className="font-semibold">Google</span> to sign in below.
-      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4">
           <div className="grid gap-2">
@@ -73,7 +68,6 @@ export function LoginForm() {
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
-              disabled
             />
             {errors?.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -85,14 +79,13 @@ export function LoginForm() {
               placeholder="Password"
               type="password"
               autoComplete="current-password"
-              disabled
             />
             {errors?.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
           </div>
-          <Button disabled>
-            Sign In
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </Button>
         </div>
       </form>

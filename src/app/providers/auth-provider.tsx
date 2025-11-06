@@ -10,6 +10,7 @@ import {
 } from 'react'
 import type { Subscription } from '@/types/package'
 import { useAnalysisStore } from '@/stores/analysis.store'
+import { authService, AuthResponse } from '@/lib/auth.service'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -29,6 +30,7 @@ interface AuthContextType {
   loading: boolean
   logout: () => void
   checkAuth: () => Promise<void>
+  login: (authResponse: AuthResponse) => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -52,34 +54,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const fetchRecentAnalyses = useAnalysisStore((state) => state.fetchRecentAnalyses)
 
   const checkAuth = useCallback(async () => {
-    const auth = localStorage.getItem('auth')
+    const authData = authService.getAuthData()
 
-    if (isDashboardRoute && !auth) {
+    if (isDashboardRoute && !authData) {
       router.push('/login')
+      setLoading(false)
       return
     }
 
-    if (auth) {
-      const { access_token: token } = JSON.parse(auth)
-      const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL
-
+    if (authData) {
       try {
-        const response = await fetch(`${backendApiUrl}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (response.ok) {
-          const userData = await response.json()
-          setUser(userData)
-        } else {
-          localStorage.removeItem('auth')
-        }
+        const userData = await authService.getCurrentUser(authData.access_token)
+        setUser(userData)
       } catch (error: unknown) {
         console.error('Authentication error:', error)
-        localStorage.removeItem('auth')
+        authService.clearAuthData()
         setUser(null)
+        if (isDashboardRoute) {
+          router.push('/login')
+        }
       }
     }
 
@@ -100,13 +93,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [isDashboardRoute, user, fetchRecentAnalyses])
 
   const logout = () => {
-    localStorage.removeItem('auth')
+    authService.clearAuthData()
     setUser(null)
     router.push('/login')
   }
 
+  const login = (authResponse: AuthResponse) => {
+    authService.saveAuthData(authResponse)
+    setUser(authResponse.user)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, logout, checkAuth }}>
+    <AuthContext.Provider value={{ user, loading, logout, checkAuth, login }}>
       {children}
     </AuthContext.Provider>
   )

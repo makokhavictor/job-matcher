@@ -8,6 +8,7 @@ export interface PackageFeatures {
   multiple_cv_versions: boolean
   report_export: boolean
   is_trial: boolean
+  generate_tailored_cv: boolean
 }
 
 export interface Package {
@@ -100,6 +101,7 @@ export const freePlan: Package = {
     multiple_cv_versions: false,
     report_export: false,
     is_trial: false,
+    generate_tailored_cv: false
   },
 };
 

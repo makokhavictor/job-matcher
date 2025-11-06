@@ -17,13 +17,20 @@ import { Button } from '@/components/ui/button'
 import { Lock } from 'lucide-react'
 import Link from 'next/link'
 
+import { useTailorCv } from '@/hooks/useTailorCv';
+import { CvTemplate } from './CvTemplate';
+
 export function AnalysisResults() {
-  const { results: parsed, loading, error } = useAnalysisStore()
+  const { results: parsed, loading, error, currentAnalysis } = useAnalysisStore()
   const { user } = useAuth()
-  // const isMobile = useIsMobile() // removed unused assignment
+  const { tailorCv, tailoredCv, loading: tailoringLoading, error: tailoringError } = useTailorCv();
+
+  // Check if we have an existing tailored CV from analysis history
+  const existingTailoredCv = parsed?.tailored_cv
 
   const hasAdvancedMatchScoring = user?.subscription?.plan?.features?.advanced_match_scoring
   const hasTailoredImprovementSuggestions = user?.subscription?.plan?.features?.tailored_improvement_suggestions
+  const hasTailoredCv = user?.subscription?.plan?.features?.generate_tailored_cv
 
   // Enhanced score color and styling logic
   const getScorestyling = (score: number) => {
@@ -138,7 +145,7 @@ export function AnalysisResults() {
       </Card>
 
       <Tabs defaultValue="summary" className="w-full">
-        <TabsList className={'grid w-full grid-cols-3'}>
+        <TabsList className={'grid w-full grid-cols-4'}>
           <TabsTrigger value="summary">Key Matches</TabsTrigger>
           <TabsTrigger value="full-match">
             Critical Missing Skills
@@ -147,6 +154,10 @@ export function AnalysisResults() {
           <TabsTrigger value="semantic-match">
             Resume Improvements
             {!hasTailoredImprovementSuggestions && <Lock className="w-4 h-4 ml-2" />}
+          </TabsTrigger>
+          <TabsTrigger value="tailored-cv">
+            Tailored CV
+            {!hasTailoredCv && <Lock className="w-4 h-4 ml-2" />}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="summary">
@@ -221,6 +232,62 @@ export function AnalysisResults() {
                 ))}
               </div>
             </Card>
+          ) : renderLockedContent()}
+        </TabsContent>
+        <TabsContent value="tailored-cv">
+          {hasTailoredCv ? (
+            <div className="mt-4">
+              {tailoringLoading && (
+                <Card className="p-6 border-blue-200 bg-blue-50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </div>
+                    <h2 className="text-xl font-semibold text-blue-800">Tailoring CV...</h2>
+                  </div>
+                  <p className="text-gray-600 mt-2">Please wait while we tailor your CV to the job description.</p>
+                </Card>
+              )}
+              {tailoringError && (
+                <Card className="p-6 border-red-200 bg-red-50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </div>
+                    <h2 className="text-xl font-semibold text-red-800">Error</h2>
+                  </div>
+                  <p className="text-red-600 mt-2">{tailoringError}</p>
+                </Card>
+              )}
+              {/* Show existing tailored CV from analysis history if available */}
+              {existingTailoredCv && (
+                <CvTemplate tailored_cv={existingTailoredCv} />
+              )}
+              
+              {/* Show newly generated tailored CV if available */}
+              {!existingTailoredCv && tailoredCv?.results?.tailored_cv && (
+                <CvTemplate tailored_cv={tailoredCv.results.tailored_cv} />
+              )}
+              
+              {/* Show generate button if no tailored CV exists yet */}
+              {!existingTailoredCv && !tailoredCv?.results?.tailored_cv && !tailoringLoading && (
+                <Card className="p-6 border-blue-200 bg-blue-50">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    </div>
+                    <h2 className="text-xl font-semibold text-blue-800">Tailored CV</h2>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-600 mb-4">Generate a tailored CV optimized for this job description</p>
+                    <Button onClick={() => tailorCv(
+                      currentAnalysis?.input_data?.cv_content,
+                      currentAnalysis?.input_data?.job_content
+                    )} size="lg">Tailor CV</Button>
+                  </div>
+                </Card>
+              )}
+            </div>
           ) : renderLockedContent()}
         </TabsContent>
       </Tabs>
