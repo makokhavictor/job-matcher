@@ -84,7 +84,7 @@ export function useTailorCv() {
   const [tailoredCv, setTailoredCv] = useState<TailoredCVResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { originalCv, originalJd, currentAnalysis } = useAnalysisStore()
+  const { originalCv, originalJd, results, currentAnalysis } = useAnalysisStore()
 
   const tailorCv = async (cvContent?: string, jdContent?: string) => {
     const cvToUse = cvContent || originalCv
@@ -101,6 +101,7 @@ export function useTailorCv() {
 
     try {
       const formData = new FormData()
+      console.log({results});
 
       if (typeof cvToUse === 'string') {
         formData.append('cv_text', cvToUse)
@@ -114,7 +115,7 @@ export function useTailorCv() {
         formData.append('job_file', jdToUse)
       }
 
-      formData.append('analysis_result_id', currentAnalysis ? currentAnalysis.id.toString() : '');
+      formData.append('analysis_result_id', results?.id?.toString() ?? currentAnalysis?.id.toString() ?? '');
 
       const response = await apiClient('/matcher/tailor-cv', {
         method: 'POST',

@@ -21,6 +21,7 @@ export type AnalysisResults = {
   score_breakdown: string;
   title?: string;
   tailored_cv?: TailoredCV;
+  id?: number;
 };
 
 export type RecentAnalysis = {
