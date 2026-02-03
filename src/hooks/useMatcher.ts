@@ -104,7 +104,7 @@ export function useMatcher() {
         parsed = null
       }
       if (parsed && typeof parsed.match_score === 'number') {
-        setAnalysisResult(parsed)
+        setAnalysisResult({...parsed, id: result.result_id})
         // Fire-and-forget refetch of recent analyses
         fetchRecentAnalyses()
       }
