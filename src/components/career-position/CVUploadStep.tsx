@@ -17,16 +17,13 @@ export function CVUploadStep({ onComplete }: Props) {
     setError(null)
     try {
       let text = ''
-      if (file.name.endsWith('.pdf')) {
-        const { default: pdfParse } = await import('pdf-parse-fork')
-        const buffer = await file.arrayBuffer()
-        const parsed = await pdfParse(Buffer.from(buffer))
-        text = parsed.text
-      } else if (file.name.endsWith('.docx')) {
-        const mammoth = await import('mammoth')
-        const buffer = await file.arrayBuffer()
-        const result = await mammoth.extractRawText({ arrayBuffer: buffer })
-        text = result.value
+      if (file.name.endsWith('.pdf') || file.name.endsWith('.docx')) {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await fetch('/api/parse-cv', { method: 'POST', body: fd })
+        if (!res.ok) throw new Error('Parse failed')
+        const data = await res.json()
+        text = data.text
       } else {
         text = await file.text()
       }
