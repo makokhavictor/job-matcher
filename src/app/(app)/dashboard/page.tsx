@@ -1,96 +1,118 @@
 'use client'
-import Link from "next/link"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { FileSearch, Settings, BarChart } from "lucide-react"
-import { Spinner } from '@/components/ui/spinner'
+import Link from 'next/link'
 import { useAuth } from '@/app/providers/auth-provider'
-import { useAnalysisStore } from '@/stores/analysis.store'
-import { PlansGrid } from '@/components/marketing/PlansGrid'
+import { useCareerPositionStore } from '@/stores/career-position.store'
+import { useEffect } from 'react'
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { recentAnalyses, loading: analysesLoading, error: analysesError } = useAnalysisStore()
+  const { latestResult, fetchLatestResult, loading } = useCareerPositionStore()
 
+  useEffect(() => {
+    fetchLatestResult()
+  }, [fetchLatestResult])
+
+  if (loading) return null
+
+  // Empty state — no reports yet
+  if (!latestResult) {
+    return (
+      <div style={{ maxWidth: 560, margin: '80px auto', padding: '0 24px' }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)', marginBottom: 16 }}>
+          WHERE DO YOU STAND?
+        </p>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 400, lineHeight: 1.3, color: 'var(--foreground)', marginBottom: 20 }}>
+          Most professionals don't know how competitive they are for the roles they actually want.
+        </h1>
+        <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 32 }}>
+          Your Career Position Report tells you exactly — in 60 seconds.
+        </p>
+        <Link
+          href="/dashboard/career-position/onboarding"
+          style={{
+            display: 'inline-block',
+            background: 'var(--primary)',
+            color: 'var(--primary-foreground)',
+            padding: '14px 28px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 12,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            textDecoration: 'none',
+            borderRadius: 'var(--radius)',
+          }}
+        >
+          Analyze my position
+        </Link>
+
+        <div style={{ borderTop: '1px solid var(--accent-dim)', marginTop: 48, paddingTop: 32 }}>
+          <p style={{ fontSize: 12, color: 'var(--subtle)', fontStyle: 'italic', marginBottom: 8 }}>
+            Example: Sarah, 6 years in finance → Pivot Readiness 71 for Fintech PM
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+            "I had no idea I was already 70% there"
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // Post-report hub
+  const r = latestResult.result_data
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-      
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <BarChart className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-lg">Job Matching</h2>
-              <p className="text-sm text-secondary-600">Match your CV with jobs</p>
-            </div>
-          </div>
-          <Link href="/dashboard/matching" className="w-full">
-            <Button className="w-full mt-4">
-              Start Matching
-            </Button>
-          </Link>
-        </Card>
+    <div style={{ maxWidth: 560, margin: '0 auto', padding: '48px 24px 80px' }}>
+      <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 4 }}>
+        Good morning, {user?.name?.split(' ')[0]}.
+      </p>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <FileSearch className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-lg">Recent Analyses</h2>
-              <p className="text-sm text-secondary-600">View your CV analyses</p>
-            </div>
-          </div>
-          <Link href="/dashboard/analyses" className="w-full">
-            <Button className="w-full mt-4">
-              View Analyses
-            </Button>
-          </Link>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Settings className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-lg">Settings</h2>
-              <p className="text-sm text-secondary-600">Manage your account</p>
-            </div>
-          </div>
-          <Link href="/dashboard/settings" className="w-full">
-            <Button className="w-full mt-4">
-              Open Settings
-            </Button>
-          </Link>
-        </Card>
+      <div style={{ borderTop: '1px solid var(--accent-dim)', borderBottom: '1px solid var(--accent-dim)', padding: '24px 0', margin: '20px 0 32px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 4 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 56, fontWeight: 400, color: 'var(--foreground)', lineHeight: 1 }}>
+            {r.pivot_readiness_score}
+          </p>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)' }}>
+            PIVOT READINESS
+          </p>
+        </div>
+        <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+          {latestResult.target?.current_role ?? 'Your role'} → {latestResult.target?.target_role ?? 'Target'}
+        </p>
       </div>
 
-      <PlansGrid user={user} className="mt-8" />
+      <Link
+        href="/dashboard/career-position/onboarding"
+        style={{
+          display: 'inline-block',
+          border: '1px solid var(--accent-dim)',
+          padding: '10px 20px',
+          fontFamily: 'var(--font-mono)',
+          fontSize: 11,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          textDecoration: 'none',
+          color: 'var(--foreground)',
+          borderRadius: 'var(--radius)',
+          marginBottom: 48,
+        }}
+      >
+        Update CV and re-analyze
+      </Link>
 
-      {/* Recent Activity Section */}
-      <Card className="p-6 mt-8">
-        <h3 className="font-semibold text-base mb-4">Recent Activity</h3>
-        {analysesLoading ? (
-          <div className="flex justify-center items-center min-h-[80px]"><Spinner size={24} /></div>
-        ) : analysesError ? (
-          <div className="text-red-600">{analysesError}</div>
-        ) : recentAnalyses && recentAnalyses.length > 0 ? (
-          <div className="divide-y divide-secondary-200">
-            {recentAnalyses.slice(0, 3).map((a) => (
-              <div key={a.id} className="flex justify-between py-2 text-sm">
-                <span>{a.result_data?.title || a.input_data.cv_filename || 'Untitled'}</span>
-                <span className="text-xs">Match: {a.result_data?.match_score ?? 'N/A'}%</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-secondary-500">No recent analyses found.</div>
-        )}
-      </Card>
+      <Link
+        href="/dashboard/career-position"
+        style={{
+          display: 'block',
+          fontFamily: 'var(--font-mono)',
+          fontSize: 12,
+          letterSpacing: '0.08em',
+          color: 'var(--accent)',
+          textDecoration: 'none',
+          marginTop: -24,
+          marginBottom: 48,
+        }}
+      >
+        View full report →
+      </Link>
     </div>
   )
 }

@@ -3,12 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { 
-  LayoutDashboard, 
-  FileSearch, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileSearch,
+  Settings,
   ChartLine,
-  Zap
+  Zap,
+  Target
 } from 'lucide-react'
 import { useAuth } from '@/app/providers/auth-provider'
 import { differenceInDays, parseISO } from 'date-fns'
@@ -27,6 +28,11 @@ const navItems = [
     title: 'Overview',
     href: '/dashboard',
     icon: LayoutDashboard
+  },
+  {
+    title: 'Career Position',
+    href: '/dashboard/career-position',
+    icon: Target
   },
   {
     title: 'Job Matching',
