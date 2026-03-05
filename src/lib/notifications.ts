@@ -44,7 +44,7 @@ export async function getNotifications(userId: number): Promise<AppNotification[
   return raw.map((r) => JSON.parse(r) as AppNotification)
 }
 
-export async function markRead(userId: number, notificationId: string): Promise<void> {
+export async function markRead(userId: number, notificationId: string): Promise<boolean> {
   const redis = getRedisConnection()
   const raw = await redis.zrange(key(userId), 0, -1, 'WITHSCORES')
   // raw = [member, score, member, score, ...]
@@ -55,10 +55,11 @@ export async function markRead(userId: number, notificationId: string): Promise<
     if (n.id === notificationId) {
       const updated = { ...n, read: true }
       await redis.zrem(key(userId), member)
-      await redis.zadd(key(userId), parseInt(score), JSON.stringify(updated))
-      break
+      await redis.zadd(key(userId), parseInt(score, 10), JSON.stringify(updated))
+      return true
     }
   }
+  return false
 }
 
 export async function markAllRead(userId: number): Promise<void> {
@@ -72,7 +73,7 @@ export async function markAllRead(userId: number): Promise<void> {
     if (!n.read) {
       const updated = { ...n, read: true }
       pipeline.zrem(key(userId), member)
-      pipeline.zadd(key(userId), parseInt(score), JSON.stringify(updated))
+      pipeline.zadd(key(userId), parseInt(score, 10), JSON.stringify(updated))
     }
   }
   await pipeline.exec()
