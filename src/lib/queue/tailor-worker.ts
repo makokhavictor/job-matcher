@@ -1,4 +1,5 @@
 import { Worker, Job } from 'bullmq'
+import IORedis from 'ioredis'
 import { getRedisConnection } from './redis'
 import type { TailorJobData } from './queues'
 import { createNotification } from '@/lib/notifications'
@@ -15,18 +16,23 @@ function getWorkerConnectionOptions() {
   }
 }
 
-async function publishStatus(jobId: string, event: object) {
-  const redis = getRedisConnection()
+/**
+ * Publishes a status event to Redis pub/sub so the SSE endpoint can relay it.
+ * Channel: job:{jobId}:status
+ */
+async function publishStatus(redis: IORedis, jobId: string, event: object) {
   await redis.publish(`job:${jobId}:status`, JSON.stringify(event))
 }
 
 export function startTailorWorker() {
+  const pubSubConnection = getRedisConnection()
+
   const worker = new Worker<TailorJobData>(
     'tailor-cv',
     async (job: Job<TailorJobData>) => {
       const { jobId, userId, analysisResultId, cvText, jobText } = job.data
 
-      await publishStatus(jobId, { event: 'active', data: { step: 'tailoring_cv' } })
+      await publishStatus(pubSubConnection, jobId, { event: 'active', data: { step: 'tailoring_cv' } })
 
       const formData = new URLSearchParams()
       formData.set('cv_text', cvText)
@@ -46,7 +52,7 @@ export function startTailorWorker() {
 
       const data = await response.json()
 
-      await publishStatus(jobId, {
+      await publishStatus(pubSubConnection, jobId, {
         event: 'completed',
         data: { tailoredCv: data.results?.tailored_cv },
       })
@@ -67,7 +73,7 @@ export function startTailorWorker() {
   worker.on('failed', async (job) => {
     if (!job) return
     const { jobId, userId } = job.data
-    await publishStatus(jobId, { event: 'failed', data: { message: 'CV tailoring failed. Please try again.' } })
+    await publishStatus(pubSubConnection, jobId, { event: 'failed', data: { message: 'CV tailoring failed. Please try again.' } })
     await createNotification({
       userId,
       type: 'tailor_failed',

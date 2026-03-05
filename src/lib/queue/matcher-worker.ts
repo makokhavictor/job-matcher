@@ -1,4 +1,5 @@
 import { Worker, Job } from 'bullmq'
+import IORedis from 'ioredis'
 import { getRedisConnection } from './redis'
 import type { MatcherJobData } from './queues'
 import { createNotification } from '@/lib/notifications'
@@ -15,24 +16,29 @@ function getWorkerConnectionOptions() {
   }
 }
 
-async function publishStatus(jobId: string, event: object) {
-  const redis = getRedisConnection()
+/**
+ * Publishes a status event to Redis pub/sub so the SSE endpoint can relay it.
+ * Channel: job:{jobId}:status
+ */
+async function publishStatus(redis: IORedis, jobId: string, event: object) {
   await redis.publish(`job:${jobId}:status`, JSON.stringify(event))
 }
 
 export function startMatcherWorker() {
+  const pubSubConnection = getRedisConnection()
+
   const worker = new Worker<MatcherJobData>(
     'matcher-analysis',
     async (job: Job<MatcherJobData>) => {
-      const { jobId, userId, userEmail, cvText, jobText } = job.data
+      const { jobId, userId, cvText, jobText } = job.data
 
-      await publishStatus(jobId, { event: 'active', data: { step: 'parsing_documents' } })
+      await publishStatus(pubSubConnection, jobId, { event: 'active', data: { step: 'parsing_documents' } })
 
       const formData = new URLSearchParams()
       formData.set('cv_text', cvText)
       formData.set('job_text', jobText)
 
-      await publishStatus(jobId, { event: 'active', data: { step: 'analyzing_match' } })
+      await publishStatus(pubSubConnection, jobId, { event: 'active', data: { step: 'analyzing_match' } })
 
       const response = await fetch(`${PYTHON_API_URL}/matcher/match`, {
         method: 'POST',
@@ -45,11 +51,11 @@ export function startMatcherWorker() {
         throw new Error(`Python API error ${response.status}: ${err}`)
       }
 
-      await publishStatus(jobId, { event: 'active', data: { step: 'calculating_score' } })
+      await publishStatus(pubSubConnection, jobId, { event: 'active', data: { step: 'calculating_score' } })
 
       const data = await response.json()
 
-      await publishStatus(jobId, {
+      await publishStatus(pubSubConnection, jobId, {
         event: 'completed',
         data: { resultId: data.result_id, results: data.results },
       })
@@ -70,7 +76,7 @@ export function startMatcherWorker() {
   worker.on('failed', async (job) => {
     if (!job) return
     const { jobId, userId } = job.data
-    await publishStatus(jobId, { event: 'failed', data: { message: 'Analysis failed. Please try again.' } })
+    await publishStatus(pubSubConnection, jobId, { event: 'failed', data: { message: 'Analysis failed. Please try again.' } })
     await createNotification({
       userId,
       type: 'match_failed',
