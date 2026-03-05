@@ -1,12 +1,6 @@
-"use client"
 import { Geist, Geist_Mono, Shippori_Mincho, DM_Mono } from 'next/font/google'
 import './globals.css'
-import { Toaster } from '@/components/ui/sonner'
-import { MainNav } from '@/components/layout/main-nav'
-import { AuthProvider } from './providers/auth-provider'
-import { LoadingMask } from '@/components/ui/loading-mask'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ThemeProvider } from '@/components/theme-provider'
+import { RootProviders } from './providers/root-providers'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,8 +24,6 @@ const dmMono = DM_Mono({
   variable: '--font-dm-mono',
 })
 
-const queryClient = new QueryClient()
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,19 +34,8 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <LoadingMask />
-              <MainNav />
-              {children}
-              <Toaster />
-            </AuthProvider>
-          </QueryClientProvider>
-        </ThemeProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <RootProviders>{children}</RootProviders>
       </body>
     </html>
   )
