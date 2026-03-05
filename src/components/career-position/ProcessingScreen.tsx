@@ -100,7 +100,7 @@ export function ProcessingScreen({ jobId }: { jobId: string }) {
 
         <div style={{ borderTop: '1px solid var(--accent-dim)', paddingTop: 20 }}>
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-            You can close this tab — we'll email you when your report is ready.
+            You can close this tab — we&apos;ll email you when your report is ready.
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq'
 import IORedis from 'ioredis'
 import { getRedisConnection } from './redis'
-import { getLLMQueue, getEmailQueue } from './queues'
+import { getEmailQueue } from './queues'
 import type { LLMAnalysisJobData, EmailJobData } from './queues'
 
 const PYTHON_API_URL = process.env.PYTHON_API_URL ?? 'http://localhost:8000'
@@ -86,7 +86,7 @@ export function startLLMWorker() {
     }
   )
 
-  worker.on('failed', async (job, err) => {
+  worker.on('failed', async (job) => {
     if (!job) return
     const { jobId } = job.data
     await publishStatus(pubSubConnection, jobId, {

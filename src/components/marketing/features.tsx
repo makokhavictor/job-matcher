@@ -1,52 +1,43 @@
-"use client"
+'use client'
 
-import {
-  FileText,
-  LineChart,
-  ListChecks,
-  MessageSquare,
-  Settings,
-  Sparkles,
-} from "lucide-react"
-import { Card } from "@/components/ui/card"
-import { motion } from "framer-motion"
+import { motion } from 'framer-motion'
 
 const features = [
   {
-    name: "AI-Powered Analysis",
+    num: '01',
+    name: 'Pivot Readiness Score',
     description:
-      "Our advanced AI analyzes your CV against job descriptions to identify matches and opportunities for improvement.",
-    icon: Sparkles,
+      'A single number from 0 to 100. Not vague feedback — a precise, defensible signal of how ready you are to make the career move you are planning.',
   },
   {
-    name: "Skill Matching",
+    num: '02',
+    name: 'Skill Gap Mapping',
     description:
-      "Get detailed insights into how your skills align with job requirements and discover gaps to fill.",
-    icon: ListChecks,
+      'We extract what your CV actually demonstrates and map it against the target role requirements. Every gap is named, not euphemised.',
   },
   {
-    name: "Real-time Feedback",
+    num: '03',
+    name: 'Transferable Skills',
     description:
-      "Receive instant feedback and suggestions to optimize your CV for each job application.",
-    icon: MessageSquare,
+      'Skills that cross industry boundaries are surfaced and ranked. Find hidden leverage in your existing experience that standard job searching ignores.',
   },
   {
-    name: "Match Score",
+    num: '04',
+    name: 'Entry Point Discovery',
     description:
-      "See your match score and understand exactly how well your profile fits the role.",
-    icon: LineChart,
+      'Identify the realistic intermediate steps to your target role. Stop applying to the same tier and learn which adjacent roles accelerate your trajectory.',
   },
   {
-    name: "Multiple Formats",
+    num: '05',
+    name: 'Strongest Narrative',
     description:
-      "Support for PDF and DOCX formats. Just upload your file and get started.",
-    icon: FileText,
+      'Your career story, extracted and structured. The one-paragraph pitch that actually reflects your positioning — not a generic summary.',
   },
   {
-    name: "Customizable Analysis",
+    num: '06',
+    name: 'Weekly Progress Tracking',
     description:
-      "Tailor the analysis to specific industries and job roles for more accurate results.",
-    icon: Settings,
+      'Retake the analysis as you update your CV. Watch your score move. Know exactly what actions are driving improvement.',
   },
 ]
 
@@ -54,38 +45,91 @@ export function Features() {
   return (
     <section
       id="features"
-      className="space-y-6 bg-white py-8 dark:bg-transparent md:py-12 lg:py-24 flex flex-col justify-center"
+      style={{
+        padding: '96px 48px',
+        borderBottom: '1px solid var(--accent-dim)',
+      }}
     >
-      <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-        <h2 className="font-bold text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
-          Features
-        </h2>
-        <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-          Everything you need to optimize your CV and land your dream job
-        </p>
-      </div>
-      <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
-        {features.map((feature, index) => (
-          <motion.div
-            key={feature.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
-            viewport={{ once: true }}
-          >
-            <Card className="relative overflow-hidden p-2">
-              <div className="flex h-[180px] flex-col justify-between rounded-lg p-6">
-                <feature.icon className="h-12 w-12 fill-current" />
-                <div className="space-y-2">
-                  <h3 className="font-bold">{feature.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+      <div style={{ maxWidth: 880, margin: '0 auto' }}>
+        {/* Section header */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          style={{ marginBottom: 72 }}
+        >
+          <p style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            color: 'var(--accent)',
+            textTransform: 'uppercase',
+            marginBottom: 20,
+          }}>
+            What you get
+          </p>
+          <h2 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(32px, 4vw, 52px)',
+            fontWeight: 400,
+            color: 'var(--foreground)',
+            lineHeight: 1.1,
+            maxWidth: 520,
+            letterSpacing: '-0.01em',
+          }}>
+            Clarity, not<br />
+            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>encouragement.</em>
+          </h2>
+        </motion.div>
+
+        {/* Feature rows */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.num}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: index * 0.06 }}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '64px 1fr 1fr',
+                gap: '24px 40px',
+                alignItems: 'start',
+                padding: '32px 0',
+                borderTop: '1px solid var(--accent-dim)',
+              }}
+            >
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 11,
+                color: 'var(--subtle)',
+                letterSpacing: '0.1em',
+                paddingTop: 4,
+              }}>
+                {feature.num}
+              </span>
+              <h3 style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 20,
+                fontWeight: 400,
+                color: 'var(--foreground)',
+                lineHeight: 1.3,
+              }}>
+                {feature.name}
+              </h3>
+              <p style={{
+                fontSize: 14,
+                lineHeight: 1.75,
+                color: 'var(--muted)',
+              }}>
+                {feature.description}
+              </p>
+            </motion.div>
+          ))}
+          <div style={{ borderTop: '1px solid var(--accent-dim)' }} />
+        </div>
       </div>
     </section>
   )

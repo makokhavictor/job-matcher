@@ -108,7 +108,7 @@ export function TargetRoleStep({ onSubmit }: Props) {
 
         <div style={{ borderTop: '1px solid var(--accent-dim)', marginTop: 32, paddingTop: 20, marginBottom: 32 }}>
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-            Not sure of the exact title? Type your best guess — we'll help you find the right target.
+            Not sure of the exact title? Type your best guess — we&apos;ll help you find the right target.
           </p>
         </div>
 

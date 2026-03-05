@@ -104,7 +104,53 @@
   --sidebar-ring:   #A67C52;
 }
 
-/* No dark mode for Bento Minimalist — intentionally light-only */
+.dark {
+  /* Base */
+  --background:     #0F0E0B;
+  --surface:        #1A1916;
+  --surface-raised: #211F1B;
+
+  /* Text */
+  --foreground:     #E8E0D4;
+  --muted:          #9A9490;
+  --muted-foreground: #9A9490;
+  --subtle:         #6B6762;
+
+  /* Accent */
+  --accent:         #C4A574;
+  --accent-light:   #D4B88A;
+  --accent-dim:     #3A3120;
+  --accent-foreground: #0F0E0B;
+
+  /* Semantic */
+  --success:        #6FAE88;
+  --warning:        #D4A017;
+  --destructive:    #C45858;
+  --destructive-foreground: #E8E0D4;
+
+  /* Shadcn-compatible tokens */
+  --card:           #1A1916;
+  --card-foreground: #E8E0D4;
+  --popover:        #211F1B;
+  --popover-foreground: #E8E0D4;
+  --primary:        #E8E0D4;
+  --primary-foreground: #0F0E0B;
+  --secondary:      #1A1916;
+  --secondary-foreground: #E8E0D4;
+  --border:         #3A3120;
+  --input:          #3A3120;
+  --ring:           #C4A574;
+
+  /* Sidebar */
+  --sidebar:        #1A1916;
+  --sidebar-foreground: #E8E0D4;
+  --sidebar-primary: #E8E0D4;
+  --sidebar-primary-foreground: #0F0E0B;
+  --sidebar-accent: #3A3120;
+  --sidebar-accent-foreground: #E8E0D4;
+  --sidebar-border: #3A3120;
+  --sidebar-ring:   #C4A574;
+}
 
 @layer base {
   * {

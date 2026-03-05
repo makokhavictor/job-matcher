@@ -6,6 +6,7 @@ import { MainNav } from '@/components/layout/main-nav'
 import { AuthProvider } from './providers/auth-provider'
 import { LoadingMask } from '@/components/ui/loading-mask'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from '@/components/theme-provider'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,21 +38,23 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${shipporiMincho.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${shipporiMincho.variable} ${dmMono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <LoadingMask />
-            <MainNav />
-            {children}
-            <Toaster />
-          </AuthProvider>
-        </QueryClientProvider>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <LoadingMask />
+              <MainNav />
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

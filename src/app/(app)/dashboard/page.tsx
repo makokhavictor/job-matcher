@@ -22,7 +22,7 @@ export default function DashboardPage() {
           WHERE DO YOU STAND?
         </p>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 400, lineHeight: 1.3, color: 'var(--foreground)', marginBottom: 20 }}>
-          Most professionals don't know how competitive they are for the roles they actually want.
+          Most professionals don&apos;t know how competitive they are for the roles they actually want.
         </h1>
         <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 32 }}>
           Your Career Position Report tells you exactly — in 60 seconds.
@@ -50,7 +50,7 @@ export default function DashboardPage() {
             Example: Sarah, 6 years in finance → Pivot Readiness 71 for Fintech PM
           </p>
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-            "I had no idea I was already 70% there"
+            &ldquo;I had no idea I was already 70% there&rdquo;
           </p>
         </div>
       </div>
