@@ -2,11 +2,13 @@
 
 import { FileUpload } from '@/components/upload/FileUpload'
 import { AnalysisResults } from '@/components/analysis/AnalysisResults'
+import { MatchingProgress } from '@/components/analysis/MatchingProgress'
 import { Card } from '@/components/ui/card'
 import { setupDOMPolyfills } from '@/lib/domPolyfills'
 import { defineStepper } from '@/components/ui/stepper'
 import { Button } from '@/components/ui/button'
 import { useMatcher } from '@/hooks/useMatcher'
+import { useJobsStore } from '@/stores/jobs.store'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 // Initialize polyfills
@@ -26,9 +28,14 @@ const stepperInstance = defineStepper(...stepperSteps)
 const { Stepper } = stepperInstance
 
 export function MatcherClient() {
-  const { handleFileUpload, resetAnalysis } = useMatcher()
+  const { handleFileUpload, resetAnalysis, matchingJobId } = useMatcher()
   const isMobile = useIsMobile()
 
+  const matchingJob = useJobsStore((state) =>
+    matchingJobId ? state.jobs.get(matchingJobId) : undefined
+  )
+  const isJobInFlight =
+    matchingJob?.status === 'pending' || matchingJob?.status === 'active'
 
   return (
     <>
@@ -56,7 +63,7 @@ export function MatcherClient() {
                   <FileUpload
                     type="cv"
                     onUploadComplete={(file, metadata) =>
-                      handleFileUpload('cv', file, () => methods.next(),  metadata, )
+                      handleFileUpload('cv', file, () => methods.next(), metadata)
                     }
                   />
                 </Card>
@@ -66,9 +73,7 @@ export function MatcherClient() {
                   <FileUpload
                     type="jobDescription"
                     onUploadComplete={(file, metadata) =>
-                      handleFileUpload('jobDescription', file, () =>
-                        methods.next(), metadata
-                      )
+                      handleFileUpload('jobDescription', file, () => methods.next(), metadata)
                     }
                   />
                 </Card>
@@ -76,7 +81,11 @@ export function MatcherClient() {
               results: () => (
                 <section className="space-y-6">
                   <div className="h-[calc(100vh-16rem)] overflow-y-auto pr-4">
-                    <AnalysisResults />
+                    {isJobInFlight && matchingJobId ? (
+                      <MatchingProgress jobId={matchingJobId} />
+                    ) : (
+                      <AnalysisResults />
+                    )}
                   </div>
                 </section>
               ),

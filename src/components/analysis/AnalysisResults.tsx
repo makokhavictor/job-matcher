@@ -18,12 +18,15 @@ import { Lock } from 'lucide-react'
 import Link from 'next/link'
 
 import { useTailorCv } from '@/hooks/useTailorCv';
+import { useJobsStore } from '@/stores/jobs.store';
 import { CvTemplate } from './CvTemplate';
+import { Loader2 } from 'lucide-react';
 
 export function AnalysisResults() {
   const { results: parsed, loading, error, currentAnalysis } = useAnalysisStore()
   const { user } = useAuth()
-  const { tailorCv, tailoredCv, loading: tailoringLoading, error: tailoringError } = useTailorCv();
+  const { tailorCv, tailoredCv, loading: tailoringLoading, error: tailoringError, tailoringJobId } = useTailorCv();
+  const tailoringJob = useJobsStore((state) => tailoringJobId ? state.jobs.get(tailoringJobId) : undefined);
 
   // Check if we have an existing tailored CV from analysis history
   const existingTailoredCv = parsed?.tailored_cv
@@ -240,12 +243,16 @@ export function AnalysisResults() {
               {tailoringLoading && (
                 <Card className="p-6 border-blue-200 bg-blue-50">
                   <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <div className="w-3 h-3 bg-white rounded-full"></div>
-                    </div>
-                    <h2 className="text-xl font-semibold text-blue-800">Tailoring CV...</h2>
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-500 shrink-0" />
+                    <h2 className="text-xl font-semibold text-blue-800">
+                      {tailoringJob?.status === 'pending' ? 'Job queued…' : 'Tailoring CV…'}
+                    </h2>
                   </div>
-                  <p className="text-gray-600 mt-2">Please wait while we tailor your CV to the job description.</p>
+                  <p className="text-gray-600 mt-2">
+                    {tailoringJob?.status === 'pending'
+                      ? 'Your tailoring job is queued and will start shortly.'
+                      : 'Please wait while we tailor your CV to the job description.'}
+                  </p>
                 </Card>
               )}
               {tailoringError && (
