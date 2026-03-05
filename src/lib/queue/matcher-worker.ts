@@ -73,17 +73,22 @@ export function startMatcherWorker() {
     { connection: getWorkerConnectionOptions(), concurrency: 3 }
   )
 
-  worker.on('failed', async (job) => {
+  worker.on('failed', async (job, err) => {
     if (!job) return
+    console.error('[Matcher Worker] Job failed:', err)
     const { jobId, userId } = job.data
-    await publishStatus(pubSubConnection, jobId, { event: 'failed', data: { message: 'Analysis failed. Please try again.' } })
-    await createNotification({
-      userId,
-      type: 'match_failed',
-      title: 'Analysis failed',
-      message: 'Something went wrong. Please try again.',
-      data: {},
-    })
+    try {
+      await publishStatus(pubSubConnection, jobId, { event: 'failed', data: { message: 'Analysis failed. Please try again.' } })
+      await createNotification({
+        userId,
+        type: 'match_failed',
+        title: 'Analysis failed',
+        message: 'Something went wrong. Please try again.',
+        data: {},
+      })
+    } catch (notifyErr) {
+      console.error('[Matcher Worker] Failed to send failure notification:', notifyErr)
+    }
   })
 
   console.log('[Matcher Worker] Started, listening on matcher-analysis queue')

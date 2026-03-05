@@ -70,17 +70,22 @@ export function startTailorWorker() {
     { connection: getWorkerConnectionOptions(), concurrency: 3 }
   )
 
-  worker.on('failed', async (job) => {
+  worker.on('failed', async (job, err) => {
     if (!job) return
+    console.error('[Tailor Worker] Job failed:', err)
     const { jobId, userId } = job.data
-    await publishStatus(pubSubConnection, jobId, { event: 'failed', data: { message: 'CV tailoring failed. Please try again.' } })
-    await createNotification({
-      userId,
-      type: 'tailor_failed',
-      title: 'CV tailoring failed',
-      message: 'Something went wrong tailoring your CV. Please try again.',
-      data: {},
-    })
+    try {
+      await publishStatus(pubSubConnection, jobId, { event: 'failed', data: { message: 'CV tailoring failed. Please try again.' } })
+      await createNotification({
+        userId,
+        type: 'tailor_failed',
+        title: 'CV tailoring failed',
+        message: 'Something went wrong tailoring your CV. Please try again.',
+        data: {},
+      })
+    } catch (notifyErr) {
+      console.error('[Tailor Worker] Failed to send failure notification:', notifyErr)
+    }
   })
 
   console.log('[Tailor Worker] Started, listening on tailor-cv queue')
