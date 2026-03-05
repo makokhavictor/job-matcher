@@ -1,14 +1,21 @@
 import { Worker, Job } from 'bullmq'
-import { getRedisConnection } from './queues'
 import type { EmailJobData } from './queues'
 import { emailProvider } from '@/lib/email'
 import { resultReadyTemplate, welcomeTemplate, weeklyDigestTemplate } from '@/lib/email/templates'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
-export function startEmailWorker() {
-  const connection = getRedisConnection()
+function getWorkerConnectionOptions() {
+  const url = process.env.REDIS_URL ?? 'redis://localhost:6379'
+  try {
+    const parsed = new URL(url)
+    return { host: parsed.hostname, port: parseInt(parsed.port || '6379', 10), maxRetriesPerRequest: null as null }
+  } catch {
+    return { host: 'localhost', port: 6379, maxRetriesPerRequest: null as null }
+  }
+}
 
+export function startEmailWorker() {
   const worker = new Worker<EmailJobData>(
     'email-digest',
     async (job: Job<EmailJobData>) => {
@@ -60,7 +67,7 @@ export function startEmailWorker() {
       }
     },
     {
-      connection,
+      connection: getWorkerConnectionOptions(),
       concurrency: 10,
     }
   )
