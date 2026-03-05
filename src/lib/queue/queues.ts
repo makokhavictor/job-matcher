@@ -64,3 +64,53 @@ export function getEmailQueue(): Queue<EmailJobData> {
   }
   return emailQueue!
 }
+
+export type MatcherJobData = {
+  jobId: string
+  userId: number
+  userEmail: string
+  cvText: string
+  jobText: string
+}
+
+export type TailorJobData = {
+  jobId: string
+  userId: number
+  userEmail: string
+  analysisResultId: string
+  cvText: string
+  jobText: string
+}
+
+let matcherQueue: Queue<MatcherJobData> | null = null
+let tailorQueue: Queue<TailorJobData> | null = null
+
+export function getMatcherQueue(): Queue<MatcherJobData> {
+  if (!matcherQueue) {
+    matcherQueue = new Queue<MatcherJobData>('matcher-analysis', {
+      connection: getConnectionOptions(),
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+        removeOnComplete: 100,
+        removeOnFail: 50,
+      },
+    })
+  }
+  return matcherQueue!
+}
+
+export function getTailorQueue(): Queue<TailorJobData> {
+  if (!tailorQueue) {
+    tailorQueue = new Queue<TailorJobData>('tailor-cv', {
+      connection: getConnectionOptions(),
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 5000 },
+        removeOnComplete: 100,
+        removeOnFail: 50,
+      },
+    })
+  }
+  return tailorQueue!
+}
