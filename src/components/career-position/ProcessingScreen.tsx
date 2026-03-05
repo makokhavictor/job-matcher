@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCareerPositionStore } from '@/stores/career-position.store'
 import { useJobStatus } from '@/hooks/useJobStatus'
+import { track, Events } from '@/lib/analytics'
 
 const STEPS = [
   { key: 'extracting_skills', label: 'Extracting your experience' },
@@ -28,6 +29,7 @@ export function ProcessingScreen({ jobId }: { jobId: string }) {
 
   useEffect(() => {
     if (jobStatus === 'completed' && latestResult) {
+      track(Events.ANALYSIS_COMPLETED, { score: latestResult.score })
       setTimeout(() => router.push('/dashboard/career-position'), 800)
     }
   }, [jobStatus, latestResult, router])

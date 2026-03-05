@@ -6,6 +6,7 @@ import { CVUploadStep } from '@/components/career-position/CVUploadStep'
 import { TargetRoleStep } from '@/components/career-position/TargetRoleStep'
 import { careerPositionService } from '@/lib/career-position.service'
 import { useCareerPositionStore } from '@/stores/career-position.store'
+import { track, Events } from '@/lib/analytics'
 
 export default function OnboardingPage() {
   const { user } = useAuth()
@@ -15,6 +16,7 @@ export default function OnboardingPage() {
   const [cvText, setCvText] = useState('')
 
   const handleCVComplete = (text: string) => {
+    track(Events.ONBOARDING_STARTED)
     setCvText(text)
     setStep(2)
   }
@@ -35,6 +37,7 @@ export default function OnboardingPage() {
       userId: Number(user.id),
       userEmail: user.email,
     })
+    track(Events.ANALYSIS_SUBMITTED, { targetRole: data.targetRole, seniority: data.seniority })
     setJobId(jobId)
     router.push(`/dashboard/career-position/processing?jobId=${jobId}`)
   }
