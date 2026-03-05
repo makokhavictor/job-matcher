@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq'
-import IORedis from 'ioredis'
+import type IORedis from 'ioredis'
 import { getRedisConnection } from './redis'
 import { getEmailQueue } from './queues'
 import type { LLMAnalysisJobData, EmailJobData } from './queues'
