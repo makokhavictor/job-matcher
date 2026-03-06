@@ -1,6 +1,6 @@
 import { authService } from './auth.service'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL ?? 'http://localhost:8000'
 
 export type CareerTarget = {
   id?: number
