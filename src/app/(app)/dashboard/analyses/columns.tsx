@@ -96,9 +96,9 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
       // The parent page will inject a function via meta to handle view details
       const onViewDetails = (table.options.meta as { onViewDetails?: (analysis: RecentAnalysis) => void })?.onViewDetails;
       return (
-        <div className="sticky right-0 bg-white p-2">
+        <div className="sticky right-0 bg-background p-2">
           <button
-            className="px-3 py-1 rounded bg-primary text-white hover:bg-primary/80 text-sm whitespace-nowrap"
+            className="px-3 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/80 text-sm whitespace-nowrap"
             onClick={() => onViewDetails?.(row.original)}
           >
             View Details
