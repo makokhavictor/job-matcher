@@ -20,8 +20,8 @@ const TYPE_ICONS: Record<string, string> = {
   tailor_failed: '✗',
 }
 
-function timeAgo(ms: number): string {
-  const diff = Date.now() - ms
+function timeAgo(ts: string | number): string {
+  const diff = Date.now() - new Date(ts).getTime()
   const mins = Math.floor(diff / 60_000)
   if (mins < 1) return 'just now'
   if (mins < 60) return `${mins}m ago`

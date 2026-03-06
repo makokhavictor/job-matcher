@@ -12,7 +12,7 @@ export interface AppNotification {
   message: string
   data?: Record<string, unknown>
   read: boolean
-  createdAt: number
+  createdAt: string
 }
 
 export function useNotifications() {
