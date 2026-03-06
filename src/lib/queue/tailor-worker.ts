@@ -30,7 +30,7 @@ export function startTailorWorker() {
   const worker = new Worker<TailorJobData>(
     'tailor-cv',
     async (job: Job<TailorJobData>) => {
-      const { jobId, userId, analysisResultId, cvText, jobText } = job.data
+      const { jobId, userId, analysisResultId, cvText, jobText, accessToken } = job.data
 
       await publishStatus(pubSubConnection, jobId, { event: 'active', data: { step: 'tailoring_cv' } })
 
@@ -41,7 +41,10 @@ export function startTailorWorker() {
 
       const response = await fetch(`${PYTHON_API_URL}/matcher/tailor-cv`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: formData.toString(),
       })
 

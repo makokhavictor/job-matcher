@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Shippori_Mincho, DM_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Cormorant_Garamond, DM_Mono } from 'next/font/google'
 import './globals.css'
 import { RootProviders } from './providers/root-providers'
 
@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-const shipporiMincho = Shippori_Mincho({
+const cormorantGaramond = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-shippori',
@@ -30,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${shipporiMincho.variable} ${dmMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${cormorantGaramond.variable} ${dmMono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>

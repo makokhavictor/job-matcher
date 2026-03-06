@@ -1,9 +1,11 @@
-import { startLLMWorker } from './llm-worker'
-import { startEmailWorker } from './email-worker'
-import { startMatcherWorker } from './matcher-worker'
-import { startTailorWorker } from './tailor-worker'
+import { startLLMWorker } from "./llm-worker";
+import { startEmailWorker } from "./email-worker";
+import { startMatcherWorker } from "./matcher-worker";
+import { startTailorWorker } from "./tailor-worker";
 
-startLLMWorker()
-startEmailWorker()
-startMatcherWorker()
-startTailorWorker()
+export function startWorkers(): void {
+  startLLMWorker();
+  startEmailWorker();
+  startMatcherWorker();
+  startTailorWorker();
+}

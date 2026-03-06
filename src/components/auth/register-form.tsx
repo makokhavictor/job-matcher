@@ -83,7 +83,7 @@ export function RegisterForm() {
                 autoCorrect="off"
               />
               {errors?.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
+                <p className="text-sm text-destructive">{errors.name.message}</p>
               )}
             </div>
             <div className="grid gap-2">
@@ -96,7 +96,7 @@ export function RegisterForm() {
                 autoCorrect="off"
               />
               {errors?.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
+                <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
             <div className="grid gap-2">
@@ -107,7 +107,7 @@ export function RegisterForm() {
                 autoComplete="new-password"
               />
               {errors?.password && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-destructive">
                   {errors.password.message}
                 </p>
               )}
@@ -120,7 +120,7 @@ export function RegisterForm() {
                 autoComplete="new-password"
               />
               {errors?.confirmPassword && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-destructive">
                   {errors.confirmPassword.message}
                 </p>
               )}

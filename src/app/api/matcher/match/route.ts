@@ -55,7 +55,8 @@ export async function POST(req: NextRequest) {
   const jobId = randomUUID()
   const queue = getMatcherQueue()
 
-  await queue.add('match', { jobId, userId, userEmail, cvText, jobText })
+  const accessToken = authHeader.replace(/^Bearer\s+/i, '')
+  await queue.add('match', { jobId, userId, userEmail, cvText, jobText, accessToken })
 
   return NextResponse.json({ jobId })
 }

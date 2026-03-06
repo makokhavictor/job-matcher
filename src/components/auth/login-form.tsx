@@ -70,7 +70,7 @@ export function LoginForm() {
               autoCorrect="off"
             />
             {errors?.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
+              <p className="text-sm text-destructive">{errors.email.message}</p>
             )}
           </div>
           <div className="grid gap-2">
@@ -81,7 +81,7 @@ export function LoginForm() {
               autoComplete="current-password"
             />
             {errors?.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
+              <p className="text-sm text-destructive">{errors.password.message}</p>
             )}
           </div>
           <Button type="submit" disabled={isSubmitting}>

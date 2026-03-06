@@ -76,11 +76,11 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
   const progress = (totalDuration && daysLeft >= 0) ? ((totalDuration - daysLeft) / totalDuration) * 100 : 0
 
   return (
-    <div className={cn("pb-12 w-64 border-r bg-secondary-50 flex flex-col h-full min-h-screen", className)} {...props}>
+    <div className={cn("pb-12 w-64 border-r bg-sidebar flex flex-col h-full min-h-screen", className)} {...props}>
       <div className="space-y-4 py-4 flex-1">
         <div className="px-3 py-2">
           <div className="space-y-1">
-            <h2 className="mb-4 px-4 text-xl font-semibold tracking-tight">
+            <h2 className="mb-4 px-4 text-xl font-semibold tracking-tight text-sidebar-foreground">
               Dashboard
             </h2>
             <nav className="space-y-1">
@@ -89,10 +89,10 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center px-3 py-2 text-sm font-medium rounded-md",
-                    pathname === item.href 
-                      ? "bg-primary text-white" 
-                      : "text-secondary-600 hover:text-primary hover:bg-secondary-100"
+                    "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    pathname === item.href
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
                   <item.icon className="mr-3 h-5 w-5" />

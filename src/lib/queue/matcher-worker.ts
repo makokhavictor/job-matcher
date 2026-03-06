@@ -30,7 +30,7 @@ export function startMatcherWorker() {
   const worker = new Worker<MatcherJobData>(
     'matcher-analysis',
     async (job: Job<MatcherJobData>) => {
-      const { jobId, userId, cvText, jobText } = job.data
+      const { jobId, userId, cvText, jobText, accessToken } = job.data
 
       await publishStatus(pubSubConnection, jobId, { event: 'active', data: { step: 'parsing_documents' } })
 
@@ -42,7 +42,10 @@ export function startMatcherWorker() {
 
       const response = await fetch(`${PYTHON_API_URL}/matcher/match`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: formData.toString(),
       })
 

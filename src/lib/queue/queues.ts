@@ -71,6 +71,7 @@ export type MatcherJobData = {
   userEmail: string
   cvText: string
   jobText: string
+  accessToken: string
 }
 
 export type TailorJobData = {
@@ -80,6 +81,7 @@ export type TailorJobData = {
   analysisResultId: string
   cvText: string
   jobText: string
+  accessToken: string
 }
 
 let matcherQueue: Queue<MatcherJobData> | null = null

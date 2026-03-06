@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
   const jobId = randomUUID()
   const queue = getTailorQueue()
 
-  await queue.add('tailor', { jobId, userId, userEmail, analysisResultId, cvText, jobText })
+  const accessToken = authHeader.replace(/^Bearer\s+/i, '')
+  await queue.add('tailor', { jobId, userId, userEmail, analysisResultId, cvText, jobText, accessToken })
 
   return NextResponse.json({ jobId })
 }
