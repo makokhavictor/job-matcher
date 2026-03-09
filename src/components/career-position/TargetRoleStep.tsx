@@ -20,6 +20,21 @@ export function TargetRoleStep({ onSubmit }: Props) {
   const [targetIndustry, setTargetIndustry] = useState(savedTarget?.target_industry ?? '')
   const [seniority, setSeniority] = useState(savedTarget?.seniority ?? 'senior')
   const [hint, setHint] = useState<string | null>(null)
+  const [intent, setIntent] = useState<'pivot' | 'opportunity'>('pivot')
+
+  const copy = intent === 'pivot'
+    ? {
+        heading: 'Where do you want to go?',
+        targetLabel: 'and I want to become a',
+        targetPlaceholder: 'e.g. Product Manager',
+        helperText: "Not sure of the exact title? Type your best guess — we'll help you find the right target.",
+      }
+    : {
+        heading: 'What are you targeting?',
+        targetLabel: "I'm targeting the role of",
+        targetPlaceholder: 'e.g. Senior Sales Engineer',
+        helperText: "Same title is fine. We'll show you how to position yourself for a better offer.",
+      }
 
   const inputStyle = {
     background: 'transparent',
@@ -50,7 +65,7 @@ export function TargetRoleStep({ onSubmit }: Props) {
         </p>
         <div style={{ width: 32, height: 1, background: 'var(--accent-dim)', marginBottom: 24 }} />
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 400, color: 'var(--foreground)', marginBottom: 40 }}>
-          Where do you want to go?
+          {copy.heading}
         </h1>
 
         {savedTarget && (
@@ -71,10 +86,10 @@ export function TargetRoleStep({ onSubmit }: Props) {
           </div>
 
           <div>
-            <p style={{ fontSize: 15, color: 'var(--muted)', marginBottom: 8 }}>and I want to become a</p>
+            <p style={{ fontSize: 15, color: 'var(--muted)', marginBottom: 8 }}>{copy.targetLabel}</p>
             <input
               style={inputStyle}
-              placeholder="e.g. Product Manager"
+              placeholder={copy.targetPlaceholder}
               value={targetRole}
               onChange={e => { setTargetRole(e.target.value); setHint(null) }}
             />
@@ -108,7 +123,7 @@ export function TargetRoleStep({ onSubmit }: Props) {
 
         <div style={{ borderTop: '1px solid var(--accent-dim)', marginTop: 32, paddingTop: 20, marginBottom: 32 }}>
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-            Not sure of the exact title? Type your best guess — we&apos;ll help you find the right target.
+            {copy.helperText}
           </p>
         </div>
 
