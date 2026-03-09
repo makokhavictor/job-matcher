@@ -73,6 +73,11 @@
     "zod": "^3.25.64",
     "zustand": "^5.0.5"
   },
+  "pnpm": {
+    "overrides": {
+      "ioredis": "^5.10.0"
+    }
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@jest/types": "^29.6.3",
