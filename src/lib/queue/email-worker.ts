@@ -26,7 +26,7 @@ export function startEmailWorker() {
           name: '',
           score: data.score,
           targetRole: 'your target role',
-          reportUrl: `${APP_URL}/dashboard/career-position/${data.resultId}`,
+          reportUrl: `${APP_URL}/dashboard/career-position`,
         })
         await emailProvider.send({
           to: data.email,
