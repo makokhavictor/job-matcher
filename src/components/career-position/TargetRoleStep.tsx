@@ -64,6 +64,36 @@ export function TargetRoleStep({ onSubmit }: Props) {
           STEP 2 OF 2
         </p>
         <div style={{ width: 32, height: 1, background: 'var(--accent-dim)', marginBottom: 24 }} />
+        <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
+          {(['pivot', 'opportunity'] as const).map((opt) => {
+            const label = opt === 'pivot' ? 'Career Pivot' : 'Better Opportunity'
+            const active = intent === opt
+            return (
+              <button
+                key={opt}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setIntent(opt)}
+                style={{
+                  padding: '6px 16px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  border: '1px solid',
+                  borderColor: active ? 'var(--foreground)' : 'var(--accent-dim)',
+                  borderRadius: 'var(--radius)',
+                  background: active ? 'var(--foreground)' : 'transparent',
+                  color: active ? 'var(--background)' : 'var(--muted)',
+                  cursor: 'pointer',
+                  transition: 'all 150ms',
+                }}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 400, color: 'var(--foreground)', marginBottom: 40 }}>
           {copy.heading}
         </h1>
