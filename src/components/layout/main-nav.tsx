@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { NotificationBell } from '@/components/layout/NotificationBell'
 
 export function MainNav() {
   const pathname = usePathname()
@@ -79,6 +80,7 @@ export function MainNav() {
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ThemeToggle />
+          {user && <NotificationBell />}
 
           {user ? (
             <>
