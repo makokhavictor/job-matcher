@@ -1,4 +1,5 @@
 import { Queue } from 'bullmq'
+import { getRedisConnection } from './redis'
 
 export type LLMAnalysisJobData = {
   jobId: string
@@ -17,20 +18,6 @@ export type EmailJobData =
   | { type: 'welcome'; userId: number; email: string; name: string }
   | { type: 'weekly-digest'; userId: number; email: string; score: number; previousScore: number | null }
 
-// Parse REDIS_URL into host/port connection options to avoid ioredis version conflicts
-function getConnectionOptions() {
-  const url = process.env.REDIS_URL ?? 'redis://localhost:6379'
-  try {
-    const parsed = new URL(url)
-    return {
-      host: parsed.hostname,
-      port: parseInt(parsed.port || '6379', 10),
-      maxRetriesPerRequest: null as null,
-    }
-  } catch {
-    return { host: 'localhost', port: 6379, maxRetriesPerRequest: null as null }
-  }
-}
 
 let llmQueue: Queue<LLMAnalysisJobData> | null = null
 let emailQueue: Queue<EmailJobData> | null = null
@@ -38,7 +25,7 @@ let emailQueue: Queue<EmailJobData> | null = null
 export function getLLMQueue(): Queue<LLMAnalysisJobData> {
   if (!llmQueue) {
     llmQueue = new Queue<LLMAnalysisJobData>('llm-analysis', {
-      connection: getConnectionOptions(),
+      connection: getRedisConnection(),
       defaultJobOptions: {
         attempts: 3,
         backoff: { type: 'exponential', delay: 5000 },
@@ -53,7 +40,7 @@ export function getLLMQueue(): Queue<LLMAnalysisJobData> {
 export function getEmailQueue(): Queue<EmailJobData> {
   if (!emailQueue) {
     emailQueue = new Queue<EmailJobData>('email-digest', {
-      connection: getConnectionOptions(),
+      connection: getRedisConnection(),
       defaultJobOptions: {
         attempts: 3,
         backoff: { type: 'exponential', delay: 2000 },
@@ -90,7 +77,7 @@ let tailorQueue: Queue<TailorJobData> | null = null
 export function getMatcherQueue(): Queue<MatcherJobData> {
   if (!matcherQueue) {
     matcherQueue = new Queue<MatcherJobData>('matcher-analysis', {
-      connection: getConnectionOptions(),
+      connection: getRedisConnection(),
       defaultJobOptions: {
         attempts: 3,
         backoff: { type: 'exponential', delay: 5000 },
@@ -105,7 +92,7 @@ export function getMatcherQueue(): Queue<MatcherJobData> {
 export function getTailorQueue(): Queue<TailorJobData> {
   if (!tailorQueue) {
     tailorQueue = new Queue<TailorJobData>('tailor-cv', {
-      connection: getConnectionOptions(),
+      connection: getRedisConnection(),
       defaultJobOptions: {
         attempts: 3,
         backoff: { type: 'exponential', delay: 5000 },
