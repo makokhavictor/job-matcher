@@ -7,9 +7,11 @@ import { TransferableSkills } from '@/components/career-position/TransferableSki
 import { ProPaywall } from '@/components/career-position/ProPaywall'
 import { ReportTooltipOverlay } from '@/components/career-position/ReportTooltipOverlay'
 import { track, Events } from '@/lib/analytics'
+import { useAuth } from '@/app/providers/auth-provider'
 
 export default function CareerPositionPage() {
   const { latestResult, loading, fetchLatestResult } = useCareerPositionStore()
+  const { user } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function CareerPositionPage() {
     return null
   }
 
-  const isPro = !!latestResult.result_data.critical_gaps
+  const isPro = !!user?.subscription?.plan?.features?.advanced_match_scoring
 
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px 80px' }}>

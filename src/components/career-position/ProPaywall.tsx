@@ -1,8 +1,14 @@
 'use client'
 import Link from 'next/link'
 import { track, Events } from '@/lib/analytics'
+import { usePlans } from '@/hooks/usePlans'
 
 export function ProPaywall() {
+  const { plans } = usePlans()
+  const proPlan = plans.find(p => p.features.advanced_match_scoring && p.price > 0)
+  const priceLabel = proPlan
+    ? `$${proPlan.price}/${proPlan.billing_cycle.toLowerCase()}`
+    : '$29/mo'
   return (
     <div style={{ borderTop: '1px solid var(--accent-dim)', paddingTop: 32, marginTop: 8 }}>
       <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)', marginBottom: 20 }}>
@@ -44,7 +50,7 @@ export function ProPaywall() {
             borderRadius: 'var(--radius)',
           }}
         >
-          Upgrade to Pro — $29/mo
+          Upgrade to Pro — {priceLabel}
         </Link>
         <p style={{ fontSize: 12, color: 'var(--subtle)', marginTop: 12 }}>No commitment. Cancel anytime.</p>
       </div>
