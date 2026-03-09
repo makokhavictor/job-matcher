@@ -6,16 +6,6 @@ import { createNotification } from '@/lib/notifications'
 
 const PYTHON_API_URL = process.env.PYTHON_API_URL ?? 'http://localhost:8000'
 
-function getWorkerConnectionOptions() {
-  const url = process.env.REDIS_URL ?? 'redis://localhost:6379'
-  try {
-    const parsed = new URL(url)
-    return { host: parsed.hostname, port: parseInt(parsed.port || '6379', 10), maxRetriesPerRequest: null as null }
-  } catch {
-    return { host: 'localhost', port: 6379, maxRetriesPerRequest: null as null }
-  }
-}
-
 /**
  * Publishes a status event to Redis pub/sub so the SSE endpoint can relay it.
  * Channel: job:{jobId}:status
@@ -25,14 +15,14 @@ async function publishStatus(redis: IORedis, jobId: string, event: object) {
 }
 
 export function startTailorWorker() {
-  const pubSubConnection = getRedisConnection()
+  const connection = getRedisConnection()
 
   const worker = new Worker<TailorJobData>(
     'tailor-cv',
     async (job: Job<TailorJobData>) => {
       const { jobId, userId, analysisResultId, cvText, jobText, accessToken } = job.data
 
-      await publishStatus(pubSubConnection, jobId, { event: 'active', data: { step: 'tailoring_cv' } })
+      await publishStatus(connection, jobId, { event: 'active', data: { step: 'tailoring_cv' } })
 
       const formData = new URLSearchParams()
       formData.set('cv_text', cvText)
@@ -55,7 +45,7 @@ export function startTailorWorker() {
 
       const data = await response.json()
 
-      await publishStatus(pubSubConnection, jobId, {
+      await publishStatus(connection, jobId, {
         event: 'completed',
         data: { tailoredCv: data.results?.tailored_cv },
       })
@@ -70,7 +60,7 @@ export function startTailorWorker() {
 
       return data
     },
-    { connection: getWorkerConnectionOptions(), concurrency: 3 }
+    { connection, concurrency: 3 }
   )
 
   worker.on('failed', async (job, err) => {
@@ -78,7 +68,7 @@ export function startTailorWorker() {
     console.error('[Tailor Worker] Job failed:', err)
     const { jobId, userId } = job.data
     try {
-      await publishStatus(pubSubConnection, jobId, { event: 'failed', data: { message: 'CV tailoring failed. Please try again.' } })
+      await publishStatus(connection, jobId, { event: 'failed', data: { message: 'CV tailoring failed. Please try again.' } })
       await createNotification({
         userId,
         type: 'tailor_failed',
