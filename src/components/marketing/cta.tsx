@@ -48,7 +48,7 @@ export function CTA() {
             marginBottom: 24,
           }}
         >
-          Start now
+          Your first score
         </motion.p>
 
         <motion.h2
@@ -66,9 +66,11 @@ export function CTA() {
             letterSpacing: '-0.01em',
           }}
         >
-          Your score is waiting.
+          You&apos;ve been applying
           <br />
-          <em style={{ fontStyle: 'italic', opacity: 0.6 }}>Find out where you stand.</em>
+          without a number.
+          <br />
+          <em style={{ fontStyle: 'italic', opacity: 0.55 }}>Now you can have one.</em>
         </motion.h2>
 
         <motion.p
@@ -79,13 +81,13 @@ export function CTA() {
           style={{
             fontSize: 15,
             lineHeight: 1.7,
-            color: 'rgba(var(--background-rgb, 244,239,230), 0.65)',
-            maxWidth: 420,
+            color: 'var(--background)',
+            opacity: 0.55,
+            maxWidth: 400,
             marginBottom: 40,
-            opacity: 0.7,
           }}
         >
-          Upload your CV. Tell us your target role. Get your Pivot Readiness Score in under a minute.
+          Takes 40 seconds. Costs nothing to start.
         </motion.p>
 
         <motion.div
@@ -103,7 +105,7 @@ export function CTA() {
               gap: 10,
               background: 'var(--background)',
               color: 'var(--foreground)',
-              padding: '13px 28px',
+              padding: '14px 32px',
               fontSize: 13,
               fontFamily: 'var(--font-mono)',
               letterSpacing: '0.06em',
@@ -113,27 +115,27 @@ export function CTA() {
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            Get Started — it&apos;s free
+            Get my score →
           </Link>
           <Link
             href="/#pricing"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              padding: '13px 22px',
+              padding: '14px 22px',
               fontSize: 13,
               fontFamily: 'var(--font-mono)',
               letterSpacing: '0.06em',
               textDecoration: 'none',
               color: 'var(--background)',
               border: '1px solid rgba(255,255,255,0.2)',
-              opacity: 0.75,
+              opacity: 0.65,
               transition: 'opacity 200ms',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.75')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.65')}
           >
-            View Pricing
+            View pricing
           </Link>
         </motion.div>
       </div>

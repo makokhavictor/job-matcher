@@ -6,9 +6,9 @@ import { useJobStatus } from '@/hooks/useJobStatus'
 import { track, Events } from '@/lib/analytics'
 
 const STEPS = [
-  { key: 'extracting_skills', label: 'Extracting your experience' },
-  { key: 'mapping_industry', label: 'Mapping to target role' },
-  { key: 'calculating_score', label: 'Calculating Pivot Readiness' },
+  { key: 'extracting_skills', label: 'Cross-referencing your experience' },
+  { key: 'mapping_industry', label: 'Mapping gaps to target role' },
+  { key: 'calculating_score', label: 'Calculating your Pivot Readiness' },
 ] as const
 
 type StepKey = typeof STEPS[number]['key']
@@ -38,7 +38,7 @@ export function ProcessingScreen({ jobId }: { jobId: string }) {
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 400, marginBottom: 40, color: 'var(--foreground)' }}>
-          Analyzing your career position...
+          Building your position report.
         </h1>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 40 }}>
@@ -71,7 +71,7 @@ export function ProcessingScreen({ jobId }: { jobId: string }) {
         </div>
 
         <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 32 }}>
-          Usually takes 30–45 seconds.
+          Thoroughness takes 30–45 seconds.
         </p>
 
         {/* Blurred score placeholder */}

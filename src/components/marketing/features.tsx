@@ -2,42 +2,36 @@
 
 import { motion } from 'framer-motion'
 
-const features = [
+const signals = [
   {
     num: '01',
     name: 'Pivot Readiness Score',
-    description:
-      'A single number from 0 to 100. Not vague feedback — a precise, defensible signal of how ready you are to make the career move you are planning.',
+    description: 'A single number from 0 to 100. Not vague feedback — a precise, defensible signal of your career move readiness.',
   },
   {
     num: '02',
     name: 'Skill Gap Mapping',
-    description:
-      'We extract what your CV actually demonstrates and map it against the target role requirements. Every gap is named, not euphemised.',
+    description: 'Every gap between your CV and the target role — named, not euphemised.',
   },
   {
     num: '03',
     name: 'Transferable Skills',
-    description:
-      'Skills that cross industry boundaries are surfaced and ranked. Find hidden leverage in your existing experience that standard job searching ignores.',
+    description: 'Hidden leverage in your existing experience, surfaced and ranked by relevance to the target role.',
   },
   {
     num: '04',
     name: 'Entry Point Discovery',
-    description:
-      'Identify the realistic intermediate steps to your target role. Stop applying to the same tier and learn which adjacent roles accelerate your trajectory.',
+    description: 'The adjacent roles that accelerate your path. Move beyond your current tier intelligently.',
   },
   {
     num: '05',
     name: 'Strongest Narrative',
-    description:
-      'Your career story, extracted and structured. The one-paragraph pitch that actually reflects your positioning — not a generic summary.',
+    description: 'Your career story, extracted and structured. The pitch that actually reflects your positioning.',
   },
   {
     num: '06',
-    name: 'Weekly Progress Tracking',
-    description:
-      'Retake the analysis as you update your CV. Watch your score move. Know exactly what actions are driving improvement.',
+    name: 'Progress Tracking',
+    description: 'Retake the analysis as you update your CV. Watch your score move. Know what\'s working.',
   },
 ]
 
@@ -51,13 +45,13 @@ export function Features() {
       }}
     >
       <div style={{ maxWidth: 880, margin: '0 auto' }}>
-        {/* Section header */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          style={{ marginBottom: 72 }}
+          style={{ marginBottom: 64 }}
         >
           <p style={{
             fontFamily: 'var(--font-mono)',
@@ -67,7 +61,7 @@ export function Features() {
             textTransform: 'uppercase',
             marginBottom: 20,
           }}>
-            What you get
+            What Pivot measures
           </p>
           <h2 style={{
             fontFamily: 'var(--font-display)',
@@ -75,62 +69,73 @@ export function Features() {
             fontWeight: 400,
             color: 'var(--foreground)',
             lineHeight: 1.1,
-            maxWidth: 520,
             letterSpacing: '-0.01em',
           }}>
-            Clarity, not<br />
-            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>encouragement.</em>
+            Six signals.<br />
+            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>One number.</em>
           </h2>
         </motion.div>
 
-        {/* Feature rows */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {features.map((feature, index) => (
+        {/* 2-column grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          borderTop: '1px solid var(--accent-dim)',
+          borderLeft: '1px solid var(--accent-dim)',
+        }}
+          className="features-grid"
+        >
+          {signals.map((signal, index) => (
             <motion.div
-              key={feature.num}
-              initial={{ opacity: 0, y: 16 }}
+              key={signal.num}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.06 }}
+              transition={{ duration: 0.4, delay: (index % 2) * 0.06 }}
               style={{
-                display: 'grid',
-                gridTemplateColumns: '64px 1fr 1fr',
-                gap: '24px 40px',
-                alignItems: 'start',
-                padding: '32px 0',
-                borderTop: '1px solid var(--accent-dim)',
+                padding: '36px',
+                borderRight: '1px solid var(--accent-dim)',
+                borderBottom: '1px solid var(--accent-dim)',
               }}
             >
-              <span style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: 11,
-                color: 'var(--subtle)',
-                letterSpacing: '0.1em',
-                paddingTop: 4,
-              }}>
-                {feature.num}
-              </span>
-              <h3 style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 20,
-                fontWeight: 400,
-                color: 'var(--foreground)',
-                lineHeight: 1.3,
-              }}>
-                {feature.name}
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                <h3 style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 20,
+                  fontWeight: 400,
+                  color: 'var(--foreground)',
+                  lineHeight: 1.2,
+                }}>
+                  {signal.name}
+                </h3>
+                <span style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 10,
+                  color: 'var(--subtle)',
+                  letterSpacing: '0.1em',
+                  flexShrink: 0,
+                  marginLeft: 16,
+                }}>
+                  {signal.num}
+                </span>
+              </div>
               <p style={{
                 fontSize: 14,
-                lineHeight: 1.75,
+                lineHeight: 1.7,
                 color: 'var(--muted)',
               }}>
-                {feature.description}
+                {signal.description}
               </p>
             </motion.div>
           ))}
-          <div style={{ borderTop: '1px solid var(--accent-dim)' }} />
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .features-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   )
 }

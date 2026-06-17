@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import type { CareerPositionResult } from '@/lib/career-position.service'
 
-const RELEVANCE_COLORS = { high: 'var(--success)', medium: 'var(--accent)', low: 'var(--subtle)' }
+const RELEVANCE_COLORS = { high: 'var(--accent)', medium: 'var(--muted)', low: 'var(--subtle)' }
 
 export function TransferableSkills({ result }: { result: CareerPositionResult }) {
   const skills = result.result_data.transferable_skills

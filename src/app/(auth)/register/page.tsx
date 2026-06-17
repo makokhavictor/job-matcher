@@ -134,7 +134,7 @@ export default function RegisterPage() {
               color: 'var(--accent)',
               textTransform: 'uppercase',
               marginBottom: 12,
-            }}>Get started — free</p>
+            }}>Begin your analysis</p>
             <h1 style={{
               fontFamily: 'var(--font-display)',
               fontSize: 28,

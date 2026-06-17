@@ -26,7 +26,7 @@ export default function CareerPositionPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.1em', color: 'var(--subtle)' }}>
-          Loading...
+          Retrieving your position...
         </p>
       </div>
     )
