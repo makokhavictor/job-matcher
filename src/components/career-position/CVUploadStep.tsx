@@ -33,7 +33,7 @@ export function CVUploadStep({ onComplete }: Props) {
       }
       onComplete(text)
     } catch {
-      setError('Failed to read file. Try uploading a different format.')
+      setError('Failed to read file. Try a PDF, DOCX, or plain text file.')
     } finally {
       setUploading(false)
     }
@@ -53,36 +53,54 @@ export function CVUploadStep({ onComplete }: Props) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)', marginBottom: 8 }}>
-          STEP 1 OF 2
+
+        {/* Progress track */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 32 }}>
+          <div style={{ flex: 1, height: 2, background: 'var(--foreground)' }} />
+          <div style={{ flex: 1, height: 2, background: 'var(--accent-dim)' }} />
+        </div>
+
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)', marginBottom: 24 }}>
+          Step 1 of 2 — Upload CV
         </p>
-        <div style={{ width: 32, height: 1, background: 'var(--accent-dim)', marginBottom: 24 }} />
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 400, color: 'var(--foreground)', marginBottom: 32 }}>
-          Upload your CV
+
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 400, color: 'var(--foreground)', marginBottom: 8 }}>
+          Start with your CV
         </h1>
+        <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 32, lineHeight: 1.6 }}>
+          We&apos;ll read it once to understand your experience. Nothing is stored.
+        </p>
 
         <div
           {...getRootProps()}
           style={{
             border: `1px dashed var(--accent-dim)`,
             borderRadius: 'var(--radius)',
-            padding: '48px 32px',
+            padding: '56px 32px',
             textAlign: 'center',
-            cursor: 'pointer',
+            cursor: uploading ? 'default' : 'pointer',
             background: isDragActive ? 'var(--surface)' : 'transparent',
-            transition: 'background 200ms',
+            transition: 'background 200ms, border-color 200ms',
+            borderColor: isDragActive ? 'var(--accent)' : 'var(--accent-dim)',
           }}
         >
           <input {...getInputProps()} />
           {uploading ? (
-            <p style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: 13 }}>Reading file...</p>
+            <>
+              <p style={{ color: 'var(--muted)', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.08em', marginBottom: 4 }}>
+                Reading your CV…
+              </p>
+              <p style={{ color: 'var(--subtle)', fontSize: 12 }}>This takes a second</p>
+            </>
+          ) : isDragActive ? (
+            <p style={{ color: 'var(--foreground)', fontSize: 15 }}>Drop it here</p>
           ) : (
             <>
-              <p style={{ color: 'var(--foreground)', marginBottom: 8 }}>
-                {isDragActive ? 'Drop your CV here' : 'Drop your CV here, or click to browse'}
+              <p style={{ color: 'var(--foreground)', fontSize: 15, marginBottom: 8 }}>
+                Drop your CV here, or <span style={{ borderBottom: '1px solid var(--accent-dim)' }}>click to browse</span>
               </p>
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--subtle)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                PDF, DOCX, or TXT · Max 10MB
+                PDF · DOCX · TXT &nbsp;·&nbsp; Max 10 MB
               </p>
             </>
           )}
@@ -92,14 +110,9 @@ export function CVUploadStep({ onComplete }: Props) {
           <p style={{ color: 'var(--destructive)', fontSize: 13, marginTop: 12 }}>{error}</p>
         )}
 
-        <div style={{ marginTop: 32, borderTop: '1px solid var(--accent-dim)', paddingTop: 24 }}>
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)', marginBottom: 8 }}>
-            WHY WE NEED THIS
-          </p>
-          <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}>
-            We read your CV once to extract your experience. We do not store or share it.
-          </p>
-        </div>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--subtle)', letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 32 }}>
+          Next — set your target role
+        </p>
       </div>
     </div>
   )

@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useCareerPositionStore } from '@/stores/career-position.store'
 
-const SENIORITY_OPTIONS = ['junior', 'mid', 'senior', 'lead', 'director']
+const SENIORITY_OPTIONS = ['junior', 'mid', 'senior', 'lead', 'director'] as const
 
 interface Props {
   onSubmit: (data: {
@@ -11,41 +11,47 @@ interface Props {
     targetIndustry: string
     seniority: string
   }) => void
+  onBack?: () => void
 }
 
-export function TargetRoleStep({ onSubmit }: Props) {
+export function TargetRoleStep({ onSubmit, onBack }: Props) {
   const { savedTarget } = useCareerPositionStore()
+
+  const hasSavedTarget = !!(savedTarget?.current_role || savedTarget?.target_role)
+
   const [currentRole, setCurrentRole] = useState(savedTarget?.current_role ?? '')
   const [targetRole, setTargetRole] = useState(savedTarget?.target_role ?? '')
   const [targetIndustry, setTargetIndustry] = useState(savedTarget?.target_industry ?? '')
-  const [seniority, setSeniority] = useState(savedTarget?.seniority ?? 'senior')
+  const [seniority, setSeniority] = useState<string>(savedTarget?.seniority ?? 'senior')
   const [hint, setHint] = useState<string | null>(null)
-  const [intent, setIntent] = useState<'pivot' | 'opportunity'>('pivot')
+  const [intent, setIntent] = useState<'change' | 'advance'>('change')
+  const [dismissedBanner, setDismissedBanner] = useState(false)
 
-  const copy = intent === 'pivot'
+  const copy = intent === 'change'
     ? {
-        heading: 'Where do you want to go?',
-        targetLabel: 'and I want to become a',
+        currentLabel: 'I currently work as',
+        targetLabel: 'and I want to move into',
         targetPlaceholder: 'e.g. Product Manager',
-        helperText: "Not sure of the exact title? Type your best guess — we'll help you find the right target.",
+        helper: "Not sure of the exact title? Type your best guess — we'll help map the gap.",
       }
     : {
-        heading: 'What are you targeting?',
-        targetLabel: "I'm targeting the role of",
+        currentLabel: 'I currently work as',
+        targetLabel: 'and I\'m targeting',
         targetPlaceholder: 'e.g. Senior Sales Engineer',
-        helperText: "Same title is fine. We'll show you how to position yourself for a better offer.",
+        helper: "Same title is fine. We'll show you how to position for a stronger offer.",
       }
 
-  const inputStyle = {
+  const inputStyle: React.CSSProperties = {
     background: 'transparent',
     border: 'none',
     borderBottom: '1px solid var(--accent-dim)',
     outline: 'none',
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: 'var(--font-body)',
     color: 'var(--foreground)',
-    padding: '4px 0',
+    padding: '6px 0',
     width: '100%',
+    transition: 'border-color 150ms',
   }
 
   const handleSubmit = () => {
@@ -60,20 +66,86 @@ export function TargetRoleStep({ onSubmit }: Props) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)', marginBottom: 8 }}>
-          STEP 2 OF 2
-        </p>
-        <div style={{ width: 32, height: 1, background: 'var(--accent-dim)', marginBottom: 24 }} />
-        <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
-          {(['pivot', 'opportunity'] as const).map((opt) => {
-            const label = opt === 'pivot' ? 'Career Pivot' : 'Better Opportunity'
-            const active = intent === opt
+
+        {/* Progress track */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 32 }}>
+          <div style={{ flex: 1, height: 2, background: 'var(--foreground)' }} />
+          <div style={{ flex: 1, height: 2, background: 'var(--foreground)' }} />
+        </div>
+
+        {/* Header row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 24 }}>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--subtle)' }}>
+            Step 2 of 2 — Your target
+          </p>
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontFamily: 'var(--font-mono)',
+                fontSize: 11,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--muted)',
+                cursor: 'pointer',
+                padding: 0,
+                textDecoration: 'underline',
+                textDecorationColor: 'var(--accent-dim)',
+              }}
+            >
+              ← Change CV
+            </button>
+          )}
+        </div>
+
+        {/* Pre-fill notice */}
+        {hasSavedTarget && !dismissedBanner && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'var(--surface)',
+            border: '1px solid var(--accent-dim)',
+            borderRadius: 'var(--radius)',
+            padding: '8px 12px',
+            marginBottom: 24,
+          }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', letterSpacing: '0.06em' }}>
+              Pre-filled from your last analysis
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentRole('')
+                setTargetRole('')
+                setTargetIndustry('')
+                setSeniority('senior')
+                setDismissedBanner(true)
+              }}
+              style={{ background: 'none', border: 'none', color: 'var(--subtle)', cursor: 'pointer', fontSize: 14, lineHeight: 1, padding: '0 2px' }}
+              aria-label="Clear pre-filled values"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Intent toggle */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
+          {([
+            { key: 'change', label: 'Switching fields' },
+            { key: 'advance', label: 'Moving up' },
+          ] as const).map(({ key, label }) => {
+            const active = intent === key
             return (
               <button
-                key={opt}
+                key={key}
                 type="button"
                 aria-pressed={active}
-                onClick={() => setIntent(opt)}
+                onClick={() => setIntent(key)}
                 style={{
                   padding: '6px 16px',
                   fontFamily: 'var(--font-mono)',
@@ -94,89 +166,124 @@ export function TargetRoleStep({ onSubmit }: Props) {
             )
           })}
         </div>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 400, color: 'var(--foreground)', marginBottom: 40 }}>
-          {copy.heading}
+
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 34, fontWeight: 400, color: 'var(--foreground)', marginBottom: 36, lineHeight: 1.2 }}>
+          {intent === 'change' ? 'Where do you want to go?' : 'What are you targeting?'}
         </h1>
 
-        {savedTarget && (
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', marginBottom: 24, letterSpacing: '0.06em' }}>
-            Last used: {savedTarget.current_role} → {savedTarget.target_role}
-          </p>
-        )}
-
+        {/* Form fields */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+
+          {/* Current role */}
           <div>
-            <p style={{ fontSize: 15, color: 'var(--muted)', marginBottom: 8 }}>I currently work as</p>
+            <label style={{ display: 'block', fontSize: 14, color: 'var(--muted)', marginBottom: 8 }}>
+              {copy.currentLabel}
+            </label>
             <input
               style={inputStyle}
               placeholder="e.g. Sales Engineer"
               value={currentRole}
               onChange={e => setCurrentRole(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
+          {/* Target role */}
           <div>
-            <p style={{ fontSize: 15, color: 'var(--muted)', marginBottom: 8 }}>{copy.targetLabel}</p>
+            <label style={{ display: 'block', fontSize: 14, color: 'var(--muted)', marginBottom: 8 }}>
+              {copy.targetLabel}
+            </label>
             <input
               style={inputStyle}
               placeholder={copy.targetPlaceholder}
               value={targetRole}
               onChange={e => { setTargetRole(e.target.value); setHint(null) }}
+              autoComplete="off"
             />
-            {hint && <p style={{ fontSize: 12, color: 'var(--warning)', marginTop: 6 }}>{hint}</p>}
+            {hint && (
+              <p style={{ fontSize: 12, color: 'var(--warning)', marginTop: 6 }}>{hint}</p>
+            )}
           </div>
 
-          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 15, color: 'var(--muted)', marginBottom: 8 }}>in</p>
-              <input
-                style={inputStyle}
-                placeholder="e.g. Fintech"
-                value={targetIndustry}
-                onChange={e => setTargetIndustry(e.target.value)}
-              />
-            </div>
-            <div>
-              <p style={{ fontSize: 15, color: 'var(--muted)', marginBottom: 8 }}>at</p>
-              <select
-                style={{ ...inputStyle, cursor: 'pointer' }}
-                value={seniority}
-                onChange={e => setSeniority(e.target.value)}
-              >
-                {SENIORITY_OPTIONS.map(s => (
-                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                ))}
-              </select>
+          {/* Industry */}
+          <div>
+            <label style={{ display: 'block', fontSize: 14, color: 'var(--muted)', marginBottom: 8 }}>
+              Target industry <span style={{ color: 'var(--subtle)', fontSize: 12 }}>(optional)</span>
+            </label>
+            <input
+              style={inputStyle}
+              placeholder="e.g. Fintech, Healthcare, SaaS"
+              value={targetIndustry}
+              onChange={e => setTargetIndustry(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+
+          {/* Seniority pills */}
+          <div>
+            <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 12 }}>
+              Seniority level
+            </p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {SENIORITY_OPTIONS.map(s => {
+                const active = seniority === s
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSeniority(s)}
+                    style={{
+                      padding: '7px 16px',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: 11,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      border: '1px solid',
+                      borderColor: active ? 'var(--foreground)' : 'var(--accent-dim)',
+                      borderRadius: 'var(--radius)',
+                      background: active ? 'var(--foreground)' : 'transparent',
+                      color: active ? 'var(--background)' : 'var(--muted)',
+                      cursor: 'pointer',
+                      transition: 'all 150ms',
+                    }}
+                  >
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid var(--accent-dim)', marginTop: 32, paddingTop: 20, marginBottom: 32 }}>
-          <p style={{ fontSize: 13, color: 'var(--muted)' }}>
-            {copy.helperText}
+        {/* Helper text + submit */}
+        <div style={{ borderTop: '1px solid var(--accent-dim)', marginTop: 36, paddingTop: 20 }}>
+          <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 24 }}>
+            {copy.helper}
           </p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={handleSubmit}
+              disabled={!targetRole.trim()}
+              style={{
+                background: targetRole.trim() ? 'var(--primary)' : 'transparent',
+                color: targetRole.trim() ? 'var(--primary-foreground)' : 'var(--subtle)',
+                border: '1px solid',
+                borderColor: targetRole.trim() ? 'var(--primary)' : 'var(--accent-dim)',
+                padding: '13px 28px',
+                fontFamily: 'var(--font-mono)',
+                fontSize: 12,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                cursor: targetRole.trim() ? 'pointer' : 'not-allowed',
+                borderRadius: 'var(--radius)',
+                transition: 'all 150ms',
+              }}
+            >
+              Analyze my position →
+            </button>
+          </div>
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={!targetRole.trim()}
-          style={{
-            background: 'var(--primary)',
-            color: 'var(--primary-foreground)',
-            border: 'none',
-            padding: '14px 28px',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 12,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            cursor: targetRole.trim() ? 'pointer' : 'not-allowed',
-            opacity: targetRole.trim() ? 1 : 0.4,
-            borderRadius: 'var(--radius)',
-            float: 'right',
-          }}
-        >
-          Analyze my position →
-        </button>
       </div>
     </div>
   )

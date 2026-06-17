@@ -65,6 +65,9 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
     (item) => item.title !== 'Packages' || user?.is_admin
   )
 
+  const planName = cleanPlanName(user?.subscription?.plan?.name).toLowerCase()
+  const isPro = planName.includes('pro')
+
   // Calculate days left until subscription ends
   const endDate = user?.subscription?.end_date ? parseISO(user.subscription.end_date) : null
   const now = new Date()
@@ -120,9 +123,9 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
               </div>
             )}
             <Link href="/dashboard/packages/upgrade">
-              <Button size="sm" className="w-full">
+              <Button size="sm" variant={isPro ? "outline" : "default"} className="w-full">
                 <Zap className="mr-2 h-4 w-4" />
-                Upgrade plan
+                {isPro ? "Manage plan" : "Upgrade plan"}
               </Button>
             </Link>
           </CardContent>

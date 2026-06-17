@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/providers/auth-provider'
 import { CVUploadStep } from '@/components/career-position/CVUploadStep'
@@ -11,9 +11,13 @@ import { track, Events } from '@/lib/analytics'
 export default function OnboardingPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const { setJobId } = useCareerPositionStore()
+  const { setJobId, fetchSavedTarget } = useCareerPositionStore()
   const [step, setStep] = useState<1 | 2>(1)
   const [cvText, setCvText] = useState('')
+
+  useEffect(() => {
+    fetchSavedTarget()
+  }, [fetchSavedTarget])
 
   const handleCVComplete = (text: string) => {
     track(Events.ONBOARDING_STARTED)
@@ -43,5 +47,5 @@ export default function OnboardingPage() {
   }
 
   if (step === 1) return <CVUploadStep onComplete={handleCVComplete} />
-  return <TargetRoleStep onSubmit={handleTargetSubmit} />
+  return <TargetRoleStep onSubmit={handleTargetSubmit} onBack={() => setStep(1)} />
 }
