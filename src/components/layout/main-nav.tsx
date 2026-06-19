@@ -42,7 +42,7 @@ export function MainNav() {
             color: 'var(--foreground)',
             textTransform: 'uppercase',
           }}>
-            Pivot<span style={{ color: 'var(--accent)' }}>.</span>
+            Fitted<span style={{ color: 'var(--accent)' }}>.</span>
           </span>
         </Link>
 
