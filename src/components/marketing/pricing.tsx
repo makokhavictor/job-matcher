@@ -12,7 +12,7 @@ const FALLBACK_PLANS = [
     price: '$0',
     tagline: 'See where you stand.',
     features: [
-      'Pivot Readiness Score (0–100)',
+      'CV tailoring & match score (0–100)',
       'Vocabulary & skills breakdown',
       'Top 2 transferable skills',
       'Unlimited re-analyses',
