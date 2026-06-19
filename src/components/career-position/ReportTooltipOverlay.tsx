@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 
 const TOOLTIPS = [
-  { target: 'score', text: "This is your Pivot Readiness Score — we'll track it over time as you make progress." },
+  { target: 'score', text: "This is your Fitted Readiness Score — we'll track it over time as you make progress." },
   { target: 'skills', text: "These are your transferable skills — things you've already done that map to your target role." },
   { target: 'paywall', text: 'Upgrade to see exactly what gaps to close and which roles to target first.' },
 ]

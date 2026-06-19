@@ -18,14 +18,14 @@ export function resultReadyTemplate(params: {
   <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#A09690;">CAREER POSITION</p>
   <h1 style="font-family:Georgia,serif;font-size:28px;font-weight:400;margin:8px 0 24px;">Your report is ready</h1>
   <div style="border-top:1px solid #D6C9B8;border-bottom:1px solid #D6C9B8;padding:24px 0;margin:24px 0;">
-    <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#A09690;">PIVOT READINESS SCORE</p>
+    <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#A09690;">FITTED READINESS SCORE</p>
     <p style="font-size:72px;font-family:'DM Mono',monospace;font-weight:400;margin:8px 0;color:#1C1917;">${params.score}</p>
     <p style="color:#6B6460;">Your position for ${params.targetRole}</p>
   </div>
   <a href="${params.reportUrl}" style="display:inline-block;background:#1C1917;color:#F4EFE6;padding:12px 24px;text-decoration:none;font-size:13px;letter-spacing:0.08em;">VIEW YOUR FULL REPORT →</a>
   <p style="margin-top:40px;font-size:12px;color:#A09690;">You're receiving this because you ran a career position analysis.</p>
 </div>`
-  const text = `Your Career Position Report is ready.\n\nPivot Readiness Score: ${params.score}\n\nView your report: ${params.reportUrl}`
+  const text = `Your Career Position Report is ready.\n\nFitted Readiness Score: ${params.score}\n\nView your report: ${params.reportUrl}`
   return { html, text }
 }
 
