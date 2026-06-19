@@ -48,7 +48,7 @@ export function CTA() {
             marginBottom: 24,
           }}
         >
-          Your first score
+          Ready when you are
         </motion.p>
 
         <motion.h2
@@ -66,11 +66,11 @@ export function CTA() {
             letterSpacing: '-0.01em',
           }}
         >
-          You&apos;ve been applying
+          The job is open now.
           <br />
-          without a number.
+          Your CV should say
           <br />
-          <em style={{ fontStyle: 'italic', opacity: 0.55 }}>Now you can have one.</em>
+          <em style={{ fontStyle: 'italic', opacity: 0.55 }}>the right things.</em>
         </motion.h2>
 
         <motion.p
@@ -87,7 +87,7 @@ export function CTA() {
             marginBottom: 40,
           }}
         >
-          Takes 40 seconds. Costs nothing to start.
+          Takes 60 seconds. Costs nothing to start.
         </motion.p>
 
         <motion.div
@@ -115,7 +115,7 @@ export function CTA() {
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            Get my score →
+            Tailor my CV →
           </Link>
           <Link
             href="/#pricing"
