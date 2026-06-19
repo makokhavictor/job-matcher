@@ -8,7 +8,7 @@ import { track, Events } from '@/lib/analytics'
 const STEPS = [
   { key: 'extracting_skills', label: 'Cross-referencing your experience' },
   { key: 'mapping_industry', label: 'Mapping gaps to target role' },
-  { key: 'calculating_score', label: 'Calculating your Fitted Readiness' },
+  { key: 'calculating_score', label: 'Calculating your match score' },
 ] as const
 
 type StepKey = typeof STEPS[number]['key']
