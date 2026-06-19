@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { LoginForm } from '@/components/auth/login-form'
 
 export const metadata: Metadata = {
-  title: 'Login | Pivot',
+  title: 'Sign in | Fitted',
   description: 'Sign in to your account to access your career position dashboard.',
   robots: { index: false, follow: false },
 }
@@ -56,7 +56,7 @@ export default function LoginPage() {
             color: 'var(--accent)',
             textTransform: 'uppercase',
             marginBottom: 16,
-          }}>Pivot</p>
+          }}>Fitted</p>
           <p style={{
             fontFamily: 'var(--font-display)',
             fontSize: 13,

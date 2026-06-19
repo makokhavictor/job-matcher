@@ -2,8 +2,8 @@ import { RegisterForm } from '@/components/auth/register-form'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Create Account | Pivot',
-  description: 'Create an account to discover your Pivot Readiness Score and understand your career position.',
+  title: 'Create account | Fitted',
+  description: 'Create an account to tailor your CV to any job description and get a precise match score.',
   robots: { index: false, follow: false },
 }
 
@@ -56,7 +56,7 @@ export default function RegisterPage() {
             color: 'var(--accent)',
             textTransform: 'uppercase',
             marginBottom: 16,
-          }}>Pivot</p>
+          }}>Fitted</p>
           <p style={{
             fontFamily: 'var(--font-display)',
             fontSize: 13,
@@ -86,8 +86,7 @@ export default function RegisterPage() {
             maxWidth: 340,
             marginBottom: 32,
           }}>
-            Upload your CV, set a target role, and receive a Pivot Readiness Score
-            that tells you exactly where you stand — and what to do about it.
+            Paste a job description, upload your CV, and get a tailored CV ready to send
           </p>
           <div style={{
             borderTop: '1px solid color-mix(in srgb, var(--primary-foreground) 15%, transparent)',
