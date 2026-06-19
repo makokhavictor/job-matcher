@@ -140,18 +140,18 @@ export function AnalysisResults() {
       <Card className={`p-8 ${scoreStyle.bg} ${scoreStyle.border} border-2`}>
         <div className="flex flex-col items-center space-y-4">
           <div className="relative">
-            <div className={`${scoreStyle.accent} w-24 h-24 rounded-full flex items-center justify-center shadow-sm`}>
-              <span className="text-white dark:text-black text-2xl font-bold">{parsed.match_score}%</span>
+            <div className={`${scoreStyle.accent} size-24 rounded-full flex items-center justify-center shadow-sm`}>
+              <span className="text-white dark:text-gray-900 text-2xl font-bold tabular-nums">{parsed.match_score}%</span>
             </div>
-            <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-card rounded-full flex items-center justify-center shadow-sm">
-              <div className={`w-3 h-3 ${scoreStyle.accent} rounded-full`}></div>
+            <div className="absolute -bottom-2 -right-2 size-6 bg-card rounded-full flex items-center justify-center shadow-sm">
+              <div className={`size-3 ${scoreStyle.accent} rounded-full`}></div>
             </div>
           </div>
           <div className="text-center">
-            <div className={`${scoreStyle.text} text-xl font-semibold mb-1`}>
+            <div className={`${scoreStyle.text} text-xl font-semibold mb-1 text-balance`}>
               {scoreStyle.label}
             </div>
-            <div className="text-muted-foreground max-w-md">
+            <div className="text-muted-foreground max-w-md text-pretty">
               {parsed.score_breakdown}
             </div>
           </div>
@@ -178,10 +178,10 @@ export function AnalysisResults() {
         <TabsContent value="summary">
           <Card className="p-6 border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/20 mt-4">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-6 h-6 bg-emerald-500 dark:bg-emerald-400 rounded-full flex items-center justify-center">
-                <div className="w-3 h-3 bg-white rounded-full"></div>
+              <div className="size-6 bg-emerald-500 dark:bg-emerald-400 rounded-full flex items-center justify-center">
+                <div className="size-3 bg-white rounded-full"></div>
               </div>
-              <h2 className="text-xl font-semibold text-emerald-800 dark:text-emerald-300">Key Matches</h2>
+              <h2 className="text-xl font-semibold text-emerald-800 dark:text-emerald-300 text-balance">Key Matches</h2>
             </div>
             <div className="grid gap-4">
               {parsed.key_matches?.map((match, i) => (
@@ -203,10 +203,10 @@ export function AnalysisResults() {
           {hasAdvancedMatchScoring ? (
             <Card className="p-6 border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/20 mt-4">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-6 h-6 bg-amber-500 dark:bg-amber-400 rounded-full flex items-center justify-center">
-                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                <div className="size-6 bg-amber-500 dark:bg-amber-400 rounded-full flex items-center justify-center">
+                  <div className="size-3 bg-white rounded-full"></div>
                 </div>
-                <h2 className="text-xl font-semibold text-amber-800 dark:text-amber-300">Critical Missing Skills</h2>
+                <h2 className="text-xl font-semibold text-amber-800 dark:text-amber-300 text-balance">Critical Missing Skills</h2>
               </div>
               <div className="grid gap-4">
                 {parsed.critical_missing_skills?.map((miss, i) => (
@@ -230,15 +230,15 @@ export function AnalysisResults() {
           {hasTailoredImprovementSuggestions ? (
             <Card className="p-6 border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-950/20 mt-4">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-6 h-6 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
-                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                <div className="size-6 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
+                  <div className="size-3 bg-white rounded-full"></div>
                 </div>
-                <h2 className="text-xl font-semibold text-blue-800 dark:text-blue-300">Resume Improvement Suggestions</h2>
+                <h2 className="text-xl font-semibold text-blue-800 dark:text-blue-300 text-balance">Resume Improvement Suggestions</h2>
               </div>
               <div className="space-y-3">
                 {parsed.resume_improvements?.map((tip: string, i: number) => (
                   <div key={i} className="bg-card p-4 rounded-lg border border-blue-200 dark:border-blue-800/40 flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="size-6 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-blue-600 dark:text-blue-400 text-xs font-bold">{i + 1}</span>
                     </div>
                     <div className="text-foreground leading-relaxed">{tip}</div>
@@ -256,11 +256,11 @@ export function AnalysisResults() {
                 <Card className="p-6 border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-950/20">
                   <div className="flex items-center space-x-3">
                     <Loader2 className="h-5 w-5 animate-spin text-blue-500 dark:text-blue-400 shrink-0" />
-                    <h2 className="text-xl font-semibold text-blue-800 dark:text-blue-300">
+                    <h2 className="text-xl font-semibold text-blue-800 dark:text-blue-300 text-balance">
                       {tailoringJob?.status === 'pending' ? 'Job queued…' : 'Tailoring CV…'}
                     </h2>
                   </div>
-                  <p className="text-muted-foreground mt-2">
+                  <p className="text-muted-foreground mt-2 text-pretty">
                     {tailoringJob?.status === 'pending'
                       ? 'Your tailoring job is queued and will start shortly.'
                       : 'Please wait while we tailor your CV to the job description.'}
@@ -270,8 +270,8 @@ export function AnalysisResults() {
               {tailoringError && (
                 <Card className="p-6 border-destructive/30 bg-destructive/5">
                   <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 bg-destructive rounded-full flex items-center justify-center">
-                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    <div className="size-6 bg-destructive rounded-full flex items-center justify-center">
+                      <div className="size-3 bg-white rounded-full"></div>
                     </div>
                     <h2 className="text-xl font-semibold text-destructive">Error</h2>
                   </div>
@@ -287,13 +287,13 @@ export function AnalysisResults() {
               {!existingTailoredCv && !tailoredCv?.results?.tailored_cv && !tailoringLoading && (
                 <Card className="p-6 border-blue-200 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-950/20">
                   <div className="flex items-center space-x-3 mb-6">
-                    <div className="w-6 h-6 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
-                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                    <div className="size-6 bg-blue-500 dark:bg-blue-400 rounded-full flex items-center justify-center">
+                      <div className="size-3 bg-white rounded-full"></div>
                     </div>
-                    <h2 className="text-xl font-semibold text-blue-800 dark:text-blue-300">Tailored CV</h2>
+                    <h2 className="text-xl font-semibold text-blue-800 dark:text-blue-300 text-balance">Tailored CV</h2>
                   </div>
                   <div className="text-center">
-                    <p className="text-muted-foreground mb-4">Generate a tailored CV optimized for this job description</p>
+                    <p className="text-muted-foreground mb-4 text-pretty">Generate a tailored CV optimized for this job description</p>
                     <Button onClick={() => tailorCv(
                       currentAnalysis?.input_data?.cv_content,
                       currentAnalysis?.input_data?.job_content

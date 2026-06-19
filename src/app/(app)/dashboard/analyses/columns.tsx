@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button'
 
 // Function to determine score color
 const getScoreColor = (score: number | undefined) => {
-  if (score === undefined) return "text-gray-500"
-  if (score >= 80) return "text-green-600 font-bold"
-  if (score >= 60) return "text-yellow-600 font-medium"
-  return "text-red-600 font-medium"
+  if (score === undefined) return "text-muted-foreground"
+  if (score >= 80) return "text-green-600 dark:text-green-400 font-bold tabular-nums"
+  if (score >= 60) return "text-yellow-600 dark:text-yellow-400 font-medium tabular-nums"
+  return "text-red-600 dark:text-red-400 font-medium tabular-nums"
 }
 
 export const columns: ColumnDef<RecentAnalysis>[] = [

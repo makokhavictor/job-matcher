@@ -27,11 +27,11 @@ export default function AnalysesPage() {
       <Spinner size={32} />
     </div>
   )
-  if (error) return <div className="container py-8 text-red-600">Error: {error}</div>
+  if (error) return <div className="container py-8 text-destructive">Error: {error}</div>
 
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-8">Analysis History</h1>
+      <h1 className="text-3xl font-bold mb-8 text-balance">Analysis History</h1>
       <DataTable columns={columns} data={recentAnalyses} meta={{ onViewDetails: handleViewDetails }} />
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="!max-w-[calc(60%)] !sm:max-w-lg">
