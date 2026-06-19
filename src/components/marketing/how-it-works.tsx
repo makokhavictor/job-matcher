@@ -5,18 +5,18 @@ import { motion } from 'framer-motion'
 const steps = [
   {
     num: '01',
-    title: 'Upload your CV',
-    body: 'We read what you actually demonstrated — not what you claimed. Skills are extracted from evidence, not job titles.',
+    title: 'Paste the job description',
+    body: 'Drop in the full JD from any job board. Fitted extracts exactly what the role requires — skills, experience, language, priorities.',
   },
   {
     num: '02',
-    title: 'Name your target role',
-    body: 'Tell us where you want to go. Switching fields or moving up — we map your experience against the real requirements.',
+    title: 'Upload your CV',
+    body: "We read what you've actually done, not just your titles. Your experience is mapped against the role's real requirements.",
   },
   {
     num: '03',
-    title: 'Get your score',
-    body: 'A precise 0–100 Pivot Readiness Score with skill gaps named, transferable strengths ranked, and your strongest career narrative.',
+    title: 'Get your tailored CV',
+    body: 'A complete rewrite, ready to download. Plus a 0–100 match score so you know exactly where you stood — and how much ground you gained.',
   },
 ]
 
@@ -53,7 +53,7 @@ export function HowItWorks() {
             letterSpacing: '-0.01em',
           }}>
             Three steps.<br />
-            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>Forty seconds.</em>
+            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>Sixty seconds.</em>
           </h2>
         </motion.div>
 
