@@ -8,7 +8,7 @@ export function Hero() {
     <section style={{
       position: 'relative',
       overflow: 'hidden',
-      minHeight: '100vh',
+      minHeight: '100dvh',
       display: 'flex',
       flexDirection: 'column',
       padding: '80px 48px 56px',
@@ -177,24 +177,24 @@ export function Hero() {
             style={{ width: '100%', height: 'auto' }}
           >
             {/* Stage 1: CV document */}
-            <rect x="10" y="46" width="56" height="74" rx="1" stroke="var(--accent-dim)" strokeWidth="1" />
-            <text x="38" y="60" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2px">CV</text>
-            <line x1="20" y1="68" x2="56" y2="68" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
-            <line x1="20" y1="76" x2="56" y2="76" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
-            <line x1="20" y1="84" x2="46" y2="84" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
-            <line x1="20" y1="92" x2="54" y2="92" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
-            <line x1="20" y1="100" x2="40" y2="100" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
-            <text x="38" y="135" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2px">YOUR CV</text>
+            <rect x="10" y="46" width="56" height="74" rx="1" stroke="var(--subtle)" strokeWidth="1" />
+            <text x="38" y="60" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--muted)" letterSpacing="2px">CV</text>
+            <line x1="20" y1="68" x2="56" y2="68" stroke="var(--subtle)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="76" x2="56" y2="76" stroke="var(--subtle)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="84" x2="46" y2="84" stroke="var(--subtle)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="92" x2="54" y2="92" stroke="var(--subtle)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="100" x2="40" y2="100" stroke="var(--subtle)" strokeWidth="0.75" opacity="0.5" />
+            <text x="38" y="135" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--muted)" letterSpacing="2px">YOUR CV</text>
 
             {/* Arrow 1: CV → analysis */}
-            <line x1="68" y1="83" x2="110" y2="83" stroke="var(--accent-dim)" strokeWidth="1" />
-            <polyline points="106,79 110,83 106,87" stroke="var(--accent-dim)" strokeWidth="1" fill="none" />
+            <line x1="68" y1="83" x2="110" y2="83" stroke="var(--subtle)" strokeWidth="1" />
+            <polyline points="106,79 110,83 106,87" stroke="var(--subtle)" strokeWidth="1" fill="none" />
 
             {/* Target role feeds in from above */}
-            <rect x="124" y="18" width="80" height="22" rx="1" stroke="var(--accent-dim)" strokeWidth="0.75" strokeDasharray="2 2" />
+            <rect x="124" y="18" width="80" height="22" rx="1" stroke="var(--subtle)" strokeWidth="0.75" strokeDasharray="2 2" />
             <text x="164" y="33" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--muted)" letterSpacing="0.5px">Head of Product</text>
-            <line x1="164" y1="40" x2="164" y2="54" stroke="var(--accent-dim)" strokeWidth="0.75" strokeDasharray="2 2" />
-            <polyline points="160,50 164,54 168,50" stroke="var(--accent-dim)" strokeWidth="0.75" fill="none" />
+            <line x1="164" y1="40" x2="164" y2="54" stroke="var(--subtle)" strokeWidth="0.75" strokeDasharray="2 2" />
+            <polyline points="160,50 164,54 168,50" stroke="var(--subtle)" strokeWidth="0.75" fill="none" />
 
             {/* Stage 2: Analysis box */}
             <rect x="112" y="56" width="104" height="56" rx="1" stroke="var(--muted)" strokeWidth="1" />
@@ -206,10 +206,10 @@ export function Hero() {
             {/* scanning highlight */}
             <line x1="122" y1="76" x2="172" y2="76" stroke="var(--muted)" strokeWidth="1" />
             {/* processing dots */}
-            <circle cx="146" cy="84" r="2" fill="var(--accent-dim)" />
+            <circle cx="146" cy="84" r="2" fill="var(--subtle)" />
             <circle cx="164" cy="84" r="2" fill="var(--muted)" />
-            <circle cx="182" cy="84" r="2" fill="var(--accent-dim)" />
-            <text x="164" y="128" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2px">ANALYSIS</text>
+            <circle cx="182" cy="84" r="2" fill="var(--subtle)" />
+            <text x="164" y="128" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--muted)" letterSpacing="2px">ANALYSIS</text>
 
             {/* Arrow 2: analysis → score (brighter) */}
             <line x1="218" y1="83" x2="244" y2="83" stroke="var(--accent)" strokeWidth="1" />
@@ -223,7 +223,7 @@ export function Hero() {
             <line x1="290" y1="128" x2="290" y2="134" stroke="var(--accent-dim)" strokeWidth="0.75" />
             <line x1="339" y1="83" x2="345" y2="83" stroke="var(--accent-dim)" strokeWidth="0.75" />
             <line x1="242" y1="83" x2="248" y2="83" stroke="var(--accent-dim)" strokeWidth="0.75" />
-            <text x="290" y="150" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2px">SCORE</text>
+            <text x="290" y="150" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--muted)" letterSpacing="2px">SCORE</text>
           </svg>
         </motion.div>
       </div>
@@ -253,7 +253,7 @@ export function Hero() {
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--foreground)', letterSpacing: '0.04em' }}>
               {label}
             </span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--subtle)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {desc}
             </span>
           </div>

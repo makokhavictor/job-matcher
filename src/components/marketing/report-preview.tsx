@@ -90,7 +90,7 @@ export function ReportPreview() {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', color: 'var(--subtle)', textTransform: 'uppercase' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', color: 'var(--muted)', textTransform: 'uppercase' }}>
               Sample report
             </p>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)' }}>
@@ -116,13 +116,13 @@ export function ReportPreview() {
                 </p>
               </div>
               <div style={{ width: 80, height: 1, background: 'var(--accent-dim)', marginBottom: 12 }} />
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--subtle)', textTransform: 'uppercase', marginBottom: 28 }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 28 }}>
                 Pivot Readiness
               </p>
 
               {EXAMPLE.bars.map(({ label, value }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.1em', color: 'var(--subtle)', width: 76, flexShrink: 0 }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.1em', color: 'var(--muted)', width: 76, flexShrink: 0 }}>
                     {label}
                   </p>
                   <div style={{ flex: 1, height: 3, background: 'var(--accent-dim)', overflow: 'hidden' }}>
@@ -137,7 +137,7 @@ export function ReportPreview() {
 
             {/* Transferable skills */}
             <div>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--subtle)', textTransform: 'uppercase', marginBottom: 24 }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 24 }}>
                 Transferable Skills
               </p>
               {EXAMPLE.transferable.map((skill, i) => (
@@ -195,7 +195,7 @@ export function ReportPreview() {
               background: 'color-mix(in srgb, var(--surface-raised) 70%, transparent)',
               backdropFilter: 'blur(2px)',
             }}>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--subtle)', textTransform: 'uppercase', marginBottom: 12 }}>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 12 }}>
                 Pro report
               </p>
               <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20, textAlign: 'center', maxWidth: 280, lineHeight: 1.6 }}>

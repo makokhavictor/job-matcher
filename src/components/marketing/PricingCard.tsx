@@ -20,7 +20,7 @@ export function PricingCard({ plan, children, active, subscription, variant = 'd
 
   const textMain = isFeatured ? 'var(--background)' : 'var(--foreground)'
   const textMuted = isFeatured ? 'color-mix(in srgb, var(--background) 65%, transparent)' : 'var(--muted)'
-  const textSubtle = isFeatured ? 'color-mix(in srgb, var(--background) 40%, transparent)' : 'var(--subtle)'
+  const textSubtle = isFeatured ? 'color-mix(in srgb, var(--background) 40%, transparent)' : 'var(--muted)'
   const divider = isFeatured
     ? '1px solid color-mix(in srgb, var(--background) 15%, transparent)'
     : '1px solid var(--accent-dim)'
@@ -62,7 +62,7 @@ export function PricingCard({ plan, children, active, subscription, variant = 'd
         fontFamily: 'var(--font-mono)',
         fontSize: 10,
         letterSpacing: '0.18em',
-        color: isFeatured ? 'var(--accent)' : 'var(--subtle)',
+        color: isFeatured ? 'var(--accent)' : 'var(--muted)',
         textTransform: 'uppercase',
         marginBottom: 20,
       }}>

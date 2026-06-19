@@ -111,7 +111,7 @@ export function Features() {
                 <span style={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: 10,
-                  color: 'var(--subtle)',
+                  color: 'var(--muted)',
                   letterSpacing: '0.1em',
                   flexShrink: 0,
                   marginLeft: 16,
