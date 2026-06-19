@@ -82,15 +82,15 @@ export function AnalysisResults() {
       <div className="space-y-6 animate-pulse">
         <Card className="p-6">
           <div className="flex flex-col items-center space-y-4">
-            <div className="w-32 h-16 bg-muted rounded-full"></div>
-            <div className="w-48 h-4 bg-muted rounded"></div>
+            <div className="w-32 h-16 bg-secondary rounded-full"></div>
+            <div className="w-48 h-4 bg-secondary rounded"></div>
           </div>
         </Card>
         <Card className="p-6">
-          <div className="w-32 h-6 bg-muted rounded mb-4"></div>
+          <div className="w-32 h-6 bg-secondary rounded mb-4"></div>
           <div className="space-y-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 bg-muted/60 rounded"></div>
+              <div key={i} className="h-16 bg-secondary/60 rounded"></div>
             ))}
           </div>
         </Card>
