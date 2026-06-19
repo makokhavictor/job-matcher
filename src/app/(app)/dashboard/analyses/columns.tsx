@@ -102,8 +102,9 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
       return (
         <div className="flex justify-end">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
+            className="border border-border hover:bg-accent"
             onClick={() => onViewDetails?.(row.original)}
           >
             View Details
