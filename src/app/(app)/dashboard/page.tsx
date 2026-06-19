@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
         <div style={{ borderTop: '1px solid var(--accent-dim)', marginTop: 48, paddingTop: 32 }}>
           <p style={{ fontSize: 12, color: 'var(--subtle)', fontStyle: 'italic', marginBottom: 8 }}>
-            Example: Sarah, 6 years in finance → Pivot Readiness 71 for Fintech PM
+            Example: Sarah, 6 years in finance → Match score 71 for Fintech PM
           </p>
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>
             &ldquo;I had no idea I was already 70% there&rdquo;
