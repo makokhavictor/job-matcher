@@ -117,7 +117,7 @@ export function ReportPreview() {
               </div>
               <div style={{ width: 80, height: 1, background: 'var(--accent-dim)', marginBottom: 12 }} />
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 28 }}>
-                Pivot Readiness
+                Match score
               </p>
 
               {EXAMPLE.bars.map(({ label, value }) => (
