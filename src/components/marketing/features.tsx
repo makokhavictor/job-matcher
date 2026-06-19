@@ -5,33 +5,38 @@ import { motion } from 'framer-motion'
 const signals = [
   {
     num: '01',
-    name: 'Pivot Readiness Score',
-    description: 'A single number from 0 to 100. Not vague feedback — a precise, defensible signal of your career move readiness.',
+    name: 'Tailored CV',
+    description: 'A complete rewrite of your CV, optimised for this specific role. Download and send.',
   },
   {
     num: '02',
-    name: 'Skill Gap Mapping',
-    description: 'Every gap between your CV and the target role — named, not euphemised.',
+    name: 'Match score',
+    description: 'A precise 0–100 measure of fit between your experience and the role. Not vague feedback — a defensible number.',
   },
   {
     num: '03',
-    name: 'Transferable Skills',
-    description: 'Hidden leverage in your existing experience, surfaced and ranked by relevance to the target role.',
+    name: 'Skill gap mapping',
+    description: 'Every gap between your CV and the JD, named clearly. No euphemisms.',
   },
   {
     num: '04',
-    name: 'Entry Point Discovery',
-    description: 'The adjacent roles that accelerate your path. Move beyond your current tier intelligently.',
+    name: 'Transferable skills',
+    description: 'Hidden leverage in your existing experience, surfaced and ranked by relevance to this role.',
   },
   {
     num: '05',
-    name: 'Strongest Narrative',
-    description: 'Your career story, extracted and structured. The pitch that actually reflects your positioning.',
+    name: 'Entry point discovery',
+    description: "The adjacent roles that accelerate your path if this one isn't quite ready yet.",
   },
   {
     num: '06',
-    name: 'Progress Tracking',
-    description: 'Retake the analysis as you update your CV. Watch your score move. Know what\'s working.',
+    name: 'Strongest narrative',
+    description: 'Your career story, extracted and structured for this application.',
+  },
+  {
+    num: '07',
+    name: 'Progress tracking',
+    description: "Retake the analysis as you update your CV. Watch your score move. Know what's working.",
   },
 ]
 
@@ -61,7 +66,7 @@ export function Features() {
             textTransform: 'uppercase',
             marginBottom: 20,
           }}>
-            What Pivot measures
+            What Fitted delivers
           </p>
           <h2 style={{
             fontFamily: 'var(--font-display)',
@@ -71,8 +76,8 @@ export function Features() {
             lineHeight: 1.1,
             letterSpacing: '-0.01em',
           }}>
-            Six signals.<br />
-            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>One number.</em>
+            Seven outputs.<br />
+            <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>One application.</em>
           </h2>
         </motion.div>
 
