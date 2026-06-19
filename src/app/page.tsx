@@ -7,20 +7,20 @@ import { ReportPreview } from '@/components/marketing/report-preview'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Pivot — Know Your Career Readiness Score',
-  description: 'Upload your CV, set a target role, and get your Pivot Readiness Score — a precise 0–100 measure of how ready you are to make your next career move.',
-  keywords: 'career readiness score, pivot readiness, career position intelligence, CV analysis, skill gap mapping, career transition tool, job readiness, resume analysis, career change tool',
+  title: 'Fitted — A CV written for this exact job',
+  description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role and shows you a precise 0–100 match score — in under a minute.',
+  keywords: 'CV tailoring, job description match, tailored CV, CV rewrite, match score, skill gap mapping, career readiness, resume optimisation, job application tool',
   openGraph: {
-    title: 'Pivot — Know Your Career Readiness Score',
-    description: 'Upload your CV, set a target role, and get your Pivot Readiness Score in under a minute.',
-    url: 'https://pivot.careers',
-    siteName: 'Pivot',
+    title: 'Fitted — A CV written for this exact job',
+    description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role — in under a minute.',
+    url: 'https://fitted.careers',
+    siteName: 'Fitted',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Pivot — Career Position Intelligence',
+        alt: 'Fitted — CV matching and tailoring',
       },
     ],
     locale: 'en_US',
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pivot — Know Your Career Readiness Score',
-    description: 'Upload your CV, set a target role, and get your Pivot Readiness Score in under a minute.',
+    title: 'Fitted — A CV written for this exact job',
+    description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role — in under a minute.',
     images: ['/twitter-image.jpg'],
   },
   robots: {
