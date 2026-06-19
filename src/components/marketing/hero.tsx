@@ -3,17 +3,6 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
-const scoreCard = {
-  label: 'Example report',
-  transition: 'Sales Engineer → Head of Product',
-  score: 78,
-  bars: [
-    { label: 'VOCABULARY', value: 76 },
-    { label: 'SKILLS', value: 62 },
-    { label: 'NARRATIVE', value: 88 },
-  ],
-}
-
 export function Hero() {
   return (
     <section style={{
@@ -65,7 +54,7 @@ export function Hero() {
               marginBottom: 28,
             }}
           >
-            Pivot Readiness
+            Career Readiness Score
           </motion.p>
 
           <motion.h1
@@ -84,7 +73,7 @@ export function Hero() {
           >
             You don&apos;t know
             <br />
-            where you stand.
+            if you&apos;re ready to pivot.
           </motion.h1>
 
           <motion.p
@@ -173,96 +162,69 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Right: score card preview */}
+        {/* Right: pipeline illustration */}
         <motion.div
           initial={{ opacity: 0, x: 32 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="hero-score-card"
-          style={{
-            border: '1px solid var(--accent-dim)',
-            padding: '32px',
-            background: 'var(--surface)',
-            position: 'relative',
-          }}
+          style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
         >
-          <p style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 9,
-            letterSpacing: '0.2em',
-            color: 'var(--subtle)',
-            textTransform: 'uppercase',
-            marginBottom: 16,
-          }}>
-            {scoreCard.label}
-          </p>
-          <p style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 11,
-            color: 'var(--muted)',
-            marginBottom: 24,
-            letterSpacing: '0.04em',
-          }}>
-            {scoreCard.transition}
-          </p>
+          <svg
+            viewBox="0 0 352 165"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ width: '100%', height: 'auto' }}
+          >
+            {/* Stage 1: CV document */}
+            <rect x="10" y="46" width="56" height="74" rx="1" stroke="var(--accent-dim)" strokeWidth="1" />
+            <text x="38" y="60" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2">CV</text>
+            <line x1="20" y1="68" x2="56" y2="68" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="76" x2="56" y2="76" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="84" x2="46" y2="84" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="92" x2="54" y2="92" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
+            <line x1="20" y1="100" x2="40" y2="100" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.5" />
+            <text x="38" y="135" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2">YOUR CV</text>
 
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 8 }}>
-            <p style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 88,
-              fontWeight: 400,
-              color: 'var(--foreground)',
-              lineHeight: 1,
-              letterSpacing: '-0.03em',
-            }}>
-              {scoreCard.score}
-            </p>
-          </div>
+            {/* Arrow 1: CV → analysis */}
+            <line x1="68" y1="83" x2="110" y2="83" stroke="var(--accent-dim)" strokeWidth="1" />
+            <polyline points="106,79 110,83 106,87" stroke="var(--accent-dim)" strokeWidth="1" fill="none" />
 
-          <div style={{ width: '100%', height: 1, background: 'var(--accent-dim)', margin: '20px 0' }} />
+            {/* Target role feeds in from above */}
+            <rect x="124" y="18" width="80" height="22" rx="1" stroke="var(--accent-dim)" strokeWidth="0.75" strokeDasharray="2 2" />
+            <text x="164" y="33" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--muted)" letterSpacing="0.5">Head of Product</text>
+            <line x1="164" y1="40" x2="164" y2="54" stroke="var(--accent-dim)" strokeWidth="0.75" strokeDasharray="2 2" />
+            <polyline points="160,50 164,54 168,50" stroke="var(--accent-dim)" strokeWidth="0.75" fill="none" />
 
-          <p style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 9,
-            letterSpacing: '0.16em',
-            color: 'var(--subtle)',
-            textTransform: 'uppercase',
-            marginBottom: 20,
-          }}>
-            Pivot Readiness
-          </p>
+            {/* Stage 2: Analysis box */}
+            <rect x="112" y="56" width="104" height="56" rx="1" stroke="var(--muted)" strokeWidth="1" />
+            <line x1="122" y1="68" x2="206" y2="68" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.4" />
+            <line x1="122" y1="76" x2="206" y2="76" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.4" />
+            <line x1="122" y1="84" x2="206" y2="84" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.4" />
+            <line x1="122" y1="92" x2="206" y2="92" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.4" />
+            <line x1="122" y1="100" x2="206" y2="100" stroke="var(--accent-dim)" strokeWidth="0.75" opacity="0.4" />
+            {/* scanning highlight */}
+            <line x1="122" y1="76" x2="172" y2="76" stroke="var(--muted)" strokeWidth="1" />
+            {/* processing dots */}
+            <circle cx="146" cy="84" r="2" fill="var(--accent-dim)" />
+            <circle cx="164" cy="84" r="2" fill="var(--muted)" />
+            <circle cx="182" cy="84" r="2" fill="var(--accent-dim)" />
+            <text x="164" y="128" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2">ANALYSIS</text>
 
-          {scoreCard.bars.map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <p style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: 9,
-                letterSpacing: '0.1em',
-                color: 'var(--subtle)',
-                width: 76,
-                flexShrink: 0,
-              }}>
-                {label}
-              </p>
-              <div style={{ flex: 1, height: 3, background: 'var(--accent-dim)', overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%',
-                  width: `${value}%`,
-                  background: 'var(--accent)',
-                  transition: 'width 1.2s cubic-bezier(0.16,1,0.3,1)',
-                }} />
-              </div>
-              <p style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: 11,
-                color: 'var(--foreground)',
-                width: 24,
-                textAlign: 'right',
-              }}>
-                {value}
-              </p>
-            </div>
-          ))}
+            {/* Arrow 2: analysis → score (brighter) */}
+            <line x1="218" y1="83" x2="244" y2="83" stroke="var(--accent)" strokeWidth="1" />
+            <polyline points="240,79 244,83 240,87" stroke="var(--accent)" strokeWidth="1" fill="none" />
+
+            {/* Stage 3: Score circle */}
+            <circle cx="290" cy="83" r="48" stroke="var(--accent)" strokeWidth="1" />
+            <text x="290" y="96" textAnchor="middle" fontFamily="var(--font-display)" fontSize="36" fill="var(--foreground)" letterSpacing="-2">78</text>
+            {/* tick marks at 12 / 3 / 6 / 9 */}
+            <line x1="290" y1="32" x2="290" y2="38" stroke="var(--accent-dim)" strokeWidth="0.75" />
+            <line x1="290" y1="128" x2="290" y2="134" stroke="var(--accent-dim)" strokeWidth="0.75" />
+            <line x1="339" y1="83" x2="345" y2="83" stroke="var(--accent-dim)" strokeWidth="0.75" />
+            <line x1="235" y1="83" x2="241" y2="83" stroke="var(--accent-dim)" strokeWidth="0.75" />
+            <text x="290" y="150" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" fill="var(--subtle)" letterSpacing="2">SCORE</text>
+          </svg>
         </motion.div>
       </div>
 
