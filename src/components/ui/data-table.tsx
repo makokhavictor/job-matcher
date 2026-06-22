@@ -41,7 +41,7 @@ export function DataTable<TData, TValue>({ columns, data, meta }: DataTableProps
               {headerGroup.headers.map((header) => (
                 <TableHead 
                   key={header.id}
-                  className={header.column.id === 'actions' ? 'sticky right-0 bg-white z-10' : ''}
+                  className={header.column.id === 'actions' ? 'sticky right-0 bg-background z-10' : ''}
                 >
                   {header.isPlaceholder
                     ? null
@@ -58,7 +58,7 @@ export function DataTable<TData, TValue>({ columns, data, meta }: DataTableProps
                 {row.getVisibleCells().map((cell) => (
                   <TableCell 
                     key={cell.id}
-                    className={cell.column.id === 'actions' ? 'sticky right-0 bg-white z-10' : ''}
+                    className={cell.column.id === 'actions' ? 'sticky right-0 bg-background z-10' : ''}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

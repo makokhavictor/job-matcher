@@ -1,24 +1,26 @@
 import { CTA } from '@/components/marketing/cta'
 import { Features } from '@/components/marketing/features'
 import { Hero } from '@/components/marketing/hero'
+import { HowItWorks } from '@/components/marketing/how-it-works'
 import { Pricing } from '@/components/marketing/pricing'
+import { ReportPreview } from '@/components/marketing/report-preview'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'CV and Job Description Matcher | Optimize Your Resume',
-  description: 'Match your CV to job descriptions with our AI-powered tool. Get instant compatibility scores, highlights of matching skills, and suggestions to improve your resume.',
-  keywords: 'CV matcher, resume optimizer, job description analyzer, resume ATS, career tools, AI-powered resume tools, resume matching software, job application optimizer, skill matching tool, resume improvement suggestions, ATS optimization, resume scoring system',
+  title: 'Fitted — A CV written for this exact job',
+  description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role and shows you a precise 0–100 match score — in under a minute.',
+  keywords: 'CV tailoring, job description match, tailored CV, CV rewrite, match score, skill gap mapping, career readiness, resume optimisation, job application tool',
   openGraph: {
-    title: 'CV and Job Description Matcher | Optimize Your Resume',
-    description: 'Get a personalized match score and suggestions to improve your CV for specific job applications.',
-    url: 'https://cvjobmatcher.com',
-    siteName: 'CV Matcher',
+    title: 'Fitted — A CV written for this exact job',
+    description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role — in under a minute.',
+    url: 'https://fitted.careers',
+    siteName: 'Fitted',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'CV and Job Description Matcher',
+        alt: 'Fitted — CV matching and tailoring',
       },
     ],
     locale: 'en_US',
@@ -26,8 +28,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CV and Job Description Matcher | Optimize Your Resume',
-    description: 'Get a personalized match score and suggestions to improve your CV for specific job applications.',
+    title: 'Fitted — A CV written for this exact job',
+    description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role — in under a minute.',
     images: ['/twitter-image.jpg'],
   },
   robots: {
@@ -40,6 +42,8 @@ export default function Home() {
   return (
     <div className="flex flex-col justify-center">
       <Hero />
+      <HowItWorks />
+      <ReportPreview />
       <Features />
       <Pricing />
       <CTA />

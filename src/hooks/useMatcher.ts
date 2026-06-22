@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-
-import { useLoadingStore } from '@/stores/loading.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
-import { apiClient } from '@/lib/utils/apiClient'
+import type { AnalysisResults } from '@/stores/analysis.store'
+import { useJobsStore } from '@/stores/jobs.store'
+import { authService } from '@/lib/auth.service'
 
 interface UploadState {
   cv: File | string | null
@@ -21,113 +20,38 @@ export function useMatcher() {
   const [uploadState, setUploadState] = useState<UploadState>({
     cv: null,
     jobDescription: null,
-    metadata: {}
+    metadata: {},
   })
+  const [matchingJobId, setMatchingJobId] = useState<string | null>(null)
 
-  const setLoading = useLoadingStore((state) => state.setLoading)
   const resetAnalysisStore = useAnalysisStore((state) => state.reset)
   const setAnalysisResult = useAnalysisStore((state) => state.setResults)
   const setOriginals = useAnalysisStore((state) => state.setOriginals)
-  const fetchRecentAnalyses = useAnalysisStore(
-    (state) => state.fetchRecentAnalyses,
+  const fetchRecentAnalyses = useAnalysisStore((state) => state.fetchRecentAnalyses)
+  const addJob = useJobsStore((state) => state.addJob)
+
+  const currentJob = useJobsStore((state) =>
+    matchingJobId ? state.jobs.get(matchingJobId) : undefined
   )
 
+  const handledRef = useRef<string | null>(null)
 
-  // Mutation for running analysis
-  const analysisMutation = useMutation({
-    mutationFn: async ({
-      cv,
-      jobDescription,
-      metadata
-    }: {
-      cv: File | string
-      jobDescription: File | string
-      metadata: UploadState['metadata']
-    }) => {
-      let cvText = ''
-      setAnalysisResult(null); // Reset analysis result before starting new analysis
-      
-      // Validate CV text if it's a string and not a URL
-      if (typeof cv === 'string' && metadata.cv?.type === 'text') {
-        cvText = cv
-        if (
-          !/(experience|education|skills|curriculum vitae|resume)/i.test(cvText)
-        ) {
-          throw new Error(
-            'The uploaded CV does not appear to be a valid CV. Please check your document.',
-          )
-        }
-      }
-      
-      const formData = new FormData()
-      
-      // Handle CV based on type
-      if (typeof cv === 'string') {
-        if (metadata.cv?.type === 'url') {
-          formData.append('cv_url', cv)
-        } else {
-          formData.append('cv_text', cv)
-        }
-      } else {
-        formData.append('cv_file', cv, cv.name)
-      }
-      
-      // Handle job description based on type
-      if (typeof jobDescription === 'string') {
-        if (metadata.jobDescription?.type === 'url') {
-          formData.append('job_url', jobDescription)
-        } else {
-          formData.append('job_text', jobDescription)
-        }
-      } else {
-        formData.append('job_file', jobDescription, jobDescription.name)
-      }
-      // Use apiClient for the request
-      // apiClient expects JSON by default, but we need to send FormData and custom headers
-      // So we pass headers and body, and override Content-Type
-      const response = await apiClient('/matcher/match', {
-        method: 'POST',
-        body: formData,
-      })
-      // apiClient throws on !ok, so no need for manual error check
-      return response
-    },
-    onSuccess: (result) => {
-      // If result.results is a stringified JSON, parse it
-      let parsed = null
-      try {
-        parsed =
-          typeof result.results === 'string'
-            ? JSON.parse(result.results)
-            : result.results
-      } catch {
-        parsed = null
-      }
-      if (parsed && typeof parsed.match_score === 'number') {
-        setAnalysisResult({...parsed, id: result.result_id})
-        // Fire-and-forget refetch of recent analyses
+  useEffect(() => {
+    if (!currentJob || handledRef.current === matchingJobId) return
+
+    if (currentJob.status === 'completed') {
+      handledRef.current = matchingJobId
+      const results = currentJob.results as Record<string, unknown> | undefined
+      if (results && typeof results.match_score === 'number') {
+        setAnalysisResult({ ...results, id: currentJob.resultId } as AnalysisResults)
         fetchRecentAnalyses()
       }
-      setLoading(false)
       toast.success('Analysis complete!')
-    },
-    onError: (error: unknown) => {
-      let errorMessage = 'Error analyzing documents'
-      // Try to get error code if available
-      const err = error as { code?: string; detail?: string; message?: string }
-      if (err?.code === 'TIMEOUT') {
-        errorMessage = 'Analysis took too long. Please try again.'
-      } else if (err?.detail) {
-        errorMessage = err.detail
-      } else {
-      }
-      setLoading(false)
-      toast.error(errorMessage)
-    },
-    onSettled: () => {
-      setLoading(false)
-    },
-  })
+    } else if (currentJob.status === 'failed') {
+      handledRef.current = matchingJobId
+      toast.error(currentJob.error ?? 'Analysis failed')
+    }
+  }, [currentJob, matchingJobId, setAnalysisResult, fetchRecentAnalyses])
 
   const handleFileUpload = async (
     type: 'cv' | 'jobDescription',
@@ -136,95 +60,87 @@ export function useMatcher() {
     metadata?: { type: 'text' | 'url' | 'file' },
   ) => {
     try {
-      // Store both the content and its metadata
       if (typeof fileOrText === 'string') {
-        // Handle string input (text or URL)
-        if (fileOrText.trim() === '') {
-          throw new Error('Input is empty.')
-        }
-        
-        setUploadState((prev) => ({ 
-          ...prev, 
+        if (fileOrText.trim() === '') throw new Error('Input is empty.')
+        setUploadState((prev) => ({
+          ...prev,
           [type]: fileOrText,
-          metadata: {
-            ...prev.metadata,
-            [type]: metadata || { type: 'text' } // Default to text if no metadata
-          }
+          metadata: { ...prev.metadata, [type]: metadata || { type: 'text' } },
         }))
-        
-        console.log(`${metadata?.type || 'text'} uploaded:`, type, fileOrText.substring(0, 100))
       } else {
-        // Handle file upload
-        // Validate file size (10MB limit as per PRD)
-        if (fileOrText.size > 10 * 1024 * 1024) {
-          throw new Error('File size exceeds 10MB limit')
-        }
-
-        // Validate file type
+        if (fileOrText.size > 10 * 1024 * 1024) throw new Error('File size exceeds 10MB limit')
         const allowedTypes = [
           'application/pdf',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'text/plain'
+          'text/plain',
         ]
         if (!allowedTypes.includes(fileOrText.type)) {
-          throw new Error(
-            'Invalid file type. Please upload PDF, DOCX, or TXT files only.',
-          )
+          throw new Error('Invalid file type. Please upload PDF, DOCX, or TXT files only.')
         }
-
-        setUploadState((prev) => ({ 
-          ...prev, 
+        setUploadState((prev) => ({
+          ...prev,
           [type]: fileOrText,
-          metadata: {
-            ...prev.metadata,
-            [type]: { type: 'file' }
-          }
+          metadata: { ...prev.metadata, [type]: { type: 'file' } },
         }))
-        
-        console.log('File uploaded:', type, fileOrText.name)
       }
 
-      // If both inputs are provided, trigger analysis
-      if (
-        (type === 'cv' && uploadState.jobDescription) ||
-        (type === 'jobDescription' && uploadState.cv)
-      ) {
-        setLoading(true)
-        
-        // Prepare metadata for the mutation
-        const newMetadata = {
-          ...uploadState.metadata,
-          [type]: metadata || { type: typeof fileOrText === 'string' ? 'text' : 'file' }
+      const cv = type === 'cv' ? fileOrText : uploadState.cv
+      const jobDescription = type === 'jobDescription' ? fileOrText : uploadState.jobDescription
+
+      if (cv && jobDescription) {
+        const auth = authService.getAuthData()
+        if (!auth) throw new Error('Not authenticated')
+
+        setOriginals(cv, jobDescription)
+
+        const formData = new FormData()
+        formData.append('user_id', String(auth.user.id))
+        formData.append('user_email', auth.user.email)
+
+        if (typeof cv === 'string') {
+          formData.append(metadata?.type === 'url' && type === 'cv' ? 'cv_url' : 'cv_text', cv)
+        } else {
+          formData.append('cv_file', cv, cv.name)
         }
-        
-        const cv = type === 'cv' ? fileOrText : uploadState.cv!;
-        const jobDescription =
-          type === 'jobDescription'
-            ? fileOrText
-            : uploadState.jobDescription!;
 
-        setOriginals(cv, jobDescription);
+        const jdMeta = type === 'jobDescription' ? metadata : uploadState.metadata.jobDescription
+        if (typeof jobDescription === 'string') {
+          formData.append(jdMeta?.type === 'url' ? 'job_url' : 'job_text', jobDescription)
+        } else {
+          formData.append('job_file', jobDescription, jobDescription.name)
+        }
 
-        analysisMutation.mutate({
-          cv,
-          jobDescription,
-          metadata: newMetadata
+        const response = await fetch('/api/matcher/match', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${auth.access_token}` },
+          body: formData,
         })
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}))
+          throw new Error(data.error ?? 'Failed to start analysis')
+        }
+
+        const { jobId } = await response.json()
+        handledRef.current = null
+        setMatchingJobId(jobId)
+        addJob(jobId, 'matching')
       }
+
       onSuccess()
     } catch (error) {
-        const message =
-        error instanceof Error ? error.message : 'Error processing input'
-      console.error('Upload error:', error)
+      const message = error instanceof Error ? error.message : 'Error processing input'
       toast.error(message)
     }
   }
 
   const resetAnalysis = () => {
     setUploadState({ cv: null, jobDescription: null, metadata: {} })
+    setMatchingJobId(null)
+    handledRef.current = null
     resetAnalysisStore()
     toast('All documents cleared')
   }
 
-  return { handleFileUpload, resetAnalysis }
+  return { handleFileUpload, resetAnalysis, matchingJobId }
 }

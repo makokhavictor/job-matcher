@@ -2,13 +2,14 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { RecentAnalysis } from '@/stores/analysis.store'
 import { format } from 'date-fns'
+import { Button } from '@/components/ui/button'
 
 // Function to determine score color
 const getScoreColor = (score: number | undefined) => {
-  if (score === undefined) return "text-gray-500"
-  if (score >= 80) return "text-green-600 font-bold"
-  if (score >= 60) return "text-yellow-600 font-medium"
-  return "text-red-600 font-medium"
+  if (score === undefined) return "text-muted-foreground"
+  if (score >= 80) return "text-green-600 dark:text-green-400 font-bold tabular-nums"
+  if (score >= 60) return "text-yellow-600 dark:text-yellow-400 font-medium tabular-nums"
+  return "text-red-600 dark:text-red-400 font-medium tabular-nums"
 }
 
 export const columns: ColumnDef<RecentAnalysis>[] = [
@@ -34,7 +35,7 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
     id: "title",
     header: "Titles",
     cell: ({ row }) => (
-      <div className="max-w-xs break-words">
+      <div className="max-w-[280px] truncate" title={row.original.result_data?.title || "No title"}>
         {row.original.result_data?.title || "No title"}
       </div>
     ),
@@ -42,12 +43,15 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
   {
     accessorKey: "result_data.match_score",
     header: "Score",
+    size: 80,
     cell: ({ row }) => {
       const score = row.original.result_data?.match_score
       return (
-        <span className={getScoreColor(score)}>
-          {score !== undefined ? `${score}%` : "N/A"}
-        </span>
+        <div className="w-16 text-center">
+          <span className={getScoreColor(score)}>
+            {score !== undefined ? `${score}%` : "N/A"}
+          </span>
+        </div>
       )
     },
   },
@@ -96,13 +100,15 @@ export const columns: ColumnDef<RecentAnalysis>[] = [
       // The parent page will inject a function via meta to handle view details
       const onViewDetails = (table.options.meta as { onViewDetails?: (analysis: RecentAnalysis) => void })?.onViewDetails;
       return (
-        <div className="sticky right-0 bg-white p-2">
-          <button
-            className="px-3 py-1 rounded bg-primary text-white hover:bg-primary/80 text-sm whitespace-nowrap"
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="border border-border hover:bg-accent"
             onClick={() => onViewDetails?.(row.original)}
           >
             View Details
-          </button>
+          </Button>
         </div>
       )
     },

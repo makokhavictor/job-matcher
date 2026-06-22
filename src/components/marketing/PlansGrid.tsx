@@ -134,22 +134,44 @@ export function PlansGrid({ user, title, className }: PlansGridProps) {
 
   return (
     <div className={className}>
-      {title && <h2 className="text-3xl font-bold mb-8 text-center">{title}</h2>}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {title && (
+        <p style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'clamp(24px, 3vw, 40px)',
+          fontWeight: 400,
+          color: 'var(--foreground)',
+          marginBottom: 48,
+          textAlign: 'center',
+          letterSpacing: '-0.01em',
+        }}>
+          {title}
+        </p>
+      )}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
         {isLoading ? (
-          <div className="col-span-3 flex justify-center items-center min-h-[200px]"><Spinner size={32} /></div>
+          <div style={{ gridColumn: '1/-1', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+            <Spinner size={32} />
+          </div>
         ) : error ? (
-          <div className="col-span-3 text-red-600">Failed to load plans</div>
+          <div style={{ gridColumn: '1/-1', fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--muted)', textAlign: 'center', padding: 40 }}>
+            Unable to load plans. Please refresh.
+          </div>
         ) : plans ? (
           plans.map((plan, idx) => {
             const isSubscribed = activePlanId === plan.id
             const isProcessing = isCreatingCheckout || isUpdatingSubscription
+            const variant = plan.features.is_trial || plan.price === 0
+              ? 'minimal'
+              : idx === plans.length - 1
+                ? 'featured'
+                : 'default'
             return (
-              <PricingCard 
-                key={plan.id || idx} 
-                plan={plan} 
+              <PricingCard
+                key={plan.id || idx}
+                plan={plan}
                 active={isSubscribed}
                 subscription={user?.subscription}
+                variant={variant}
               >
                 <PlanCardFooter
                   plan={plan}
@@ -160,6 +182,7 @@ export function PlansGrid({ user, title, className }: PlansGridProps) {
                   cancelSubscription={(id) => id && cancelSubscription(id)}
                   subscriptionId={user?.subscription?.id}
                   subscription={user?.subscription}
+                  variant={variant}
                 />
               </PricingCard>
             )

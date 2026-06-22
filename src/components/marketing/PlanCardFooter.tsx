@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { 
   Dialog, 
@@ -20,6 +20,7 @@ interface PlanCardFooterProps {
   cancelSubscription: (subscriptionId: number | undefined) => void
   subscriptionId?: number
   subscription?: Subscription
+  variant?: 'minimal' | 'default' | 'featured'
 }
 
 export function PlanCardFooter({
@@ -31,6 +32,7 @@ export function PlanCardFooter({
   cancelSubscription,
   subscriptionId,
   subscription,
+  variant = 'default',
 }: PlanCardFooterProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
@@ -111,13 +113,35 @@ export function PlanCardFooter({
       </div>
     )
   }
+  const isFeatured = variant === 'featured'
+
+  const btnStyle: React.CSSProperties = {
+    display: 'block',
+    width: '100%',
+    textAlign: 'center',
+    padding: '13px 24px',
+    fontFamily: 'var(--font-mono)',
+    fontSize: 11,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    textDecoration: 'none',
+    cursor: isProcessing ? 'not-allowed' : 'pointer',
+    opacity: isProcessing ? 0.6 : 1,
+    border: 'none',
+    background: isFeatured ? 'var(--accent)' : 'var(--foreground)',
+    color: isFeatured ? '#fff' : 'var(--background)',
+    transition: 'opacity 200ms',
+  }
+
   return (
-    <Button
-      className="w-full flex-grow min-w-[160px]"
+    <button
+      style={btnStyle}
       disabled={isProcessing}
       onClick={() => handlePlanChange(plan)}
+      onMouseEnter={(e) => { if (!isProcessing) (e.currentTarget as HTMLButtonElement).style.opacity = '0.82' }}
+      onMouseLeave={(e) => { if (!isProcessing) (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
     >
-      {isProcessing ? 'Processing...' : 'Subscribe'}
-    </Button>
+      {isProcessing ? 'Processing...' : plan.price === 0 ? 'Get started free' : 'Subscribe'}
+    </button>
   )
 } 

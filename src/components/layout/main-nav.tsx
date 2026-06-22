@@ -13,6 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ThemeToggle } from '@/components/theme-toggle'
+import { NotificationBell } from '@/components/layout/NotificationBell'
 
 export function MainNav() {
   const pathname = usePathname()
@@ -21,137 +23,119 @@ export function MainNav() {
   const user = auth?.user
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center px-4">
-        <div className="flex flex-1 items-center space-x-2 md:space-x-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold text-lg md:text-xl text-primary">
-              CV Matcher
-            </span>
-          </Link>
-          {!isDashboard && (
-            <nav className="hidden md:flex items-center space-x-4 md:space-x-6 text-sm font-medium">
-              {user && <Link href="/dashboard">Dashboard</Link>}
-              <Link
-                href="/resume-templates"
-                className={
-                  pathname?.startsWith('/resume-templates')
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                }
-              >
-                Resume Templates
-              </Link>
-              <Link
-                href="/job-descriptions"
-                className={
-                  pathname?.startsWith('/job-descriptions')
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                }
-              >
-                Job Descriptions
-              </Link>
-              <Link
-                href="/blog"
-                className={
-                  pathname?.startsWith('/blog')
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                }
-              >
-                Blog
-              </Link>
-              <Link
-                href="/#features"
-                className={
-                  pathname === '/#features'
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                }
-              >
-                Features
-              </Link>
-              <Link
-                href="/#pricing"
-                className={
-                  pathname === '/#pricing'
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                }
-              >
-                Pricing
-              </Link>
-            </nav>
-          )}
-        </div>
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <nav className="flex items-center space-x-1 md:space-x-2">
-            {user ? (
-              <>
-                <p className="text-sm font-medium leading-none text-muted-foreground">
-                  Hi, {user?.name}
-                </p>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="relative h-8 w-8 rounded-full p-0 cursor-pointer"
-                    >
-                      <Avatar className="h-8 w-8 ring-2 ring-primary ring-offset-2 ring-offset-background">
-                        <AvatarImage src={user.picture} alt={user.name} />
-                        <AvatarFallback>
-                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {user.name}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard">Dashboard</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/settings">Settings</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={auth?.logout}
-                    >
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" size="sm" className="md:size-default">
-                    Login
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button
-                    size="sm"
-                    className="md:size-default whitespace-nowrap"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
-              </>
+    <header style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+      width: '100%',
+      borderBottom: '1px solid var(--accent-dim)',
+      background: 'var(--background)',
+      backdropFilter: 'blur(8px)',
+    }}>
+      <div style={{ display: 'flex', height: 56, alignItems: 'center', padding: '0 24px', gap: 16 }}>
+        {/* Logo */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginRight: 8 }}>
+          <span style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 13,
+            letterSpacing: '0.08em',
+            color: 'var(--foreground)',
+            textTransform: 'uppercase',
+          }}>
+            Fitted<span style={{ color: 'var(--accent)' }}>.</span>
+          </span>
+        </Link>
+
+        {/* Nav links */}
+        {!isDashboard && (
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 24, flex: 1 }}>
+            {user && (
+              <Link href="/dashboard" style={{
+                fontSize: 13,
+                fontFamily: 'var(--font-mono)',
+                textDecoration: 'none',
+                color: 'var(--muted)',
+                letterSpacing: '0.04em',
+              }}>Dashboard</Link>
             )}
+            <Link href="/#features" style={{
+              fontSize: 13,
+              fontFamily: 'var(--font-mono)',
+              textDecoration: 'none',
+              color: pathname === '/#features' ? 'var(--foreground)' : 'var(--muted)',
+              letterSpacing: '0.04em',
+            }}>Features</Link>
+            <Link href="/#pricing" style={{
+              fontSize: 13,
+              fontFamily: 'var(--font-mono)',
+              textDecoration: 'none',
+              color: pathname === '/#pricing' ? 'var(--foreground)' : 'var(--muted)',
+              letterSpacing: '0.04em',
+            }}>Pricing</Link>
           </nav>
+        )}
+
+        <div style={{ flex: 1 }} />
+
+        {/* Right side */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ThemeToggle />
+          {user && <NotificationBell />}
+
+          {user ? (
+            <>
+              <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--muted)', letterSpacing: '0.04em' }}>
+                {user?.name}
+              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full p-0 cursor-pointer"
+                  >
+                    <Avatar className="h-8 w-8 ring-2 ring-primary ring-offset-2 ring-offset-background">
+                      <AvatarImage src={user.picture} alt={user.name} />
+                      <AvatarFallback>
+                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer" onClick={auth?.logout}>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost" size="sm" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.04em' }}>
+                  Login
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.04em', background: 'var(--foreground)', color: 'var(--background)' }}>
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

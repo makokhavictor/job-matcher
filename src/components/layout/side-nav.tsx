@@ -3,12 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { 
-  LayoutDashboard, 
-  FileSearch, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileSearch,
+  Settings,
   ChartLine,
-  Zap
+  Zap,
+  Target
 } from 'lucide-react'
 import { useAuth } from '@/app/providers/auth-provider'
 import { differenceInDays, parseISO } from 'date-fns'
@@ -27,6 +28,11 @@ const navItems = [
     title: 'Overview',
     href: '/dashboard',
     icon: LayoutDashboard
+  },
+  {
+    title: 'Career Position',
+    href: '/dashboard/career-position',
+    icon: Target
   },
   {
     title: 'Job Matching',
@@ -59,6 +65,9 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
     (item) => item.title !== 'Packages' || user?.is_admin
   )
 
+  const planName = cleanPlanName(user?.subscription?.plan?.name).toLowerCase()
+  const isPro = planName.includes('pro')
+
   // Calculate days left until subscription ends
   const endDate = user?.subscription?.end_date ? parseISO(user.subscription.end_date) : null
   const now = new Date()
@@ -70,11 +79,11 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
   const progress = (totalDuration && daysLeft >= 0) ? ((totalDuration - daysLeft) / totalDuration) * 100 : 0
 
   return (
-    <div className={cn("pb-12 w-64 border-r bg-secondary-50 flex flex-col h-full min-h-screen", className)} {...props}>
+    <div className={cn("pb-12 w-64 border-r bg-sidebar flex flex-col h-full min-h-screen", className)} {...props}>
       <div className="space-y-4 py-4 flex-1">
         <div className="px-3 py-2">
           <div className="space-y-1">
-            <h2 className="mb-4 px-4 text-xl font-semibold tracking-tight">
+            <h2 className="mb-4 px-4 text-xl font-semibold tracking-tight text-sidebar-foreground">
               Dashboard
             </h2>
             <nav className="space-y-1">
@@ -83,10 +92,10 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center px-3 py-2 text-sm font-medium rounded-md",
-                    pathname === item.href 
-                      ? "bg-primary text-white" 
-                      : "text-secondary-600 hover:text-primary hover:bg-secondary-100"
+                    "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    pathname === item.href
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
@@ -114,9 +123,9 @@ export function SideNav({ className, ...props }: React.HTMLAttributes<HTMLDivEle
               </div>
             )}
             <Link href="/dashboard/packages/upgrade">
-              <Button size="sm" className="w-full">
+              <Button size="sm" variant={isPro ? "outline" : "default"} className="w-full">
                 <Zap className="mr-2 h-4 w-4" />
-                Upgrade plan
+                {isPro ? "Manage plan" : "Upgrade plan"}
               </Button>
             </Link>
           </CardContent>

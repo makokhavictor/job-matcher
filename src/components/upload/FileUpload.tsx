@@ -151,7 +151,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
   return (
     <div
       className={`relative rounded-lg border-2 border-dashed p-6 transition-colors ${
-        isDragging ? 'border-primary bg-primary/5' : 'border-secondary-200'
+        isDragging ? 'border-primary bg-primary/5' : 'border-border'
       }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -170,12 +170,12 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
       />
 
       <div className="text-center" id={uploadAreaId}>
-        <UploadCloud 
-          className="mx-auto h-12 w-12 text-secondary-400" 
+        <UploadCloud
+          className="mx-auto h-12 w-12 text-muted-foreground"
           aria-hidden="true"
         />
         {uploaded && (
-          <div className="mt-4 rounded bg-secondary-50 p-3 text-left text-sm text-secondary-700 border border-secondary-200">
+          <div className="mt-4 rounded bg-muted/50 p-3 text-left text-sm text-foreground border border-border">
             {typeof uploaded === 'string' ? (
               <>
                 <div className="font-semibold mb-1">Pasted Text:</div>
@@ -188,7 +188,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
                 <div className="font-semibold mb-1">Uploaded File:</div>
                 <div className="flex items-center gap-2">
                   <span className="truncate max-w-xs" title={uploaded.name}>{uploaded.name}</span>
-                  <span className="text-secondary-500 text-xs">({(uploaded.size / 1024).toFixed(1)} KB)</span>
+                  <span className="text-muted-foreground text-xs">({(uploaded.size / 1024).toFixed(1)} KB)</span>
                 </div>
               </>
             )}
@@ -212,16 +212,16 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
                   {isUploading ? 'Uploading...' : 'Select file'}
                 </Button>
               </div>
-              <p className="mt-2 text-sm text-secondary-600" id={`${type}-upload-hint`}>
+              <p className="mt-2 text-sm text-muted-foreground" id={`${type}-upload-hint`}>
                 or drag and drop your job description here
               </p>
-              <p className="mt-1 text-xs text-secondary-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 PDF, DOCX, or TXT
               </p>
             </TabsContent> */}
             <TabsContent value="paste">
               <textarea
-                className="mt-2 w-full rounded-md border p-2 text-sm text-secondary-700"
+                className="mt-2 w-full rounded-md border border-border bg-background p-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 placeholder="Paste job description here"
                 value={pastedText}
                 onPaste={handlePaste}
@@ -238,7 +238,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
                   value={jobUrl}
                   onChange={handleUrlChange}
                 />
-                <p className="mt-1 text-xs text-secondary-500">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Enter the URL of the job posting (LinkedIn, Indeed, etc.)
                 </p>
               </div>
@@ -256,10 +256,10 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
                 {isUploading ? 'Uploading...' : 'Select file'}
               </Button>
             </div>
-            <p className="mt-2 text-sm text-secondary-600" id={`${type}-upload-hint`}>
+            <p className="mt-2 text-sm text-muted-foreground" id={`${type}-upload-hint`}>
               or drag and drop your CV here
             </p>
-            <p className="mt-1 text-xs text-secondary-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               PDF, DOCX, or TXT
             </p>
           </>
@@ -279,7 +279,7 @@ export function FileUpload({ type, onUploadComplete }: FileUploadProps) {
             aria-valuemax={100}
             aria-valuenow={uploadProgress}
           />
-          <p className="text-xs text-center text-secondary-600">
+          <p className="text-xs text-center text-muted-foreground">
             {uploadProgress === 100 ? 'Processing...' : 'Uploading...'}
           </p>
         </div>

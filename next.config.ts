@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-  serverExternalPackages: ["pdf-parse"],
+  serverExternalPackages: ["pdf-parse", "bullmq", "ioredis", "pdf-parse-fork", "mammoth"],
 };
 
 export default nextConfig;
