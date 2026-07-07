@@ -6,11 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Briefcase, DollarSign, Search, ArrowRight, TrendingUp } from 'lucide-react';
 import { jobRoles } from '@/data/job-roles';
 import { getIndustryBySlug } from '@/data/industries';
+import { getBaseUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Job Descriptions & Requirements by Role | Salary & Skills Guide',
   description: 'Complete job descriptions with requirements, responsibilities, and salary ranges for top roles. Optimize your resume for any position with our detailed guides.',
   keywords: 'job descriptions, job requirements, job responsibilities, salary guide, job skills, career guide, job search, employment guide',
+  alternates: {
+    canonical: `${getBaseUrl()}/job-descriptions`,
+  },
   openGraph: {
     title: 'Job Descriptions & Requirements by Role',
     description: 'Comprehensive job descriptions with salary ranges, skills, and requirements for top positions across all industries.',
@@ -19,12 +23,13 @@ export const metadata: Metadata = {
 };
 
 export default function JobDescriptionsPage() {
+  const baseUrl = getBaseUrl();
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "Job Descriptions by Role",
     "description": "Comprehensive job descriptions with requirements, responsibilities, and salary information",
-    "url": "https://cvjobmatcher.com/job-descriptions",
+    "url": `${baseUrl}/job-descriptions`,
     "mainEntity": {
       "@type": "ItemList",
       "itemListElement": jobRoles.map((role, index) => ({
@@ -33,7 +38,7 @@ export default function JobDescriptionsPage() {
         "item": {
           "@type": "JobPosting",
           "title": role.title,
-          "url": `https://cvjobmatcher.com/job-descriptions/${role.slug}`,
+          "url": `${baseUrl}/job-descriptions/${role.slug}`,
           "description": role.description,
           "baseSalary": {
             "@type": "MonetaryAmount",

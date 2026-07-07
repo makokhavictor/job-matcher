@@ -5,11 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Users, Search, ArrowRight } from 'lucide-react';
 import { industries } from '@/data/industries';
+import { getBaseUrl } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Free Resume Templates by Industry | ATS-Optimized CV Templates',
   description: 'Download free, ATS-optimized resume templates for every industry. Get expert tips, salary insights, and industry-specific keywords to land your dream job.',
   keywords: 'resume templates, CV templates, ATS resume, free resume templates, industry resume templates, resume examples, professional resume templates',
+  alternates: {
+    canonical: `${getBaseUrl()}/resume-templates`,
+  },
   openGraph: {
     title: 'Free Resume Templates by Industry | ATS-Optimized',
     description: 'Professional resume templates optimized for ATS systems. Choose from templates for software engineering, healthcare, finance, and more.',
@@ -18,12 +22,13 @@ export const metadata: Metadata = {
 };
 
 export default function ResumeTemplatesPage() {
+  const baseUrl = getBaseUrl();
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "Resume Templates by Industry",
     "description": "Professional resume templates optimized for different industries and ATS systems",
-    "url": "https://cvjobmatcher.com/resume-templates",
+    "url": `${baseUrl}/resume-templates`,
     "mainEntity": {
       "@type": "ItemList",
       "itemListElement": industries.map((industry, index) => ({
@@ -32,7 +37,7 @@ export default function ResumeTemplatesPage() {
         "item": {
           "@type": "Article",
           "name": `${industry.name} Resume Template`,
-          "url": `https://cvjobmatcher.com/resume-templates/${industry.slug}`,
+          "url": `${baseUrl}/resume-templates/${industry.slug}`,
           "description": industry.description
         }
       }))
