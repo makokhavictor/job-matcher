@@ -5,15 +5,21 @@ import { HowItWorks } from '@/components/marketing/how-it-works'
 import { Pricing } from '@/components/marketing/pricing'
 import { ReportPreview } from '@/components/marketing/report-preview'
 import { Metadata } from 'next'
+import { getBaseUrl } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Fitted — A CV written for this exact job',
+  title: {
+    absolute: 'Fitted — A CV written for this exact job',
+  },
   description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role and shows you a precise 0–100 match score — in under a minute.',
   keywords: 'CV tailoring, job description match, tailored CV, CV rewrite, match score, skill gap mapping, career readiness, resume optimisation, job application tool',
+  alternates: {
+    canonical: getBaseUrl(),
+  },
   openGraph: {
     title: 'Fitted — A CV written for this exact job',
     description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role — in under a minute.',
-    url: 'https://fitted.careers',
+    url: getBaseUrl(),
     siteName: 'Fitted',
     images: [
       {
@@ -31,10 +37,6 @@ export const metadata: Metadata = {
     title: 'Fitted — A CV written for this exact job',
     description: 'Paste the job description. Upload your CV. Fitted rewrites your CV to match the role — in under a minute.',
     images: ['/twitter-image.jpg'],
-  },
-  robots: {
-    index: true,
-    follow: true,
   },
 }
 

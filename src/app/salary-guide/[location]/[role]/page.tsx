@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { DollarSign, TrendingUp, MapPin, Building, Users, ArrowRight } from 'lucide-react';
 import { getSalaryDataByRole, salaryData } from '@/data/salary-data';
 import { getJobRoleBySlug } from '@/data/job-roles';
+import { getBaseUrl, SITE_NAME } from '@/lib/seo';
 
 interface Props {
   params: Promise<{
@@ -50,9 +51,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }).format(locationData.averageSalary);
 
   return {
-    title: `${jobRole.title} Salary in ${locationData.name} | ${formattedSalary} Average | CV Job Matcher`,
+    title: `${jobRole.title} Salary in ${locationData.name} | ${formattedSalary} Average`,
     description: `${jobRole.title} salary in ${locationData.name}: Average ${formattedSalary}, range ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(locationData.salaryRange.min)} - ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(locationData.salaryRange.max)}. Get salary insights, top companies, and optimize your resume.`,
     keywords: `${jobRole.title} salary ${locationData.name}, ${role} salary, ${locationData.name} tech salaries, ${jobRole.title} compensation`,
+    alternates: {
+      canonical: `${getBaseUrl()}/salary-guide/${location}/${role}`,
+    },
     openGraph: {
       title: `${jobRole.title} Salary in ${locationData.name}`,
       description: `Average salary: ${formattedSalary}. Get detailed salary insights and optimize your resume.`,
@@ -91,16 +95,16 @@ export default async function SalaryGuidePage({ params }: Props) {
     "description": `Comprehensive salary guide for ${jobRole.title} positions in ${locationData.name}`,
     "author": {
       "@type": "Organization",
-      "name": "CV Job Matcher"
+      "name": SITE_NAME
     },
     "publisher": {
       "@type": "Organization",
-      "name": "CV Job Matcher"
+      "name": SITE_NAME
     },
     "datePublished": new Date().toISOString(),
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://cvjobmatcher.com/salary-guide/${location}/${role}`
+      "@id": `${getBaseUrl()}/salary-guide/${location}/${role}`
     },
     "about": {
       "@type": "Occupation",

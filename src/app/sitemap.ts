@@ -3,10 +3,15 @@ import { getAllIndustrySlugs } from '@/data/industries'
 import { getAllJobRoleSlugs } from '@/data/job-roles'
 import { getAllBlogSlugs } from '@/data/blog-posts'
 import { salaryData } from '@/data/salary-data'
+import { getBaseUrl, isProduction } from '@/lib/seo'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://cvjobmatcher.com'
-  
+  if (!isProduction()) {
+    return []
+  }
+
+  const baseUrl = getBaseUrl()
+
   // Static pages
   const staticPages = [
     {

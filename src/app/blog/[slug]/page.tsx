@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
 import { getBlogPostBySlug, getAllBlogSlugs, blogPosts } from '@/data/blog-posts';
 import ReactMarkdown from 'react-markdown';
+import { getBaseUrl, SITE_NAME } from '@/lib/seo';
 
 interface Props {
   params: Promise<{
@@ -31,15 +32,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${post.title} | CV Job Matcher Blog`,
+    title: post.title,
     description: post.description,
     keywords: post.keywords.join(', '),
+    alternates: {
+      canonical: `${getBaseUrl()}/blog/${slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.description,
       type: 'article',
       publishedTime: post.publishedAt,
-      authors: ['CV Job Matcher'],
+      authors: [SITE_NAME],
     },
     twitter: {
       card: 'summary_large_image',
@@ -67,17 +71,17 @@ export default async function BlogPostPage({ params }: Props) {
     "description": post.description,
     "author": {
       "@type": "Organization",
-      "name": "CV Job Matcher"
+      "name": SITE_NAME
     },
     "publisher": {
       "@type": "Organization",
-      "name": "CV Job Matcher"
+      "name": SITE_NAME
     },
     "datePublished": post.publishedAt,
     "dateModified": post.publishedAt,
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://cvjobmatcher.com/blog/${slug}`
+      "@id": `${getBaseUrl()}/blog/${slug}`
     },
     "keywords": post.keywords.join(", "),
     "wordCount": post.content.split(' ').length,

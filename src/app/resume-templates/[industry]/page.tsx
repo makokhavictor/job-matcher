@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, TrendingUp, Users, DollarSign, ArrowRight } from 'lucide-react';
 import { getIndustryBySlug, getAllIndustrySlugs, industries } from '@/data/industries';
 import { getJobRolesByIndustry } from '@/data/job-roles';
+import { getBaseUrl, SITE_NAME } from '@/lib/seo';
 
 interface Props {
   params: Promise<{
@@ -31,9 +32,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${industry.name} Resume Template & Examples | CV Job Matcher`,
+    title: `${industry.name} Resume Template & Examples`,
     description: `Free ${industry.name} resume template optimized for ATS. Get expert tips, salary insights, and industry-specific keywords to land your dream job. Average salary: ${industry.averageSalary}.`,
     keywords: `${industry.keywords.join(', ')}, ${industry.name} resume template, ${industry.name} CV example, ATS optimized resume`,
+    alternates: {
+      canonical: `${getBaseUrl()}/resume-templates/${industrySlug}`,
+    },
     openGraph: {
       title: `${industry.name} Resume Template & Examples`,
       description: `Professional ${industry.name} resume template with industry insights and optimization tips.`,
@@ -58,16 +62,16 @@ export default async function IndustryResumePage({ params }: Props) {
     "description": industry.description,
     "author": {
       "@type": "Organization",
-      "name": "CV Job Matcher"
+      "name": SITE_NAME
     },
     "publisher": {
       "@type": "Organization",
-      "name": "CV Job Matcher"
+      "name": SITE_NAME
     },
     "datePublished": new Date().toISOString(),
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://cvjobmatcher.com/resume-templates/${industrySlug}`
+      "@id": `${getBaseUrl()}/resume-templates/${industrySlug}`
     }
   };
 

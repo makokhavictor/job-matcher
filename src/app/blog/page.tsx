@@ -5,11 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, ArrowRight, BookOpen, TrendingUp } from 'lucide-react';
 import { blogPosts, getBlogPostsByCategory } from '@/data/blog-posts';
+import { getBaseUrl, SITE_NAME } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Resume Tips & Career Advice Blog | CV Job Matcher',
+  title: 'Resume Tips & Career Advice Blog',
   description: 'Expert resume tips, job search strategies, and career advice. Learn how to optimize your CV, ace interviews, and land your dream job with our comprehensive guides.',
   keywords: 'resume tips, job search advice, career guidance, CV optimization, interview tips, job application strategies, career development',
+  alternates: {
+    canonical: `${getBaseUrl()}/blog`,
+  },
   openGraph: {
     title: 'Resume Tips & Career Advice Blog',
     description: 'Expert guides on resume optimization, job search strategies, and career development.',
@@ -18,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
+  const baseUrl = getBaseUrl();
   const featuredPosts = blogPosts.slice(0, 3);
   const resumeTips = getBlogPostsByCategory('resume-tips');
   const careerAdvice = getBlogPostsByCategory('career-advice');
@@ -26,22 +31,22 @@ export default function BlogPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "name": "CV Job Matcher Blog",
+    "name": `${SITE_NAME} Blog`,
     "description": "Expert resume tips, job search strategies, and career advice",
-    "url": "https://cvjobmatcher.com/blog",
+    "url": `${baseUrl}/blog`,
     "publisher": {
       "@type": "Organization",
-      "name": "CV Job Matcher"
+      "name": SITE_NAME
     },
     "blogPost": blogPosts.map(post => ({
       "@type": "BlogPosting",
       "headline": post.title,
       "description": post.description,
-      "url": `https://cvjobmatcher.com/blog/${post.slug}`,
+      "url": `${baseUrl}/blog/${post.slug}`,
       "datePublished": post.publishedAt,
       "author": {
         "@type": "Organization",
-        "name": "CV Job Matcher"
+        "name": SITE_NAME
       }
     }))
   };

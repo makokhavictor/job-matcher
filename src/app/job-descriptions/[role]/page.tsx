@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Briefcase, GraduationCap, DollarSign, ArrowRight, Target } from 'lucide-react';
 import { getJobRoleBySlug, getAllJobRoleSlugs, jobRoles } from '@/data/job-roles';
 import { getIndustryBySlug } from '@/data/industries';
+import { getBaseUrl } from '@/lib/seo';
 
 interface Props {
   params: Promise<{
@@ -31,9 +32,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${role.title} Job Description & Requirements | CV Job Matcher`,
+    title: `${role.title} Job Description & Requirements`,
     description: `Complete ${role.title} job description with responsibilities, requirements, and skills. Salary range: ${role.averageSalary}. Optimize your resume for this role.`,
     keywords: `${role.keywords.join(', ')}, ${role.title} job description, ${role.title} requirements, ${role.title} salary`,
+    alternates: {
+      canonical: `${getBaseUrl()}/job-descriptions/${roleSlug}`,
+    },
     openGraph: {
       title: `${role.title} Job Description & Requirements`,
       description: `Everything you need to know about ${role.title} positions including salary, skills, and how to optimize your resume.`,
@@ -71,7 +75,8 @@ export default async function JobDescriptionPage({ params }: Props) {
     },
     "skills": role.skills.join(", "),
     "experienceRequirements": role.experienceLevel,
-    "datePosted": new Date().toISOString()
+    "datePosted": new Date().toISOString(),
+    "url": `${getBaseUrl()}/job-descriptions/${roleSlug}`
   };
 
   return (
